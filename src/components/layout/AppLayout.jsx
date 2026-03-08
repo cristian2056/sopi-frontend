@@ -1,26 +1,46 @@
-// src/components/layout/App.jsx (AppLayout)
+// src/components/layout/AppLayout.jsx
 import React, { useMemo } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectUsuario } from "../../stores/authSlice";
+import { selectMenus } from "../../stores/menuSlice";
 import Sidebar from "./Menu";
 import Header  from "./Header";
 import "./appLayout.css";
 
-const routeTitles = {
+// Títulos fijos como fallback por si el menú no cargó aún
+const TITULOS_FALLBACK = {
   "/":       "Dashboard",
   "/marcas": "Marcas",
+  "/equipos": "Equipos",
 };
 
 export default function AppLayout() {
   const location = useLocation();
-  const usuario  = useSelector(selectUsuario); // ← usuario real desde Redux
+  const usuario  = useSelector(selectUsuario);
+  const menus    = useSelector(selectMenus);
 
+  // Busca el título en los menús del backend según la ruta actual
+  // Si no encuentra → usa fallback hardcodeado
   const title = useMemo(() => {
-    return routeTitles[location.pathname] || "Parque Informático";
-  }, [location.pathname]);
+    const ruta = location.pathname;
 
-  // Ahora usamos los datos reales del usuario logueado
+    // Busca en menús principales
+    const encontrado = menus.find(m => m.url === ruta);
+    if (encontrado) return encontrado.nombre;
+
+    // Busca en submenús
+    for (const m of menus) {
+      const sub = m.subMenus?.find(s => s.url === ruta);
+      if (sub) return sub.nombre;
+    }
+
+    // Fallback para rutas con parámetros como /equipos/:id
+    if (ruta.startsWith("/equipos/")) return "Detalle de Equipo";
+
+    return TITULOS_FALLBACK[ruta] ?? "Parque Informático";
+  }, [location.pathname, menus]);
+
   const nombreUsuario = usuario?.nombreCompleto ?? "Usuario";
   const tipoUsuario   = usuario?.tipoUsuario    ?? "";
 

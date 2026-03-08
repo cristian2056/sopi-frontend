@@ -3,16 +3,24 @@ import React, { useEffect, useState } from "react";
 import { marcasApi } from "../../api/marcas.api";
 import ModalDialog from "../../components/ui/ModalDialog";
 import MarcaForm from "./MarcaForm";
-import MarcaTable from "./MarcaTable";
+import DataTable from "../../components/ui/DataTable";
+
+
+// Definición de columnas para la tabla de marcas
+// Cuando uses DataTable en otras páginas, solo cambiás este array
+const columnas = [
+  { key: "marcaId", label: "ID",     ancho: 80,  render: (m) => `#${m.marcaId}` },
+  { key: "nombre",  label: "Nombre", ancho: 250 },
+  { key: "modelo",  label: "Modelo", ancho: 250 },
+];
 
 export default function MarcasPage() {
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [busqueda, setBusqueda] = useState("");
-
-  const [modal, setModal] = useState({ open: false, variant: "error", message: "" });
-  const [confirm, setConfirm] = useState({ open: false, marcaId: null, loading: false });
-  const [form, setForm] = useState(null); // null=cerrado | {}=nueva | {marcaId,...}=editar
+  const [items,       setItems]       = useState([]);
+  const [loading,     setLoading]     = useState(true);
+  const [busqueda,    setBusqueda]    = useState("");
+  const [modal,       setModal]       = useState({ open: false, variant: "error", message: "" });
+  const [confirm,     setConfirm]     = useState({ open: false, marcaId: null, loading: false });
+  const [form,        setForm]        = useState(null);
   const [formLoading, setFormLoading] = useState(false);
 
   const load = async () => {
@@ -95,22 +103,16 @@ export default function MarcasPage() {
         </button>
       </div>
 
-      {/* Tabla */}
-      <div style={{ background: "#fff", borderRadius: 12, padding: 16, minHeight: 80 }}>
-        {loading ? (
-          <div style={{ padding: 16, color: "#888" }}>Cargando...</div>
-        ) : itemsFiltrados.length === 0 ? (
-          <div style={{ padding: 16, color: "#9ca3af", textAlign: "center" }}>
-            {busqueda ? "No se encontraron resultados." : "No hay marcas registradas."}
-          </div>
-        ) : (
-          <MarcaTable
-            items={itemsFiltrados}
-            onEdit={(m) => setForm({ marcaId: m.marcaId ?? m.id, nombre: m.nombre, modelo: m.modelo })}
-            onDelete={(id) => setConfirm({ open: true, marcaId: id, loading: false })}
-          />
-        )}
-      </div>
+      {/* Tabla genérica */}
+      <DataTable
+        columnas={columnas}
+        datos={itemsFiltrados}
+        loading={loading}
+        keyField="marcaId"
+        mensajeVacio="No hay marcas registradas."
+        onEdit={(m) => setForm({ marcaId: m.marcaId, nombre: m.nombre, modelo: m.modelo })}
+        onDelete={(m) => setConfirm({ open: true, marcaId: m.marcaId, loading: false })}
+      />
 
       {/* Modal formulario */}
       {form !== null && (
