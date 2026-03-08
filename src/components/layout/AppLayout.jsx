@@ -1,4 +1,5 @@
 // src/components/layout/AppLayout.jsx
+// Sin appLayout.css — estilos inline
 import React, { useMemo } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -6,13 +7,21 @@ import { selectUsuario } from "../../stores/authSlice";
 import { selectMenus } from "../../stores/menuSlice";
 import Sidebar from "./Menu";
 import Header  from "./Header";
-import "./appLayout.css";
 
-// Títulos fijos como fallback por si el menú no cargó aún
 const TITULOS_FALLBACK = {
-  "/":       "Dashboard",
-  "/marcas": "Marcas",
-  "/equipos": "Equipos",
+  "/":               "Dashboard",
+  "/marcas":         "Marcas",
+  "/equipos":        "Equipos",
+  "/componentes":    "Componentes",
+  "/software":       "Software",
+  "/equipos-red":    "Equipos Red",
+  "/tipos-activos":  "Tipos de Activo",
+  "/proveedores":    "Proveedores",
+  "/dependencias":   "Dependencias",
+  "/tickets":        "Tickets",
+  "/mantenimientos": "Mantenimientos",
+  "/usuarios":       "Usuarios",
+  "/roles":          "Roles",
 };
 
 export default function AppLayout() {
@@ -20,12 +29,10 @@ export default function AppLayout() {
   const usuario  = useSelector(selectUsuario);
   const menus    = useSelector(selectMenus);
 
-  // Busca el título en los menús del backend según la ruta actual
-  // Si no encuentra → usa fallback hardcodeado
   const title = useMemo(() => {
     const ruta = location.pathname;
 
-    // Busca en menús principales
+    // Busca en menús principales del backend
     const encontrado = menus.find(m => m.url === ruta);
     if (encontrado) return encontrado.nombre;
 
@@ -35,8 +42,9 @@ export default function AppLayout() {
       if (sub) return sub.nombre;
     }
 
-    // Fallback para rutas con parámetros como /equipos/:id
-    if (ruta.startsWith("/equipos/")) return "Detalle de Equipo";
+    // Rutas con parámetros
+    if (ruta.startsWith("/equipos/"))  return "Detalle de Equipo";
+    if (ruta.startsWith("/personal/")) return "Detalle de Personal";
 
     return TITULOS_FALLBACK[ruta] ?? "Parque Informático";
   }, [location.pathname, menus]);
@@ -45,15 +53,34 @@ export default function AppLayout() {
   const tipoUsuario   = usuario?.tipoUsuario    ?? "";
 
   return (
-    <div className="main-layout">
+    <div style={{
+      display: "flex",
+      minHeight: "100vh",
+      background: "#f5f6fa",
+      width: "100vw",
+    }}>
       <Sidebar />
-      <div className="main-content">
+
+      <div style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        minWidth: 0,
+        maxWidth: "100vw",
+      }}>
         <Header
           title={title}
           nombreUsuario={nombreUsuario}
           tipoUsuario={tipoUsuario}
         />
-        <div className="zona-trabajo">
+
+        <div style={{
+          flex: 1,
+          padding: "2.5rem 2.5rem 2.5rem 2rem",
+          background: "#f5f6fa",
+          overflow: "auto",
+          color: "#232946",
+        }}>
           <Outlet />
         </div>
       </div>
