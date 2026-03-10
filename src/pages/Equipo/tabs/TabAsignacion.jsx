@@ -1,37 +1,34 @@
 // src/pages/Equipo/tabs/TabAsignacion.jsx
+// Asigna el equipo a un usuario responsable y dependencia.
+// Muestra el tipoUsuario (usuario / jefe) en el selector y en la lista.
 import React, { useEffect, useState } from "react";
 import { equipoAsignacionApi } from "../../../api/equipoExtras.api";
 import { http } from "../../../services/http";
-
-const inputStyle = {
-  width: "100%", padding: "9px 11px", borderRadius: 8,
-  border: "1.5px solid #d1d5db", fontSize: "0.93rem",
-  boxSizing: "border-box", background: "#fff", color: "#111", outline: "none",
-};
-const labelStyle = {
-  display: "block", fontWeight: 600, marginBottom: 5,
-  color: "#374151", fontSize: "0.87rem",
-};
+import ConfirmInline from "../../../components/ui/ConfirmInline";
+import ErrorBanner   from "../../../components/ui/ErrorBanner";
+import FormBotones   from "../../../components/ui/FormBotones";
+import { inputStyle, labelStyle } from "../../../components/ui/formStyles";
 
 const FORM_VACIO = {
-  usuarioResponsableId: "", fechaAsignacion: "", fechaDevolucion: "",
-  observaciones: "", dependeciaId: "",
+  usuarioResponsableId: "", fechaAsignacion: "",
+  fechaDevolucion: "", observaciones: "", dependeciaId: "",
 };
 
+// ─── Formulario de asignación ─────────────────────────────────────────────────
 function FormAsignacion({ equipoId, initial = FORM_VACIO, onGuardar, onCancelar, loading }) {
   const [form, setForm]           = useState(initial);
-  const [usuarios,  setUsuarios]  = useState([]);
+  const [usuarios,     setUsuarios]     = useState([]);
   const [dependencias, setDependencias] = useState([]);
-  const [cargando, setCargando]   = useState(true);
+  const [cargando,     setCargando]     = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      http("/api/Usuarios"),
-      http("/api/Dependencias"),
-    ]).then(([rU, rD]) => {
-      setUsuarios(rU.datos       ?? []);
-      setDependencias(rD.datos   ?? []);
-    }).catch(() => {}).finally(() => setCargando(false));
+    Promise.all([http("/api/Usuarios"), http("/api/Dependencias")])
+      .then(([rU, rD]) => {
+        setUsuarios(rU.datos     ?? []);
+        setDependencias(rD.datos ?? []);
+      })
+      .catch(() => {})
+      .finally(() => setCargando(false));
   }, []);
 
   const set = (campo) => (e) => setForm(p => ({ ...p, [campo]: e.target.value }));
@@ -54,16 +51,17 @@ function FormAsignacion({ equipoId, initial = FORM_VACIO, onGuardar, onCancelar,
     <form onSubmit={handleSubmit}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 18px" }}>
 
+        {/* Usuario — muestra tipoUsuario entre corchetes para identificar jefes */}
         <div style={{ marginBottom: 14 }}>
           <label style={labelStyle}>Usuario Responsable <span style={{ color: "#ef4444" }}>*</span></label>
           <select value={form.usuarioResponsableId} onChange={set("usuarioResponsableId")} required
             style={{ ...inputStyle, cursor: "pointer" }}>
             <option value="">-- Seleccionar --</option>
-            {usuarios.map(u => (
-              <option key={u.usuarioId} value={u.usuarioId}>
-                {u.nombreCompleto ?? u.userName ?? `Usuario #${u.usuarioId}`}
-              </option>
-            ))}
+            {usuarios.map(u => {
+              const nombre = u.nombreCompleto ?? u.userName ?? `Usuario #${u.usuarioId}`;
+              const tipo   = u.tipoUsuario ? ` [${u.tipoUsuario}]` : "";
+              return <option key={u.usuarioId} value={u.usuarioId}>{nombre}{tipo}</option>;
+            })}
           </select>
         </div>
 
@@ -91,7 +89,6 @@ function FormAsignacion({ equipoId, initial = FORM_VACIO, onGuardar, onCancelar,
           <input type="date" value={form.fechaDevolucion}
             onChange={set("fechaDevolucion")} style={inputStyle} />
         </div>
-
       </div>
 
       <div style={{ marginBottom: 18 }}>
@@ -101,29 +98,27 @@ function FormAsignacion({ equipoId, initial = FORM_VACIO, onGuardar, onCancelar,
           rows={2} style={{ ...inputStyle, resize: "vertical" }} />
       </div>
 
-      <div style={{ display: "flex", gap: 10 }}>
-        <button type="button" onClick={onCancelar}
-          style={{
-            flex: 1, padding: "9px 0", borderRadius: 8,
-            border: "1.5px solid #d1d5db", background: "#fff",
-            fontWeight: 600, fontSize: "0.93rem", cursor: "pointer", color: "#374151",
-          }}>
-          Cancelar
-        </button>
-        <button type="submit" disabled={loading}
-          style={{
-            flex: 1, padding: "9px 0", borderRadius: 8, border: "none",
-            background: loading ? "#9ca3af" : "#4c7318",
-            color: "#fff", fontWeight: 700, fontSize: "0.93rem",
-            cursor: loading ? "not-allowed" : "pointer",
-          }}>
-          {loading ? "Guardando..." : "Guardar asignación"}
-        </button>
-      </div>
+      <FormBotones onCancelar={onCancelar} loading={loading} textoGuardar="Guardar asignación" />
     </form>
   );
 }
 
+// Badge de tipo de usuario (jefe = índigo, usuario = verde)
+function TipoUsuarioBadge({ tipo }) {
+  if (!tipo) return null;
+  const esJefe = tipo === "jefe";
+  return (
+    <span style={{
+      background: esJefe ? "#e0e7ff" : "#dcfce7",
+      color:      esJefe ? "#4338ca" : "#16a34a",
+      padding: "1px 8px", borderRadius: 20, fontSize: "0.75rem", fontWeight: 700,
+    }}>
+      {tipo}
+    </span>
+  );
+}
+
+// ─── Tab principal ─────────────────────────────────────────────────────────────
 export default function TabAsignacion({ equipoId }) {
   const [lista,       setLista]       = useState([]);
   const [loading,     setLoading]     = useState(true);
@@ -157,7 +152,7 @@ export default function TabAsignacion({ equipoId }) {
         await equipoAsignacionApi.crear(valores);
       }
       setMostrarForm(false); setEditando(null);
-      cargar();
+      await cargar();
     } catch (e) {
       setError(e.message || "No se pudo guardar.");
     } finally {
@@ -179,30 +174,19 @@ export default function TabAsignacion({ equipoId }) {
 
   return (
     <div>
-      {error && (
-        <div style={{ color: "#dc2626", background: "#fee2e2", padding: "8px 14px", borderRadius: 8, marginBottom: 14, fontSize: "0.9rem" }}>
-          {error}
-        </div>
-      )}
+      <ErrorBanner mensaje={error} />
 
       {!mostrarForm && (
         <div style={{ marginBottom: 16 }}>
           <button onClick={() => setMostrarForm(true)}
-            style={{
-              padding: "8px 18px", borderRadius: 8, border: "none",
-              background: "#4c7318", color: "#fff",
-              fontWeight: 700, fontSize: "0.9rem", cursor: "pointer",
-            }}>
+            style={{ padding: "8px 18px", borderRadius: 8, border: "none", background: "#4c7318", color: "#fff", fontWeight: 700, fontSize: "0.9rem", cursor: "pointer" }}>
             + Nueva asignación
           </button>
         </div>
       )}
 
       {mostrarForm && (
-        <div style={{
-          background: "#f9fafb", border: "1.5px solid #e5e7eb",
-          borderRadius: 12, padding: "20px 22px", marginBottom: 20,
-        }}>
+        <div style={{ background: "#f9fafb", border: "1.5px solid #e5e7eb", borderRadius: 12, padding: "20px 22px", marginBottom: 20 }}>
           <h4 style={{ margin: "0 0 16px", fontSize: "0.97rem", fontWeight: 700, color: "#232946" }}>
             {editando ? "✏️ Editar asignación" : "➕ Nueva asignación"}
           </h4>
@@ -231,17 +215,12 @@ export default function TabAsignacion({ equipoId }) {
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {lista.map((asig) => (
-            <div key={asig.equipoAsignacionId} style={{
-              background: "#fff", border: "1.5px solid #e5e7eb",
-              borderRadius: 10, padding: "14px 18px",
-              display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
-            }}>
+            <div key={asig.equipoAsignacionId} style={{ background: "#fff", border: "1.5px solid #e5e7eb", borderRadius: 10, padding: "14px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700, fontSize: "0.97rem", color: "#232946" }}>
+                <div style={{ fontWeight: 700, fontSize: "0.97rem", color: "#232946", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                   {asig.usuarioNombre ?? `Usuario #${asig.usuarioResponsableId}`}
-                  {asig.dependenciaNombre
-                    ? <span style={{ color: "#6b7280", fontWeight: 400 }}> · {asig.dependenciaNombre}</span>
-                    : ""}
+                  <TipoUsuarioBadge tipo={asig.tipoUsuario} />
+                  {asig.dependenciaNombre && <span style={{ color: "#6b7280", fontWeight: 400 }}>· {asig.dependenciaNombre}</span>}
                 </div>
                 <div style={{ fontSize: "0.83rem", color: "#6b7280", marginTop: 3 }}>
                   Desde: {asig.fechaAsignacion}
@@ -249,26 +228,18 @@ export default function TabAsignacion({ equipoId }) {
                   {asig.observaciones   && <span> · {asig.observaciones}</span>}
                 </div>
               </div>
+
               <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
-                <button onClick={() => { setEditando(asig); setMostrarForm(true); }} title="Editar"
-                  style={{
-                    padding: "5px 12px", borderRadius: 7, border: "1.5px solid #d1d5db",
-                    background: "#fff", cursor: "pointer", fontSize: "0.85rem",
-                  }}>✏️</button>
+                <button onClick={() => { setEditando(asig); setMostrarForm(true); }}
+                  style={{ padding: "5px 12px", borderRadius: 7, border: "1.5px solid #d1d5db", background: "#fff", cursor: "pointer", fontSize: "0.85rem" }}>✏️</button>
                 {confirmElim === asig.equipoAsignacionId ? (
-                  <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                    <span style={{ fontSize: "0.8rem", color: "#dc2626" }}>¿Eliminar?</span>
-                    <button onClick={() => handleEliminar(asig.equipoAsignacionId)}
-                      style={{ padding: "4px 10px", borderRadius: 7, border: "none", background: "#dc2626", color: "#fff", cursor: "pointer", fontWeight: 700, fontSize: "0.82rem" }}>Sí</button>
-                    <button onClick={() => setConfirmElim(null)}
-                      style={{ padding: "4px 10px", borderRadius: 7, border: "1.5px solid #d1d5db", background: "#fff", cursor: "pointer", fontSize: "0.82rem" }}>No</button>
-                  </div>
+                  <ConfirmInline
+                    onConfirmar={() => handleEliminar(asig.equipoAsignacionId)}
+                    onCancelar={() => setConfirmElim(null)}
+                  />
                 ) : (
-                  <button onClick={() => setConfirmElim(asig.equipoAsignacionId)} title="Eliminar"
-                    style={{
-                      padding: "5px 12px", borderRadius: 7, border: "1.5px solid #fca5a5",
-                      background: "#fff", cursor: "pointer", color: "#dc2626", fontSize: "0.85rem",
-                    }}>🗑️</button>
+                  <button onClick={() => setConfirmElim(asig.equipoAsignacionId)}
+                    style={{ padding: "5px 12px", borderRadius: 7, border: "1.5px solid #fca5a5", background: "#fff", cursor: "pointer", color: "#dc2626", fontSize: "0.85rem" }}>🗑️</button>
                 )}
               </div>
             </div>

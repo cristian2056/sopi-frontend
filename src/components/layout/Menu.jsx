@@ -41,6 +41,14 @@ const ICONOS = {
 };
 const getIcono = (nombre) => ICONOS[nombre?.toLowerCase()] ?? "📄";
 
+// URLs que no aparecen en el menú lateral (se gestionan inline en el wizard o por URL directa)
+const URLS_OCULTAR = new Set(["/marcas", "/tipos-activos", "/componentes", "/software"]);
+function filtrarMenu(items) {
+  return items
+    .filter(item => !URLS_OCULTAR.has(item.url))
+    .map(item => ({ ...item, subMenus: item.subMenus?.length ? filtrarMenu(item.subMenus) : [] }));
+}
+
 // ─── Estilos ──────────────────────────────────────────────────────────────────
 const sidebarBase = {
   width: 220,
@@ -84,9 +92,11 @@ export default function Sidebar() {
   const menusRedux  = useSelector(selectMenus);
   const menuCargado = useSelector(selectMenuCargado);
 
-  const items = menuCargado && menusRedux.length > 0
-    ? [...menusRedux].sort((a, b) => (a.orden ?? 99) - (b.orden ?? 99))
-    : menuFallback.map(m => ({ nombre: m.name, url: m.path, orden: 99, subMenus: [], _icon: m.icon }));
+  const items = filtrarMenu(
+    menuCargado && menusRedux.length > 0
+      ? [...menusRedux].sort((a, b) => (a.orden ?? 99) - (b.orden ?? 99))
+      : menuFallback.map(m => ({ nombre: m.name, url: m.path, orden: 99, subMenus: [], _icon: m.icon }))
+  );
 
   const [collapsed, setCollapsed] = useState(false);
   const [hovered,   setHovered]   = useState(false);

@@ -124,10 +124,14 @@ export async function http(path, options = {}) {
     }
 
     if (!res.ok) {
+      // Soporta: { message }, { title, errors } (ASP.NET Core), string plano
+      const errores = raw?.errors ? Object.values(raw.errors).flat().join(" | ") : null;
       const msg =
+        errores ||
         (raw && raw.message) ||
+        (raw && raw.title) ||
         (typeof raw === "string" && raw.trim()) ||
-        `Request failed (${res.status})`;
+        `Error ${res.status}`;
       throw new HttpError(msg, { status: res.status, url, details: raw });
     }
 

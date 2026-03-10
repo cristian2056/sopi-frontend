@@ -58,9 +58,9 @@ function PasoIndicador({ pasoActual, pasoCompletado }) {
             {/* Círculo del paso */}
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
               <div style={{
-                width: 36, height: 36, borderRadius: "50%",
+                width: 30, height: 30, borderRadius: "50%",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontWeight: 700, fontSize: "0.85rem",
+                fontWeight: 700, fontSize: "0.78rem",
                 background: activo ? COLOR.primary : completado ? "#dcfce7" : "#f3f4f6",
                 color: activo ? "#fff" : completado ? COLOR.primary : "#9ca3af",
                 border: activo ? `2px solid ${COLOR.primary}` : completado ? `2px solid ${COLOR.primary}` : "2px solid #e5e7eb",
@@ -69,7 +69,7 @@ function PasoIndicador({ pasoActual, pasoCompletado }) {
                 {completado && !activo ? "✓" : paso.icon}
               </div>
               <span style={{
-                fontSize: "0.7rem", fontWeight: activo ? 700 : 500,
+                fontSize: "0.65rem", fontWeight: activo ? 700 : 500,
                 color: activo ? COLOR.primary : completado ? "#374151" : "#9ca3af",
                 whiteSpace: "nowrap",
               }}>
@@ -358,14 +358,14 @@ export default function EquipoWizard({ onCerrar, onEquipoCreado }) {
     }}>
       <div style={{
         background: "#fff", borderRadius: 16,
-        width: "100%", maxWidth: 680,
+        width: "100%", maxWidth: 560,
         maxHeight: "95vh", display: "flex", flexDirection: "column",
         boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
         border: "2px solid #e5e7eb",
       }}>
 
         {/* Header */}
-        <div style={{ padding: "20px 28px 0" }}>
+        <div style={{ padding: "16px 22px 0" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
             <h3 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 800, color: "#232946" }}>
               {tituloPaso.icon} {pasoActual === 1 ? "Nuevo equipo" : tituloPaso.label}
@@ -407,7 +407,7 @@ export default function EquipoWizard({ onCerrar, onEquipoCreado }) {
         </div>
 
         {/* Contenido scrolleable */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "20px 28px 28px" }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: "16px 22px 22px" }}>
           {pasoActual === 1 && (
             <PasoEquipo
               onCreado={handleEquipoCreado}

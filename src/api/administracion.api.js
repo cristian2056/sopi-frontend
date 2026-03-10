@@ -21,3 +21,10 @@ export const dependenciasApi = {
   actualizar:(id, body)  => http(`/api/Dependencias/${id}`, { method: "PUT",    body }),
   eliminar:  (id)        => http(`/api/Dependencias/${id}`, { method: "DELETE"       }),
 };
+
+export const softwaresApi = {
+  listar:    ()          => http("/api/Softwares"),
+  crear:     (body)      => http("/api/Softwares",       { method: "POST",   body }),
+  actualizar:(id, body)  => http(`/api/Softwares/${id}`, { method: "PUT",    body }),
+  eliminar:  (id)        => http(`/api/Softwares/${id}`, { method: "DELETE"       }),
+};

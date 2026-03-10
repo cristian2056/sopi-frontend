@@ -10,6 +10,8 @@ import MarcasPage        from "../pages/Marcas/MarcasPage";
 import TiposActivosPage  from "../pages/TiposActivos/TiposActivosPage";
 import ProveedoresPage   from "../pages/Proveedores/ProveedoresPage";
 import DependenciasPage  from "../pages/Dependencias/DependenciasPage";
+import ComponentesPage   from "../pages/Componentes/ComponentesPage";
+import SoftwarePage      from "../pages/Software/SoftwarePage";
 import EquiposPage    from "../pages/Equipo/EquiposPage";
 import EquipoDetalle  from "../pages/Equipo/EquipoDetalle";
 import PersonalPage   from "../pages/Personal/PersonalPage";
@@ -42,8 +44,8 @@ export const router = createBrowserRouter([
           // ── Inventario ────────────────────────────────
           { path: "equipos",          element: <EquiposPage /> },
           { path: "equipos/:id",      element: <EquipoDetalle /> },
-          { path: "componentes",      element: prox },
-          { path: "software",         element: prox },
+          { path: "componentes",      element: <ComponentesPage /> },
+          { path: "software",         element: <SoftwarePage /> },
           { path: "equipos-red",      element: prox },
 
           // ── Administración ────────────────────────────

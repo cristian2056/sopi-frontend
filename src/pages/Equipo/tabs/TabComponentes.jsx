@@ -1,183 +1,113 @@
 // src/pages/Equipo/tabs/TabComponentes.jsx
+// Lista y gestiona los componentes físicos instalados en un equipo.
+// El usuario escribe el nombre libremente; si no existe en el catálogo se crea automáticamente.
 import React, { useEffect, useState } from "react";
 import { componentesApi, composicionesApi } from "../../../api/componentes.api";
 import { http } from "../../../services/http";
+import EstadoBadge   from "../../../components/ui/EstadoBadge";
+import ConfirmInline from "../../../components/ui/ConfirmInline";
+import ErrorBanner   from "../../../components/ui/ErrorBanner";
+import FormBotones   from "../../../components/ui/FormBotones";
+import { inputStyle, labelStyle } from "../../../components/ui/formStyles";
 
-const ESTADOS_COMP = ["INSTALADO", "RETIRADO", "EN_REPARACION", "RESERVA"];
-
-const inputStyle = {
-  width: "100%", padding: "9px 11px", borderRadius: 8,
-  border: "1.5px solid #d1d5db", fontSize: "0.93rem",
-  boxSizing: "border-box", background: "#fff", color: "#111", outline: "none",
-};
-const labelStyle = {
-  display: "block", fontWeight: 600, marginBottom: 5,
-  color: "#374151", fontSize: "0.87rem",
-};
-
+const ESTADOS = ["INSTALADO", "RETIRADO", "EN_REPARACION", "RESERVA"];
 const FORM_VACIO = {
-  componenteId: "", marcaId: "", codigo: "", numeroSerie: "",
+  nombre: "", marcaId: "", codigo: "", numeroSerie: "",
   especificaciones: "", estado: "INSTALADO",
-  fechaInstalacion: "", fechaRetiro: "", motivoRetiro: "", fotoId: 1,
+  fechaInstalacion: "", fechaRetiro: "", motivoRetiro: "",
 };
 
-// ─── Formulario agregar / editar ───────────────────────────────────────────────
-function FormComposicion({ equipoId, initial = FORM_VACIO, onGuardar, onCancelar, loading }) {
-  const [form, setForm]               = useState(initial);
-  const [componentes, setComponentes] = useState([]);
-  const [marcas, setMarcas]           = useState([]);
-  const [cargando, setCargando]       = useState(true);
+// ─── Formulario de composición ────────────────────────────────────────────────
+function FormComposicion({ initial = FORM_VACIO, onGuardar, onCancelar, loading }) {
+  const [form, setForm] = useState(initial);
+  const [marcas, setMarcas] = useState([]);
 
   useEffect(() => {
-    Promise.all([
-      componentesApi.listar(),
-      http("/api/Marcas"),
-    ]).then(([rComp, rMarcas]) => {
-      setComponentes(rComp.datos ?? []);
-      setMarcas(rMarcas.datos   ?? []);
-    }).catch(console.error)
-      .finally(() => setCargando(false));
+    http("/api/Marcas").then(r => setMarcas(r.datos ?? [])).catch(() => {});
   }, []);
 
   const set = (campo) => (e) => setForm(p => ({ ...p, [campo]: e.target.value }));
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onGuardar({
-      equipoId:         parseInt(equipoId),
-      componenteId:     parseInt(form.componenteId) || 0,
-      marcaId:          form.marcaId ? parseInt(form.marcaId) : null,
-      fotoId:           parseInt(form.fotoId) || 1,
-      codigo:           form.codigo.trim()            || null,
-      numeroSerie:      form.numeroSerie.trim()       || null,
-      especificaciones: form.especificaciones.trim()  || null,
-      estado:           form.estado,
-      fechaInstalacion: form.fechaInstalacion || null,
-      fechaRetiro:      form.fechaRetiro      || null,
-      motivoRetiro:     form.motivoRetiro.trim() || null,
-    });
+    if (form.nombre.trim().length < 3) return; // backend requiere mínimo 3 caracteres
+    onGuardar({ ...form, marcaId: form.marcaId ? parseInt(form.marcaId) : null });
   };
-
-  if (cargando) return <div style={{ color: "#888", padding: "16px 0" }}>Cargando listas...</div>;
 
   return (
     <form onSubmit={handleSubmit}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 18px" }}>
 
-        <div style={{ marginBottom: 14 }}>
+        <div style={{ marginBottom: 14, gridColumn: "1 / -1" }}>
           <label style={labelStyle}>Componente <span style={{ color: "#ef4444" }}>*</span></label>
-          <select value={form.componenteId} onChange={set("componenteId")} required
-            style={{ ...inputStyle, cursor: "pointer" }}>
-            <option value="">-- Seleccionar --</option>
-            {componentes.map(c => (
-              <option key={c.componenteId} value={c.componenteId}>{c.nombre}</option>
-            ))}
-          </select>
+          <input type="text" value={form.nombre} onChange={set("nombre")} required minLength={3}
+            placeholder="Ej: Procesador Intel Core i7, RAM 8GB DDR4..."
+            style={inputStyle} />
+          {form.nombre.trim().length > 0 && form.nombre.trim().length < 3 && (
+            <div style={{ color: "#ef4444", fontSize: "0.8rem", marginTop: 4 }}>Mínimo 3 caracteres</div>
+          )}
         </div>
 
         <div style={{ marginBottom: 14 }}>
           <label style={labelStyle}>Marca</label>
-          <select value={form.marcaId} onChange={set("marcaId")}
-            style={{ ...inputStyle, cursor: "pointer" }}>
+          <select value={form.marcaId} onChange={set("marcaId")} style={{ ...inputStyle, cursor: "pointer" }}>
             <option value="">-- Sin marca --</option>
-            {marcas.map(m => (
-              <option key={m.marcaId} value={m.marcaId}>{m.nombre}</option>
-            ))}
+            {marcas.map(m => <option key={m.marcaId} value={m.marcaId}>{m.nombre}</option>)}
+          </select>
+        </div>
+
+        <div style={{ marginBottom: 14 }}>
+          <label style={labelStyle}>Estado <span style={{ color: "#ef4444" }}>*</span></label>
+          <select value={form.estado} onChange={set("estado")} style={{ ...inputStyle, cursor: "pointer" }}>
+            {ESTADOS.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
 
         <div style={{ marginBottom: 14 }}>
           <label style={labelStyle}>Código</label>
-          <input type="text" placeholder="Ej: CPU-001" value={form.codigo}
-            onChange={set("codigo")} style={inputStyle} />
+          <input type="text" placeholder="Ej: CPU-001" value={form.codigo} onChange={set("codigo")} style={inputStyle} />
         </div>
 
         <div style={{ marginBottom: 14 }}>
           <label style={labelStyle}>Nº de Serie</label>
-          <input type="text" placeholder="Ej: SN123456" value={form.numeroSerie}
-            onChange={set("numeroSerie")} style={inputStyle} />
-        </div>
-
-        <div style={{ marginBottom: 14 }}>
-          <label style={labelStyle}>Estado <span style={{ color: "#ef4444" }}>*</span></label>
-          <select value={form.estado} onChange={set("estado")}
-            style={{ ...inputStyle, cursor: "pointer" }}>
-            {ESTADOS_COMP.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
+          <input type="text" placeholder="Ej: SN123456" value={form.numeroSerie} onChange={set("numeroSerie")} style={inputStyle} />
         </div>
 
         <div style={{ marginBottom: 14 }}>
           <label style={labelStyle}>Fecha Instalación</label>
-          <input type="date" value={form.fechaInstalacion}
-            onChange={set("fechaInstalacion")} style={inputStyle} />
+          <input type="date" value={form.fechaInstalacion} onChange={set("fechaInstalacion")} style={inputStyle} />
         </div>
 
         <div style={{ marginBottom: 14 }}>
           <label style={labelStyle}>Fecha Retiro</label>
-          <input type="date" value={form.fechaRetiro}
-            onChange={set("fechaRetiro")} style={inputStyle} />
+          <input type="date" value={form.fechaRetiro} onChange={set("fechaRetiro")} style={inputStyle} />
         </div>
-
-        <div style={{ marginBottom: 14 }}>
-          <label style={labelStyle}>Motivo de Retiro</label>
-          <input type="text" placeholder="Opcional" value={form.motivoRetiro}
-            onChange={set("motivoRetiro")} style={inputStyle} />
-        </div>
-
       </div>
 
-      <div style={{ marginBottom: 18 }}>
+      <div style={{ marginBottom: 14 }}>
         <label style={labelStyle}>Especificaciones</label>
         <textarea placeholder="Ej: Intel Core i7 10ma gen, 3.8GHz..."
           value={form.especificaciones} onChange={set("especificaciones")}
           rows={2} style={{ ...inputStyle, resize: "vertical" }} />
       </div>
 
-      <div style={{ display: "flex", gap: 10 }}>
-        <button type="button" onClick={onCancelar}
-          style={{
-            flex: 1, padding: "9px 0", borderRadius: 8,
-            border: "1.5px solid #d1d5db", background: "#fff",
-            fontWeight: 600, fontSize: "0.93rem", cursor: "pointer", color: "#374151",
-          }}>
-          Cancelar
-        </button>
-        <button type="submit" disabled={loading}
-          style={{
-            flex: 1, padding: "9px 0", borderRadius: 8, border: "none",
-            background: loading ? "#9ca3af" : "#4c7318",
-            color: "#fff", fontWeight: 700, fontSize: "0.93rem",
-            cursor: loading ? "not-allowed" : "pointer",
-          }}>
-          {loading ? "Guardando..." : "Guardar componente"}
-        </button>
-      </div>
-    </form>
-  );
-}
+      {/* Motivo de retiro solo cuando no está instalado */}
+      {form.estado !== "INSTALADO" && (
+        <div style={{ marginBottom: 14 }}>
+          <label style={labelStyle}>Motivo de Retiro</label>
+          <input type="text" placeholder="Opcional" value={form.motivoRetiro} onChange={set("motivoRetiro")} style={inputStyle} />
+        </div>
+      )}
 
-// ─── Badge estado ──────────────────────────────────────────────────────────────
-function EstadoBadge({ estado }) {
-  const map = {
-    INSTALADO:     { bg: "#dcfce7", color: "#16a34a" },
-    RETIRADO:      { bg: "#fee2e2", color: "#dc2626" },
-    EN_REPARACION: { bg: "#fef9c3", color: "#ca8a04" },
-    RESERVA:       { bg: "#e0e7ff", color: "#4338ca" },
-  };
-  const s = map[estado] ?? { bg: "#f3f4f6", color: "#6b7280" };
-  return (
-    <span style={{
-      background: s.bg, color: s.color,
-      padding: "2px 10px", borderRadius: 20, fontSize: "0.78rem", fontWeight: 700,
-    }}>
-      {estado ?? "—"}
-    </span>
+      <FormBotones onCancelar={onCancelar} loading={loading} textoGuardar="Guardar componente" />
+    </form>
   );
 }
 
 // ─── Tab principal ─────────────────────────────────────────────────────────────
 export default function TabComponentes({ equipoId }) {
   const [lista,       setLista]       = useState([]);
+  const [catalogo,    setCatalogo]    = useState([]); // catálogo global de tipos de componente
   const [loading,     setLoading]     = useState(true);
   const [error,       setError]       = useState("");
   const [mostrarForm, setMostrarForm] = useState(false);
@@ -187,30 +117,65 @@ export default function TabComponentes({ equipoId }) {
 
   const cargar = async () => {
     setLoading(true); setError("");
+
+    // 1. Catálogo de tipos de componente — debe cargar siempre para resolver IDs
     try {
-      // Usa el endpoint filtrado — backend devuelve componenteNombre y marcaNombre
-      const data = await composicionesApi.listarPorEquipo(equipoId);
-      setLista(Array.isArray(data.datos) ? data.datos : []);
-    } catch (e) {
-      setError(e.message || "Error al cargar componentes.");
-    } finally {
-      setLoading(false);
+      const rCat = await componentesApi.listar();
+      setCatalogo(Array.isArray(rCat.datos) ? rCat.datos : []);
+    } catch { /* si falla el catálogo, seguimos con [] */ }
+
+    // 2. Composiciones del equipo — se intenta por equipo, luego listar+filtrar
+    try {
+      try {
+        const rComp = await composicionesApi.listarPorEquipo(equipoId);
+        setLista(Array.isArray(rComp.datos) ? rComp.datos : []);
+      } catch {
+        const rComp = await composicionesApi.listar();
+        const todas = Array.isArray(rComp.datos) ? rComp.datos : [];
+        setLista(todas.filter(c => String(c.equipoId) === String(equipoId)));
+      }
+    } catch {
+      setLista([]); // ambos fallaron, lista vacía sin bloquear
     }
+
+    setLoading(false);
   };
 
   useEffect(() => { cargar(); }, [equipoId]);
 
+  // Reutiliza componente existente por nombre o crea uno nuevo en el catálogo
+  const resolverComponenteId = async (nombre) => {
+    const existente = catalogo.find(c => c.nombre.toLowerCase() === nombre.toLowerCase());
+    if (existente) return parseInt(existente.componenteId);
+    const res = await componentesApi.crear({ nombre });
+    if (res.exito === false) throw new Error(res.mensaje || "No se pudo crear el componente.");
+    const id = res.datos?.componenteId ?? res.datos?.ComponenteId ?? res.datos?.id ?? res.datos?.Id ?? res.datos;
+    return parseInt(id);
+  };
+
   const handleGuardar = async (valores) => {
-    setGuardando(true);
+    setGuardando(true); setError("");
     try {
+      const componenteId = await resolverComponenteId(valores.nombre);
+      const payload = {
+        equipoId:         parseInt(equipoId),
+        componenteId:     parseInt(componenteId),   // Int64 requerido por el backend
+        marcaId:          valores.marcaId          || null,
+        codigo:           valores.codigo           || null,
+        numeroSerie:      valores.numeroSerie      || null,
+        especificaciones: valores.especificaciones || null,
+        estado:           valores.estado,
+        fechaInstalacion: valores.fechaInstalacion || null,
+        fechaRetiro:      valores.fechaRetiro      || null,
+        motivoRetiro:     valores.motivoRetiro     || null,
+      };
       if (editando) {
-        await composicionesApi.actualizar(editando.composicionId, valores);
+        await composicionesApi.actualizar(editando.composicionId, payload);
       } else {
-        await composicionesApi.crear(valores);
+        await composicionesApi.crear(payload);
       }
-      setMostrarForm(false);
-      setEditando(null);
-      cargar();
+      setMostrarForm(false); setEditando(null);
+      await cargar();
     } catch (e) {
       setError(e.message || "No se pudo guardar.");
     } finally {
@@ -230,54 +195,37 @@ export default function TabComponentes({ equipoId }) {
 
   const cerrarForm = () => { setMostrarForm(false); setEditando(null); };
 
+  const initialEditar = editando ? {
+    nombre:           catalogo.find(c => c.componenteId === editando.componenteId)?.nombre ?? editando.componenteNombre ?? "",
+    marcaId:          editando.marcaId          ?? "",
+    codigo:           editando.codigo           ?? "",
+    numeroSerie:      editando.numeroSerie      ?? "",
+    especificaciones: editando.especificaciones ?? "",
+    estado:           editando.estado           ?? "INSTALADO",
+    fechaInstalacion: editando.fechaInstalacion ?? "",
+    fechaRetiro:      editando.fechaRetiro      ?? "",
+    motivoRetiro:     editando.motivoRetiro     ?? "",
+  } : FORM_VACIO;
+
   return (
     <div>
-
-      {error && (
-        <div style={{ color: "#dc2626", background: "#fee2e2", padding: "8px 14px", borderRadius: 8, marginBottom: 14, fontSize: "0.9rem" }}>
-          {error}
-        </div>
-      )}
+      <ErrorBanner mensaje={error} />
 
       {!mostrarForm && (
         <div style={{ marginBottom: 16 }}>
           <button onClick={() => setMostrarForm(true)}
-            style={{
-              padding: "8px 18px", borderRadius: 8, border: "none",
-              background: "#4c7318", color: "#fff",
-              fontWeight: 700, fontSize: "0.9rem", cursor: "pointer",
-            }}>
+            style={{ padding: "8px 18px", borderRadius: 8, border: "none", background: "#4c7318", color: "#fff", fontWeight: 700, fontSize: "0.9rem", cursor: "pointer" }}>
             + Agregar componente
           </button>
         </div>
       )}
 
       {mostrarForm && (
-        <div style={{
-          background: "#f9fafb", border: "1.5px solid #e5e7eb",
-          borderRadius: 12, padding: "20px 22px", marginBottom: 20,
-        }}>
+        <div style={{ background: "#f9fafb", border: "1.5px solid #e5e7eb", borderRadius: 12, padding: "20px 22px", marginBottom: 20 }}>
           <h4 style={{ margin: "0 0 16px", fontSize: "0.97rem", fontWeight: 700, color: "#232946" }}>
             {editando ? "✏️ Editar componente" : "➕ Nuevo componente"}
           </h4>
-          <FormComposicion
-            equipoId={equipoId}
-            initial={editando ? {
-              componenteId:     editando.componenteId     ?? "",
-              marcaId:          editando.marcaId          ?? "",
-              codigo:           editando.codigo           ?? "",
-              numeroSerie:      editando.numeroSerie      ?? "",
-              especificaciones: editando.especificaciones ?? "",
-              estado:           editando.estado           ?? "INSTALADO",
-              fechaInstalacion: editando.fechaInstalacion ?? "",
-              fechaRetiro:      editando.fechaRetiro      ?? "",
-              motivoRetiro:     editando.motivoRetiro     ?? "",
-              fotoId:           editando.fotoId           ?? 1,
-            } : FORM_VACIO}
-            onGuardar={handleGuardar}
-            onCancelar={cerrarForm}
-            loading={guardando}
-          />
+          <FormComposicion initial={initialEditar} onGuardar={handleGuardar} onCancelar={cerrarForm} loading={guardando} />
         </div>
       )}
 
@@ -289,54 +237,42 @@ export default function TabComponentes({ equipoId }) {
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {lista.map((comp) => (
-            <div key={comp.composicionId} style={{
-              background: "#fff", border: "1.5px solid #e5e7eb",
-              borderRadius: 10, padding: "14px 18px",
-              display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
-            }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700, fontSize: "0.97rem", color: "#232946" }}>
-                  {comp.componenteNombre ?? `Componente #${comp.componenteId}`}
-                  {comp.marcaNombre
-                    ? <span style={{ color: "#6b7280", fontWeight: 400 }}> · {comp.marcaNombre}</span>
-                    : ""}
-                </div>
-                <div style={{ fontSize: "0.83rem", color: "#6b7280", marginTop: 3, display: "flex", flexWrap: "wrap", gap: "0 12px" }}>
-                  {comp.especificaciones && <span>{comp.especificaciones}</span>}
-                  {comp.numeroSerie      && <span>S/N: {comp.numeroSerie}</span>}
-                  {comp.codigo          && <span>Cód: {comp.codigo}</span>}
-                  {comp.fechaInstalacion && <span>Instalado: {comp.fechaInstalacion}</span>}
-                </div>
-              </div>
-
-              <EstadoBadge estado={comp.estado} />
-
-              <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
-                <button onClick={() => { setEditando(comp); setMostrarForm(true); }} title="Editar"
-                  style={{
-                    padding: "5px 12px", borderRadius: 7, border: "1.5px solid #d1d5db",
-                    background: "#fff", cursor: "pointer", fontSize: "0.85rem",
-                  }}>✏️</button>
-
-                {confirmElim === comp.composicionId ? (
-                  <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                    <span style={{ fontSize: "0.8rem", color: "#dc2626" }}>¿Eliminar?</span>
-                    <button onClick={() => handleEliminar(comp.composicionId)}
-                      style={{ padding: "4px 10px", borderRadius: 7, border: "none", background: "#dc2626", color: "#fff", cursor: "pointer", fontWeight: 700, fontSize: "0.82rem" }}>Sí</button>
-                    <button onClick={() => setConfirmElim(null)}
-                      style={{ padding: "4px 10px", borderRadius: 7, border: "1.5px solid #d1d5db", background: "#fff", cursor: "pointer", fontSize: "0.82rem" }}>No</button>
+          {lista.map((comp) => {
+            const nombre = catalogo.find(c => c.componenteId === comp.componenteId)?.nombre
+              ?? comp.componenteNombre ?? `Componente #${comp.componenteId}`;
+            return (
+              <div key={comp.composicionId} style={{ background: "#fff", border: "1.5px solid #e5e7eb", borderRadius: 10, padding: "14px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 700, fontSize: "0.97rem", color: "#232946" }}>
+                    {nombre}
+                    {comp.marcaNombre && <span style={{ color: "#6b7280", fontWeight: 400 }}> · {comp.marcaNombre}</span>}
                   </div>
-                ) : (
-                  <button onClick={() => setConfirmElim(comp.composicionId)} title="Eliminar"
-                    style={{
-                      padding: "5px 12px", borderRadius: 7, border: "1.5px solid #fca5a5",
-                      background: "#fff", cursor: "pointer", color: "#dc2626", fontSize: "0.85rem",
-                    }}>🗑️</button>
-                )}
+                  <div style={{ fontSize: "0.83rem", color: "#6b7280", marginTop: 3, display: "flex", flexWrap: "wrap", gap: "0 12px" }}>
+                    {comp.especificaciones  && <span>{comp.especificaciones}</span>}
+                    {comp.numeroSerie       && <span>S/N: {comp.numeroSerie}</span>}
+                    {comp.codigo           && <span>Cód: {comp.codigo}</span>}
+                    {comp.fechaInstalacion && <span>Instalado: {comp.fechaInstalacion}</span>}
+                  </div>
+                </div>
+
+                <EstadoBadge estado={comp.estado} tipo="componente" />
+
+                <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                  <button onClick={() => { setEditando(comp); setMostrarForm(true); }}
+                    style={{ padding: "5px 12px", borderRadius: 7, border: "1.5px solid #d1d5db", background: "#fff", cursor: "pointer", fontSize: "0.85rem" }}>✏️</button>
+                  {confirmElim === comp.composicionId ? (
+                    <ConfirmInline
+                      onConfirmar={() => handleEliminar(comp.composicionId)}
+                      onCancelar={() => setConfirmElim(null)}
+                    />
+                  ) : (
+                    <button onClick={() => setConfirmElim(comp.composicionId)}
+                      style={{ padding: "5px 12px", borderRadius: 7, border: "1.5px solid #fca5a5", background: "#fff", cursor: "pointer", color: "#dc2626", fontSize: "0.85rem" }}>🗑️</button>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { marcasApi } from "../../api/marcas.api";
 import ModalDialog from "../../components/ui/ModalDialog";
 import DataTable   from "../../components/ui/DataTable";
-import FormModal   from "../../components/ui/FormModal";
+import MarcaForm   from "./MarcaForm";
 
 const FIELDS = [
   { name: "nombre", label: "Nombre", type: "text", required: true, placeholder: "Ej: Samsung", span: 2 },
