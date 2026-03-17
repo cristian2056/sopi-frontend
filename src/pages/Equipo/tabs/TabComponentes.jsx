@@ -134,8 +134,9 @@ export default function TabComponentes({ equipoId, crear, modificar, eliminar })
         const todas = Array.isArray(rComp.datos) ? rComp.datos : [];
         setLista(todas.filter(c => String(c.equipoId) === String(equipoId)));
       }
-    } catch {
-      setLista([]); // ambos fallaron, lista vacía sin bloquear
+    } catch (e) {
+      setLista([]);
+      setError(e.message || "Error al cargar componentes.");
     }
 
     setLoading(false);
@@ -148,9 +149,8 @@ export default function TabComponentes({ equipoId, crear, modificar, eliminar })
     const existente = catalogo.find(c => c.nombre.toLowerCase() === nombre.toLowerCase());
     if (existente) return parseInt(existente.componenteId);
     const res = await componentesApi.crear({ nombre });
-    if (res.exito === false) throw new Error(res.mensaje || "No se pudo crear el componente.");
-    const id = res.datos?.componenteId ?? res.datos?.ComponenteId ?? res.datos?.id ?? res.datos?.Id ?? res.datos;
-    return parseInt(id);
+    if (!res.exito) throw new Error(res.mensaje || "No se pudo crear el componente.");
+    return parseInt(res.datos.componenteId);
   };
 
   const handleGuardar = async (valores) => {
@@ -170,9 +170,11 @@ export default function TabComponentes({ equipoId, crear, modificar, eliminar })
         motivoRetiro:     valores.motivoRetiro     || null,
       };
       if (editando) {
-        await composicionesApi.actualizar(editando.composicionId, payload);
+        const res = await composicionesApi.actualizar(editando.composicionId, payload);
+        if (!res.exito) throw new Error(res.mensaje || "No se pudo actualizar.");
       } else {
-        await composicionesApi.crear(payload);
+        const res = await composicionesApi.crear(payload);
+        if (!res.exito) throw new Error(res.mensaje || "No se pudo guardar.");
       }
       setMostrarForm(false); setEditando(null);
       await cargar();

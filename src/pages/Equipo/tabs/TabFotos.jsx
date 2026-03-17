@@ -179,17 +179,24 @@ export default function TabFotos({ equipoId, crear, eliminar }) {
 
   useEffect(() => { cargar(); }, [equipoId]);
 
-  // Sube via multipart/form-data (http.js usa JSON, por eso se llama directamente con fetch)
+  // Sube via multipart/form-data al endpoint unificado /api/Fotos/upload
+  // (hace todo en un paso: guarda archivo físico + crea registro en BD)
   const handleGuardar = async ({ archivo, nombre }) => {
     setGuardando(true);
     try {
-      const formData = new FormData();
-      formData.append("archivo", archivo);
-      formData.append("nombre",   nombre ?? "");
-      formData.append("equipoId", String(equipoId));
-
       const { store } = await import("../../../stores/store");
-      const token = store.getState().auth.accessToken;
+      const state     = store.getState();
+      const token     = state.auth.accessToken;
+      const usuario   = state.auth.usuario;
+
+      const formData = new FormData();
+      formData.append("archivo",        archivo);
+      formData.append("equipoId",       String(equipoId));
+      formData.append("nombre",         nombre || archivo.name);
+      if (usuario?.id ?? usuario?.usuarioId) {
+        formData.append("usuarioSubioId", String(usuario?.id ?? usuario?.usuarioId));
+      }
+
       const res = await fetch(`${API_BASE}/api/Fotos/upload`, {
         method: "POST",
         headers: token ? { Authorization: `Bearer ${token}` } : {},

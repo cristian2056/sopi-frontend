@@ -6,7 +6,8 @@ import { personalApi } from "../../api/personal.api";
 const TIPOS_DOC = ["DNI", "CE", "PASAPORTE"];
 const SEXOS     = ["M", "F"];
 
-export default function PersonaForm({ initialData = {}, onSubmit, loading, onCancel }) {
+// modoUsuario=true → los campos de usuario son obligatorios (sin checkbox)
+export default function PersonaForm({ initialData = {}, onSubmit, loading, onCancel, modoUsuario = false }) {
   const esEdicion = !!initialData.personaId;
 
   const [datos, setDatos] = useState({
@@ -19,8 +20,7 @@ export default function PersonaForm({ initialData = {}, onSubmit, loading, onCan
     email:             initialData.email             ?? "",
     telefono:          initialData.telefono          ?? "",
     direccion:         initialData.direccion         ?? "",
-    // ── campos de usuario (solo al crear) ──
-    crearUsuario:      false,
+    crearUsuario:      modoUsuario ? true : false,
     userName:          "",
     password:          "",
     dependenciaId:     initialData.dependenciaId     ?? "",
@@ -145,19 +145,23 @@ export default function PersonaForm({ initialData = {}, onSubmit, loading, onCan
             onChange={e => set("direccion", e.target.value)} placeholder="Av. Principal 123" />
         </div>
 
-        {/* ── Crear usuario (solo en modo creación) ── */}
+        {/* ── Acceso al sistema (solo en modo creación) ── */}
         {!esEdicion && (
           <>
             <div style={section}>Acceso al sistema</div>
-            <label style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14, cursor: "pointer" }}>
-              <input type="checkbox" checked={datos.crearUsuario}
-                onChange={e => set("crearUsuario", e.target.checked)} />
-              <span style={{ fontWeight: 600, color: "#374151" }}>
-                Crear usuario para esta persona
-              </span>
-            </label>
 
-            {datos.crearUsuario && (
+            {/* Checkbox solo si NO es modoUsuario */}
+            {!modoUsuario && (
+              <label style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14, cursor: "pointer" }}>
+                <input type="checkbox" checked={datos.crearUsuario}
+                  onChange={e => set("crearUsuario", e.target.checked)} />
+                <span style={{ fontWeight: 600, color: "#374151" }}>
+                  Crear usuario para esta persona
+                </span>
+              </label>
+            )}
+
+            {(modoUsuario || datos.crearUsuario) && (
               <>
                 <div style={row}>
                   <div style={col()}>

@@ -8,8 +8,8 @@ import ModalDialog      from "../../components/ui/ModalDialog";
 import DataTable        from "../../components/ui/DataTable";
 import { usePermiso } from "../../stores/menuSlice";
 
-// ─── Columnas de la tabla ─────────────────────────────────────────────────────
-const columnas = [
+// ─── Columnas de la tabla (recibe roles para resolver el nombre) ──────────────
+const makeColumnas = (roles) => [
   {
     key: "nombre", label: "Nombre completo", ancho: 220,
     render: (p) => `${p.nombres} ${p.apellidosPaterno} ${p.apellidosMaterno}`,
@@ -28,11 +28,14 @@ const columnas = [
   },
   {
     key: "rol", label: "Rol", ancho: 150,
-    render: (p) => p.usuario?.rolNombre
-      ? <span style={{ background: "#fef3c7", color: "#92400e", borderRadius: 20, padding: "2px 10px", fontWeight: 700, fontSize: "0.82rem" }}>
-          {p.usuario.rolNombre}
-        </span>
-      : <span style={{ color: "#d1d5db", fontSize: "0.82rem" }}>Sin rol</span>,
+    render: (p) => {
+      const rolNombre = roles.find(r => r.rolId === p.usuario?.rolId)?.nombre;
+      return rolNombre
+        ? <span style={{ background: "#fef3c7", color: "#92400e", borderRadius: 20, padding: "2px 10px", fontWeight: 700, fontSize: "0.82rem" }}>
+            {rolNombre}
+          </span>
+        : <span style={{ color: "#d1d5db", fontSize: "0.82rem" }}>Sin rol</span>;
+    },
   },
   {
     key: "activo", label: "Estado", ancho: 90,
@@ -52,6 +55,7 @@ const columnas = [
 export default function UsuariosPage() {
   const { crear, modificar, eliminar } = usePermiso("Usuarios");
   const [items,       setItems]       = useState([]);
+  const [roles,       setRoles]       = useState([]);
   const [loading,     setLoading]     = useState(true);
   const [busqueda,    setBusqueda]    = useState("");
   const [modal,       setModal]       = useState({ open: false, variant: "error", message: "" });
@@ -60,13 +64,17 @@ export default function UsuariosPage() {
   const [formLoading, setFormLoading] = useState(false);
   const [rolesTarget, setRolesTarget] = useState(null);   // persona a la que asignar roles
 
-  // ── Cargar personas que tienen usuario ────────────────────
+  // ── Cargar personas y roles ────────────────────────────────
   const cargar = async () => {
     setLoading(true);
     try {
-      const data = await personalApi.listarPersonas();
-      const todos = Array.isArray(data.datos) ? data.datos : data.datos ? [data.datos] : [];
-      setItems(todos.filter(p => p.usuario)); // solo los que tienen acceso al sistema
+      const [dataPersonas, dataRoles] = await Promise.all([
+        personalApi.listarPersonas(),
+        personalApi.listarRoles(),
+      ]);
+      const todos = Array.isArray(dataPersonas.datos) ? dataPersonas.datos : dataPersonas.datos ? [dataPersonas.datos] : [];
+      setItems(todos.filter(p => p.usuario));
+      setRoles(Array.isArray(dataRoles.datos) ? dataRoles.datos : []);
     } catch (e) {
       setModal({ open: true, variant: "error", message: e.message || "Error al cargar usuarios." });
     } finally {
@@ -96,7 +104,7 @@ export default function UsuariosPage() {
         if (res?.exito === false) throw new Error(res.mensaje || "No se pudo actualizar.");
         setModal({ open: true, variant: "success", message: "Usuario actualizado correctamente." });
       } else {
-        // Nueva persona
+        // Nueva persona + usuario (ambos obligatorios en este módulo)
         const respPersona = await personalApi.crearPersona({
           tipoDocumento:    valores.tipoDocumento,
           numeroDocumento:  valores.numeroDocumento,
@@ -111,23 +119,20 @@ export default function UsuariosPage() {
         });
         if (respPersona?.exito === false) throw new Error(respPersona.mensaje || "No se pudo crear la persona.");
 
-        // Crear usuario si marcó el checkbox
-        if (valores.crearUsuario && valores.userName && valores.password) {
-          const personaId = respPersona.datos?.personaId ?? respPersona.datos?.id;
-          if (!personaId) throw new Error("No se pudo obtener el ID de la persona creada.");
-          const resU = await personalApi.crearUsuario({
-            personaId,
-            dependenciaId: Number(valores.dependenciaId) || null,
-            rolId:         Number(valores.rolId) || null,
-            userName:      valores.userName,
-            password:      valores.password,
-            activo:        true,
-          });
-          if (resU?.exito === false) throw new Error(resU.mensaje || "No se pudo crear el usuario.");
-          setModal({ open: true, variant: "success", message: "Persona y usuario creados correctamente." });
-        } else {
-          setModal({ open: true, variant: "success", message: "Persona creada. No se creó usuario." });
-        }
+        const personaId = respPersona.datos?.personaId ?? respPersona.datos?.id;
+        if (!personaId) throw new Error("No se pudo obtener el ID de la persona creada.");
+
+        const resU = await personalApi.crearUsuario({
+          personaId,
+          dependenciaId: Number(valores.dependenciaId) || null,
+          rolId:         Number(valores.rolId) || null,
+          userName:      valores.userName,
+          password:      valores.password,
+          activo:        true,
+        });
+        if (resU?.exito === false) throw new Error(resU.mensaje || "No se pudo crear el usuario.");
+
+        setModal({ open: true, variant: "success", message: "Usuario creado correctamente." });
       }
       setForm(null);
       cargar();
@@ -195,7 +200,7 @@ export default function UsuariosPage() {
 
       {/* Tabla */}
       <DataTable
-        columnas={columnas}
+        columnas={makeColumnas(roles)}
         datos={filtrados}
         loading={loading}
         keyField="personaId"
@@ -223,6 +228,7 @@ export default function UsuariosPage() {
           onSubmit={handleGuardar}
           loading={formLoading}
           onCancel={() => setForm(null)}
+          modoUsuario={!form.personaId}
         />
       )}
 
