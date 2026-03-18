@@ -7,7 +7,7 @@ const TIPOS_DOC = ["DNI", "CE", "PASAPORTE"];
 const SEXOS     = ["M", "F"];
 
 // modoUsuario=true → los campos de usuario son obligatorios (sin checkbox)
-export default function PersonaForm({ initialData = {}, onSubmit, loading, onCancel, modoUsuario = false }) {
+export default function PersonaForm({ initialData = {}, onSubmit, loading, onCancel, modoUsuario = false, error = "" }) {
   const esEdicion = !!initialData.personaId;
 
   const [datos, setDatos] = useState({
@@ -207,6 +207,12 @@ export default function PersonaForm({ initialData = {}, onSubmit, loading, onCan
               </>
             )}
           </>
+        )}
+
+        {error && (
+          <div style={{ marginTop: 14, background: "#fef2f2", border: "1px solid #fca5a5", borderRadius: 8, padding: "10px 14px", color: "#dc2626", fontSize: "0.88rem" }}>
+            ⚠️ {error}
+          </div>
         )}
 
         {/* ── Botones ── */}

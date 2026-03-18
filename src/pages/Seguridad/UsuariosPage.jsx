@@ -1,12 +1,12 @@
 // src/pages/Seguridad/UsuariosPage.jsx
-// Reutiliza PersonaForm, RolesModal, ModalDialog y DataTable del módulo Personal
 import { useEffect, useState } from "react";
-import { personalApi }  from "../../api/personal.api";
-import PersonaForm      from "../Personal/PersonaForm";
-import RolesModal       from "../Personal/RolesModal";
+import { personalApi }     from "../../api/personal.api";
+import { http }            from "../../services/http";
+import PersonaForm         from "../Personal/PersonaForm";
+import UsuarioEditModal from "./UsuarioEditModal";
 import ModalDialog      from "../../components/ui/ModalDialog";
-import DataTable        from "../../components/ui/DataTable";
-import { usePermiso } from "../../stores/menuSlice";
+import DataTable           from "../../components/ui/DataTable";
+import { usePermiso }      from "../../stores/menuSlice";
 
 // ─── Columnas de la tabla (recibe roles para resolver el nombre) ──────────────
 const makeColumnas = (roles) => [
@@ -38,7 +38,7 @@ const makeColumnas = (roles) => [
     },
   },
   {
-    key: "activo", label: "Estado", ancho: 90,
+    key: "activo", label: "Estado", ancho: 110,
     render: (p) => p.usuario
       ? <span style={{
           background: p.usuario.activo ? "#dcfce7" : "#fee2e2",
@@ -47,7 +47,9 @@ const makeColumnas = (roles) => [
         }}>
           {p.usuario.activo ? "Activo" : "Inactivo"}
         </span>
-      : null,
+      : <span style={{ background: "#fef3c7", color: "#92400e", borderRadius: 20, padding: "2px 10px", fontWeight: 700, fontSize: "0.82rem" }}>
+          ⚠️ Sin usuario
+        </span>,
   },
 ];
 
@@ -58,25 +60,37 @@ export default function UsuariosPage() {
   const [roles,       setRoles]       = useState([]);
   const [loading,     setLoading]     = useState(true);
   const [busqueda,    setBusqueda]    = useState("");
-  const [modal,       setModal]       = useState({ open: false, variant: "error", message: "" });
-  const [confirm,     setConfirm]     = useState({ open: false, personaId: null, loading: false });
-  const [form,        setForm]        = useState(null);   // null = cerrado, {} = nuevo, {...} = editar
+  const [confirm,     setConfirm]     = useState({ open: false, personaId: null, loading: false, error: "" });
+  const [form,        setForm]        = useState(null);   // null = cerrado, {} = crear nuevo
   const [formLoading, setFormLoading] = useState(false);
-  const [rolesTarget, setRolesTarget] = useState(null);   // persona a la que asignar roles
+  const [formError,   setFormError]   = useState("");
+  const [editTarget,  setEditTarget]  = useState(null);
 
-  // ── Cargar personas y roles ────────────────────────────────
+  // ── Cargar personas, usuarios y roles ─────────────────────
   const cargar = async () => {
     setLoading(true);
     try {
-      const [dataPersonas, dataRoles] = await Promise.all([
+      const [dataPersonas, dataRoles, dataUsuarios] = await Promise.all([
         personalApi.listarPersonas(),
         personalApi.listarRoles(),
+        http("/api/Usuarios").catch(() => ({ datos: [] })),
       ]);
-      const todos = Array.isArray(dataPersonas.datos) ? dataPersonas.datos : dataPersonas.datos ? [dataPersonas.datos] : [];
-      setItems(todos.filter(p => p.usuario));
-      setRoles(Array.isArray(dataRoles.datos) ? dataRoles.datos : []);
+      const toArr = (v) => Array.isArray(v) ? v : v ? [v] : [];
+      const usuariosMap = {};
+      toArr(dataUsuarios.datos).forEach(u => { usuariosMap[u.usuarioId] = u; });
+
+      // Mostrar TODAS las personas (incluso las sin usuario)
+      const personas = toArr(dataPersonas.datos);
+      personas.forEach(p => {
+        if (!p.usuario?.usuarioId) return;
+        const full = usuariosMap[p.usuario.usuarioId];
+        if (full) p.usuario = { ...p.usuario, rolId: full.rolId, dependenciaId: full.dependenciaId, activo: full.activo };
+      });
+
+      setItems(personas);
+      setRoles(toArr(dataRoles.datos));
     } catch (e) {
-      setModal({ open: true, variant: "error", message: e.message || "Error al cargar usuarios." });
+      setFormError(e.message || "Error al cargar usuarios.");
     } finally {
       setLoading(false);
     }
@@ -84,60 +98,51 @@ export default function UsuariosPage() {
 
   useEffect(() => { cargar(); }, []);
 
-  // ── Guardar (crear o editar persona + usuario opcional) ───
+  // ── Crear nueva persona + usuario ─────────────────────────
   const handleGuardar = async (valores) => {
     setFormLoading(true);
     try {
-      if (form?.personaId) {
-        // Editar persona existente
-        const res = await personalApi.actualizarPersona(form.personaId, {
-          tipoDocumento:    valores.tipoDocumento,
-          numeroDocumento:  valores.numeroDocumento,
-          nombres:          valores.nombres,
-          apellidosPaterno: valores.apellidosPaterno,
-          apellidosMaterno: valores.apellidosMaterno,
-          sexo:             valores.sexo,
-          email:            valores.email,
-          telefono:         valores.telefono,
-          direccion:        valores.direccion,
-        });
-        if (res?.exito === false) throw new Error(res.mensaje || "No se pudo actualizar.");
-        setModal({ open: true, variant: "success", message: "Usuario actualizado correctamente." });
-      } else {
-        // Nueva persona + usuario (ambos obligatorios en este módulo)
-        const respPersona = await personalApi.crearPersona({
-          tipoDocumento:    valores.tipoDocumento,
-          numeroDocumento:  valores.numeroDocumento,
-          nombres:          valores.nombres,
-          apellidosPaterno: valores.apellidosPaterno,
-          apellidosMaterno: valores.apellidosMaterno,
-          sexo:             valores.sexo,
-          email:            valores.email,
-          telefono:         valores.telefono,
-          direccion:        valores.direccion,
-          activo:           true,
-        });
-        if (respPersona?.exito === false) throw new Error(respPersona.mensaje || "No se pudo crear la persona.");
+      const respPersona = await personalApi.crearPersona({
+        tipoDocumento:    valores.tipoDocumento,
+        numeroDocumento:  valores.numeroDocumento,
+        nombres:          valores.nombres,
+        apellidosPaterno: valores.apellidosPaterno,
+        apellidosMaterno: valores.apellidosMaterno,
+        sexo:             valores.sexo,
+        email:            valores.email,
+        telefono:         valores.telefono,
+        direccion:        valores.direccion,
+        activo:           true,
+      });
+      if (respPersona?.exito === false) throw new Error(respPersona.mensaje || "No se pudo crear la persona.");
 
-        const personaId = respPersona.datos?.personaId ?? respPersona.datos?.id;
-        if (!personaId) throw new Error("No se pudo obtener el ID de la persona creada.");
+      const personaId = respPersona.datos?.personaId ?? respPersona.datos?.id;
+      if (!personaId) throw new Error("No se pudo obtener el ID de la persona creada.");
 
+      try {
+        const rolNombre = roles.find(r => r.rolId === Number(valores.rolId))?.nombre ?? "";
         const resU = await personalApi.crearUsuario({
           personaId,
-          dependenciaId: Number(valores.dependenciaId) || null,
-          rolId:         Number(valores.rolId) || null,
-          userName:      valores.userName,
-          password:      valores.password,
-          activo:        true,
+          dependenciaId:  Number(valores.dependenciaId) || null,
+          rolId:          Number(valores.rolId) || null,
+          rolNombre,
+          userName:       valores.userName,
+          password:       valores.password,
+          nombreCompleto: `${valores.nombres} ${valores.apellidosPaterno} ${valores.apellidosMaterno}`.trim(),
+          activo:         true,
         });
         if (resU?.exito === false) throw new Error(resU.mensaje || "No se pudo crear el usuario.");
-
-        setModal({ open: true, variant: "success", message: "Usuario creado correctamente." });
+      } catch (eUser) {
+        // Rollback: eliminar la persona para no dejar huérfanos
+        await personalApi.eliminarPersona(personaId).catch(() => {});
+        throw eUser;
       }
+
+      setFormError("");
       setForm(null);
       cargar();
     } catch (e) {
-      setModal({ open: true, variant: "error", message: e.message || "No se pudo guardar." });
+      setFormError(e.message || "No se pudo guardar.");
     } finally {
       setFormLoading(false);
     }
@@ -148,33 +153,20 @@ export default function UsuariosPage() {
     setConfirm(p => ({ ...p, loading: true }));
     try {
       await personalApi.eliminarPersona(confirm.personaId);
-      setConfirm({ open: false, personaId: null, loading: false });
-      setModal({ open: true, variant: "success", message: "Usuario eliminado correctamente." });
+      setConfirm({ open: false, personaId: null, loading: false, error: "" });
       cargar();
     } catch (e) {
-      setConfirm(p => ({ ...p, loading: false }));
-      setModal({ open: true, variant: "error", message: e.message || "No se pudo eliminar." });
+      setConfirm(p => ({ ...p, loading: false, error: e.message || "No se pudo eliminar." }));
     }
   };
 
-  // ── Filtro ────────────────────────────────────────────────
-  const filtrados = items.filter(p =>
-    `${p.nombres ?? ""} ${p.apellidosPaterno ?? ""} ${p.apellidosMaterno ?? ""} ${p.usuario?.userName ?? ""}`
-      .toLowerCase().includes(busqueda.toLowerCase())
-  );
+  // ── Filtro (nombre, usuario y rol) ────────────────────────
+  const filtrados = items.filter(p => {
+    const rolNombre = roles.find(r => r.rolId === p.usuario?.rolId)?.nombre ?? "";
+    return `${p.nombres ?? ""} ${p.apellidosPaterno ?? ""} ${p.apellidosMaterno ?? ""} ${p.usuario?.userName ?? ""} ${rolNombre}`
+      .toLowerCase().includes(busqueda.toLowerCase());
+  });
 
-  // ── Acciones extra: asignar roles ─────────────────────────
-  const accionesExtra = (persona) => persona.usuario && (
-    <button
-      onClick={() => setRolesTarget(persona)}
-      style={{
-        padding: "5px 12px", borderRadius: 6,
-        border: "1px solid #c7d2fe", background: "#eef2ff",
-        color: "#4338ca", fontWeight: 700, fontSize: "0.8rem", cursor: "pointer",
-      }}>
-      🎭 Roles
-    </button>
-  );
 
   return (
     <div style={{ width: "100%", maxWidth: 1200 }}>
@@ -186,7 +178,7 @@ export default function UsuariosPage() {
         </h2>
         <input
           type="text"
-          placeholder="🔍 Buscar por nombre o usuario..."
+          placeholder="🔍 Buscar por nombre, usuario o rol..."
           value={busqueda}
           onChange={e => setBusqueda(e.target.value)}
           style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid #d1d5db", fontSize: "0.93rem", minWidth: 240 }}
@@ -205,57 +197,40 @@ export default function UsuariosPage() {
         loading={loading}
         keyField="personaId"
         mensajeVacio="No hay usuarios registrados."
-        onEdit={modificar ? (p) => setForm({
-          personaId:        p.personaId,
-          tipoDocumento:    p.tipoDocumento,
-          numeroDocumento:  p.numeroDocumento,
-          nombres:          p.nombres,
-          apellidosPaterno: p.apellidosPaterno,
-          apellidosMaterno: p.apellidosMaterno,
-          sexo:             p.sexo,
-          email:            p.email,
-          telefono:         p.telefono,
-          direccion:        p.direccion,
-        }) : undefined}
+        onEdit={modificar ? (p) => setEditTarget(p) : undefined}
         onDelete={eliminar ? (p) => setConfirm({ open: true, personaId: p.personaId, loading: false }) : undefined}
-        accionesExtra={accionesExtra}
       />
 
-      {/* Formulario persona (crear/editar) */}
+      {/* Formulario crear nuevo usuario */}
       {form !== null && (
         <PersonaForm
           initialData={form}
           onSubmit={handleGuardar}
           loading={formLoading}
-          onCancel={() => setForm(null)}
-          modoUsuario={!form.personaId}
+          onCancel={() => { setForm(null); setFormError(""); }}
+          modoUsuario
+          error={formError}
         />
       )}
 
-      {/* Modal asignar roles */}
-      {rolesTarget && (
-        <RolesModal
-          persona={rolesTarget}
-          onClose={() => { setRolesTarget(null); cargar(); }}
+      {/* Modal editar usuario existente */}
+      {editTarget && (
+        <UsuarioEditModal
+          persona={editTarget}
+          onGuardado={() => { setEditTarget(null); cargar(); }}
+          onCerrar={() => setEditTarget(null)}
         />
       )}
 
-      {/* Modales de resultado */}
-      <ModalDialog
-        open={modal.open}
-        variant={modal.variant}
-        message={modal.message}
-        onClose={() => setModal({ open: false, variant: "error", message: "" })}
-      />
 
       <ModalDialog
         open={confirm.open}
         variant="confirm"
         title="Eliminar usuario"
-        message="¿Seguro que deseas eliminar este usuario? La persona también será eliminada."
+        message={confirm.error || "¿Seguro que deseas eliminar este usuario? La persona también será eliminada."}
         loading={confirm.loading}
         onConfirm={confirmarEliminar}
-        onClose={() => setConfirm({ open: false, personaId: null, loading: false })}
+        onClose={() => setConfirm({ open: false, personaId: null, loading: false, error: "" })}
         confirmText="Sí, eliminar"
         cancelText="Cancelar"
       />
