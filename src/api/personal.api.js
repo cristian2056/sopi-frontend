@@ -12,8 +12,5 @@ export const personalApi = {
   crearUsuario:      (body)          => http("/api/Personas/usuarios",       { method: "POST", body }),
   actualizarUsuario: (id, body)      => http(`/api/Personas/usuarios/${id}`, { method: "PUT",  body }),
 
-  // ── Roles ─────────────────────────────────────────────────
-  listarRoles: () => http("/api/Roles"),
-
   obtenerPersona: (id) => http(`/api/Personas/${id}`),
 };

@@ -1,8 +1,8 @@
 // src/pages/Seguridad/components/ModalAgregarUsuario.jsx
 import React, { useEffect, useState } from "react";
 import { C, btnSt, inputSt } from "../constants";
-import Overlay from "../../../components/ui/Overlay";
-import Spinner from "../../../components/ui/Spinner";
+import Overlay from "../../../Componentes_react/ui/Overlay";
+import Spinner from "../../../Componentes_react/ui/Spinner";
 import { rolUsuariosApi } from "../../../api/roles.api";
 
 export default function ModalAgregarUsuario({ usuariosActuales, onAgregar, onCerrar }) {

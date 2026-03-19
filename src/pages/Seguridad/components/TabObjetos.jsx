@@ -1,7 +1,7 @@
 // src/pages/Seguridad/components/TabObjetos.jsx
 import React, { useState } from "react";
 import { C, ACCIONES, thSt, tdSt, inputSt, btnSt } from "../constants";
-import CheckboxUI from "../../../components/ui/CheckboxUI";
+import CheckboxUI from "../../../Componentes_react/ui/CheckboxUI";
 
 export default function TabObjetos({ objetos, getRO, onTogglePerm, onToggleFila }) {
   const [busq,     setBusq]     = useState("");

@@ -1,8 +1,8 @@
 // src/pages/Dependencias/DependenciaForm.jsx
 import React, { useEffect, useState } from "react";
-import Overlay      from "../../components/ui/Overlay";
-import Spinner      from "../../components/ui/Spinner";
-import ToggleSwitch from "../../components/ui/ToggleSwitch";
+import Overlay      from "../../Componentes_react/ui/Overlay";
+import Spinner      from "../../Componentes_react/ui/Spinner";
+import ToggleSwitch from "../../Componentes_react/ui/ToggleSwitch";
 import { dependenciasApi } from "../../api/administracion.api";
 
 const C = { primary: "#4c7318", primaryHover: "#3e5b19" };

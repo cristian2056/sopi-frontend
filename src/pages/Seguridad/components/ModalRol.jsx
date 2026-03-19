@@ -1,8 +1,8 @@
 // src/pages/Seguridad/components/ModalRol.jsx
 import React, { useState } from "react";
 import { C, btnSt, inputSt, labelSt } from "../constants";
-import Overlay     from "../../../components/ui/Overlay";
-import ToggleSwitch from "../../../components/ui/ToggleSwitch";
+import Overlay     from "../../../Componentes_react/ui/Overlay";
+import ToggleSwitch from "../../../Componentes_react/ui/ToggleSwitch";
 
 export default function ModalRol({ rol, onGuardar, onCerrar, loading }) {
   const [nombre,      setNombre]      = useState(rol?.nombre      ?? "");

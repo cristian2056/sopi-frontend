@@ -2,30 +2,15 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { personalApi } from "../../api/personal.api";
-import ModalDialog  from "../../components/ui/ModalDialog";
-import DataTable    from "../../components/ui/DataTable";
+import ModalDialog  from "../../Componentes_react/ui/ModalDialog";
+import DataTable    from "../../Componentes_react/ui/DataTable";
 import PersonaForm  from "./PersonaForm";
 import RolesModal   from "./RolesModal";
 import { usePermiso } from "../../stores/menuSlice";
-
-// ── Columnas de la tabla ───────────────────────────────────
-const columnas = [
-  { key: "personaId",  label: "ID",        ancho: 70,  render: (p) => `#${p.personaId}` },
-  { key: "nombre",     label: "Nombre",    ancho: 220, render: (p) => `${p.nombres} ${p.apellidosPaterno} ${p.apellidosMaterno}` },
-  { key: "documento",  label: "Documento", ancho: 140, render: (p) => `${p.tipoDocumento}: ${p.numeroDocumento}` },
-  { key: "email",      label: "Email",     ancho: 200 },
-  { key: "usuario",    label: "Usuario",   ancho: 120,
-    render: (p) => p.usuario
-      ? <span style={{ background: "#dcfce7", color: "#16a34a", borderRadius: 20,
-          padding: "2px 10px", fontWeight: 600, fontSize: "0.82rem" }}>
-          {p.usuario.userName}
-        </span>
-      : <span style={{ color: "#9ca3af", fontSize: "0.82rem" }}>Sin usuario</span>
-  },
-];
+import { columnas } from "./personalColumnas";
 
 export default function PersonalPage() {
-  const navigate = useNavigate(); // ✅ dentro del componente
+  const navigate = useNavigate();
   const { crear, modificar, eliminar } = usePermiso("Personal");
 
   const [items,       setItems]       = useState([]);
@@ -37,7 +22,6 @@ export default function PersonalPage() {
   const [formLoading, setFormLoading] = useState(false);
   const [rolesTarget, setRolesTarget] = useState(null);
 
-  // ── Carga de datos ────────────────────────────────────────
   const load = async () => {
     setLoading(true);
     try {
@@ -52,7 +36,6 @@ export default function PersonalPage() {
 
   useEffect(() => { load(); }, []);
 
-  // ── Guardar (crear o editar) ──────────────────────────────
   const handleGuardar = async (valores) => {
     setFormLoading(true);
     try {
@@ -111,7 +94,6 @@ export default function PersonalPage() {
     }
   };
 
-  // ── Eliminar ──────────────────────────────────────────────
   const confirmarEliminar = async () => {
     setConfirm(p => ({ ...p, loading: true }));
     try {
@@ -125,7 +107,6 @@ export default function PersonalPage() {
     }
   };
 
-  // ── Filtro ────────────────────────────────────────────────
   const itemsFiltrados = items.filter(p =>
     (p.nombres          ?? "").toLowerCase().includes(busqueda.toLowerCase()) ||
     (p.apellidosPaterno ?? "").toLowerCase().includes(busqueda.toLowerCase()) ||
@@ -133,7 +114,6 @@ export default function PersonalPage() {
     (p.email            ?? "").toLowerCase().includes(busqueda.toLowerCase())
   );
 
-  // ── Acciones extra ────────────────────────────────────────
   const accionesExtra = (persona) => (
     <button
       onClick={() => navigate(`/personal/${persona.personaId}`)}
@@ -147,7 +127,6 @@ export default function PersonalPage() {
   return (
     <div style={{ width: "100%", maxWidth: 1100 }}>
 
-      {/* Barra superior */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
         <h2 style={{ margin: 0, flex: 1 }}>Personal</h2>
         <input
@@ -167,7 +146,6 @@ export default function PersonalPage() {
         </button>}
       </div>
 
-      {/* Tabla */}
       <DataTable
         columnas={columnas}
         datos={itemsFiltrados}
@@ -190,7 +168,6 @@ export default function PersonalPage() {
         accionesExtra={accionesExtra}
       />
 
-      {/* Modal formulario */}
       {form !== null && (
         <PersonaForm
           initialData={form}
@@ -200,7 +177,6 @@ export default function PersonalPage() {
         />
       )}
 
-      {/* Modal asignar roles */}
       {rolesTarget && (
         <RolesModal
           persona={rolesTarget}
@@ -208,7 +184,6 @@ export default function PersonalPage() {
         />
       )}
 
-      {/* Modal éxito/error */}
       <ModalDialog
         open={modal.open}
         variant={modal.variant}
@@ -216,7 +191,6 @@ export default function PersonalPage() {
         onClose={() => setModal({ open: false, variant: "error", message: "" })}
       />
 
-      {/* Modal confirmar eliminar */}
       <ModalDialog
         open={confirm.open}
         variant="confirm"

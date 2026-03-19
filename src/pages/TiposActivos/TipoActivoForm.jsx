@@ -1,6 +1,6 @@
 // src/pages/TiposActivos/TipoActivoForm.jsx
 import React, { useState } from "react";
-import Overlay from "../../components/ui/Overlay";
+import Overlay from "../../Componentes_react/ui/Overlay";
 
 const C = { primary: "#4c7318", primaryHover: "#3e5b19" };
 const inputSt = {

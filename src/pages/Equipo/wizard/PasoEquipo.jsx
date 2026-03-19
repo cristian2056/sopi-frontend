@@ -2,8 +2,9 @@
 // Paso 1 del wizard: formulario de datos principales del equipo.
 import { useState, useEffect } from "react";
 import { equiposApi } from "../../../api/equipos.api";
-import { http } from "../../../services/http";
-import { inputStyle, labelStyle } from "../../../components/ui/formStyles";
+import { marcasApi } from "../../../api/marcas.api";
+import { tiposActivosApi, proveedoresApi } from "../../../api/administracion.api";
+import { inputStyle, labelStyle } from "../../../Componentes_react/ui/formStyles";
 import { COLOR, ESTADOS } from "./wizardConstants";
 
 const FORM_VACIO = {
@@ -24,9 +25,9 @@ export default function PasoEquipo({ onCreado, onCancelar }) {
 
   useEffect(() => {
     Promise.all([
-      http("/api/Marcas"),
-      http("/api/TiposActivos"),
-      http("/api/Proveedores"),
+      marcasApi.listar(),
+      tiposActivosApi.listar(),
+      proveedoresApi.listar(),
     ]).then(([rMarcas, rTipos, rProveedores]) => {
       setMarcas(rMarcas.datos       ?? []);
       setTiposActivo(rTipos.datos   ?? []);

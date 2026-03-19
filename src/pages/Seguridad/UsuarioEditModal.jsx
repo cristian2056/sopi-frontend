@@ -1,9 +1,10 @@
 // src/pages/Seguridad/UsuarioEditModal.jsx
 // Orquesta estado, lógica y layout. Los sub-componentes viven en ./components/
 import { useState, useEffect } from "react";
-import { http } from "../../services/http";
 import { dependenciasApi } from "../../api/administracion.api";
 import { personalApi } from "../../api/personal.api";
+import { rolesApi } from "../../api/roles.api";
+import { usuariosApi } from "../../api/usuarios.api";
 import TabPersonaEdit from "./components/TabPersonaEdit";
 import TabCuentaEdit  from "./components/TabCuentaEdit";
 
@@ -70,7 +71,7 @@ export default function UsuarioEditModal({ persona, onGuardado, onCerrar }) {
   useEffect(() => {
     Promise.all([
       dependenciasApi.listar().catch(() => ({ datos: [] })),
-      personalApi.listarRoles().catch(() => ({ datos: [] })),
+      rolesApi.listar().catch(() => ({ datos: [] })),
     ]).then(([rD, rR]) => {
       const toArr = (v) => Array.isArray(v) ? v : v ? [v] : [];
       setDependencias(toArr(rD.datos));
@@ -110,7 +111,7 @@ export default function UsuarioEditModal({ persona, onGuardado, onCerrar }) {
         };
         if (datosCuenta.password) bodyU.password = datosCuenta.password;
 
-        const resU = await http(`/api/Usuarios/${usuario.usuarioId}`, { method: "PUT", body: bodyU });
+        const resU = await usuariosApi.editar(usuario.usuarioId, bodyU);
         if (resU?.exito === false) throw new Error(resU.mensaje || "No se pudo actualizar la cuenta.");
 
       } else {

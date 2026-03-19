@@ -1,7 +1,7 @@
 // src/pages/Seguridad/components/TabMenus.jsx
 import React from "react";
 import { C } from "../constants";
-import CheckboxUI from "../../../components/ui/CheckboxUI";
+import CheckboxUI from "../../../Componentes_react/ui/CheckboxUI";
 
 export default function TabMenus({ menus, menuAcceso, onToggle }) {
   const lista  = Array.isArray(menus) ? menus : [];

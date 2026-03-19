@@ -3,10 +3,10 @@
 // Permite crear, editar y eliminar registros de red vinculados a equipos.
 import React, { useEffect, useState } from "react";
 import { equipoRedApi } from "../../api/equipoExtras.api";
-import { http } from "../../services/http";
-import DataTable   from "../../components/ui/DataTable";
-import ModalDialog from "../../components/ui/ModalDialog";
-import FormModal   from "../../components/ui/FormModal";
+import { equiposApi } from "../../api/equipos.api";
+import DataTable   from "../../Componentes_react/ui/DataTable";
+import ModalDialog from "../../Componentes_react/ui/ModalDialog";
+import FormModal   from "../../Componentes_react/ui/FormModal";
 import { usePermiso } from "../../stores/menuSlice";
 
 const columnas = [
@@ -36,7 +36,7 @@ export default function EquiposRedPage() {
     try {
       const [dataRed, dataEq] = await Promise.all([
         equipoRedApi.listar(),
-        http("/api/Equipo"),
+        equiposApi.listar(),
       ]);
       const listaRed = Array.isArray(dataRed.datos) ? dataRed.datos : dataRed.datos ? [dataRed.datos] : [];
       const listaEq  = Array.isArray(dataEq.datos)  ? dataEq.datos  : dataEq.datos  ? [dataEq.datos]  : [];

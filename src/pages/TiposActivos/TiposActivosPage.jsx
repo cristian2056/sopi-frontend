@@ -1,9 +1,9 @@
 // src/pages/TiposActivos/TiposActivosPage.jsx
 import React, { useEffect, useState } from "react";
 import { tiposActivosApi } from "../../api/administracion.api";
-import DataTable  from "../../components/ui/DataTable";
-import ModalDialog from "../../components/ui/ModalDialog";
-import FormModal   from "../../components/ui/FormModal";
+import DataTable  from "../../Componentes_react/ui/DataTable";
+import ModalDialog from "../../Componentes_react/ui/ModalDialog";
+import FormModal   from "../../Componentes_react/ui/FormModal";
 import { usePermiso } from "../../stores/menuSlice";
 
 const FIELDS = [

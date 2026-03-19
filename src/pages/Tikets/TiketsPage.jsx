@@ -1,37 +1,43 @@
 // src/pages/Tikets/TiketsPage.jsx
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { selectUsuario } from "../../stores/authSlice";
 import { ticketsApi } from "../../api/tickets.api";
 
-import SeccionUsuario   from "./components/SeccionUsuario";
-import SeccionTecnico   from "./components/SeccionTecnico";
-import ModalCrearTicket from "./components/ModalCrearTicket";
+import SeccionUsuario    from "./components/SeccionUsuario";
+import SeccionTecnico    from "./components/SeccionTecnico";
+import ModalCrearTicket  from "./components/ModalCrearTicket";
 import ModalCerrarTicket from "./components/ModalCerrarTicket";
 
-export default function TiketsPage() {
-  // esTecnico: lo determina el backend — si /pendientes responde sin 403 = es técnico
-  const [esTecnico, setEsTecnico] = useState(false);
+// Rol "usuario" en cualquier variante de mayúsculas → vista personal
+const esRolUsuario = (rolNombre = "") =>
+  rolNombre.toLowerCase().includes("usuario");
 
-  // ── Datos usuario ─────────────────────────────────────────────────────────
+export default function TiketsPage() {
+  const usuario        = useSelector(selectUsuario);
+  const esVistaPersonal = esRolUsuario(usuario?.tipoUsuario ?? usuario?.rolNombre ?? "");
+
+  // ── Datos usuario ──────────────────────────────────────────────────────────
   const [equipos,        setEquipos]        = useState([]);
   const [misTickets,     setMisTickets]     = useState([]);
   const [loadingEquipos, setLoadingEquipos] = useState(true);
   const [loadingTickets, setLoadingTickets] = useState(true);
 
-  // ── Datos técnico ─────────────────────────────────────────────────────────
+  // ── Datos técnico ──────────────────────────────────────────────────────────
   const [pendientes,        setPendientes]        = useState([]);
   const [asignados,         setAsignados]         = useState([]);
   const [loadingPendientes, setLoadingPendientes] = useState(false);
   const [loadingAsignados,  setLoadingAsignados]  = useState(false);
 
-  // ── Modales ───────────────────────────────────────────────────────────────
-  const [crearTarget,  setCrearTarget]  = useState(null);  // equipo seleccionado
-  const [cerrarTarget, setCerrarTarget] = useState(null);  // ticket a cerrar
-  const [crearLoading, setCrearLoading] = useState(false);
+  // ── Modales ────────────────────────────────────────────────────────────────
+  const [crearTarget,   setCrearTarget]   = useState(null);
+  const [cerrarTarget,  setCerrarTarget]  = useState(null);
+  const [crearLoading,  setCrearLoading]  = useState(false);
   const [cerrarLoading, setCerrarLoading] = useState(false);
-  const [tomarLoading,  setTomarLoading]  = useState(null); // ticketId en proceso
-  const [error, setError] = useState("");
+  const [tomarLoading,  setTomarLoading]  = useState(null);
+  const [error,         setError]         = useState("");
 
-  // ── Carga inicial ─────────────────────────────────────────────────────────
+  // ── Carga inicial ──────────────────────────────────────────────────────────
   const cargarUsuario = async () => {
     setLoadingEquipos(true);
     setLoadingTickets(true);
@@ -54,15 +60,12 @@ export default function TiketsPage() {
     setLoadingAsignados(true);
     try {
       const [rP, rA] = await Promise.all([
-        ticketsApi.pendientes(),
+        ticketsApi.pendientes().catch(() => ({ datos: [] })),
         ticketsApi.misAsignados().catch(() => ({ datos: [] })),
       ]);
       const toArr = v => Array.isArray(v) ? v : v ? [v] : [];
-      setEsTecnico(true);
       setPendientes(toArr(rP.datos));
       setAsignados(toArr(rA.datos));
-    } catch {
-      setEsTecnico(false);
     } finally {
       setLoadingPendientes(false);
       setLoadingAsignados(false);
@@ -70,11 +73,14 @@ export default function TiketsPage() {
   };
 
   useEffect(() => {
-    cargarUsuario();
-    cargarTecnico();
-  }, []);
+    if (esVistaPersonal) {
+      cargarUsuario();
+    } else {
+      cargarTecnico();
+    }
+  }, [esVistaPersonal]);
 
-  // ── Acciones usuario ──────────────────────────────────────────────────────
+  // ── Acciones usuario ───────────────────────────────────────────────────────
   const handleCrear = async (body) => {
     setCrearLoading(true);
     try {
@@ -89,7 +95,7 @@ export default function TiketsPage() {
     }
   };
 
-  // ── Acciones técnico ──────────────────────────────────────────────────────
+  // ── Acciones técnico ───────────────────────────────────────────────────────
   const handleTomar = async (ticketId) => {
     setTomarLoading(ticketId);
     try {
@@ -117,9 +123,9 @@ export default function TiketsPage() {
     }
   };
 
-  // ── Render ────────────────────────────────────────────────────────────────
+  // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div style={{ width: "100%", maxWidth: 900 }}>
+    <div style={{ width: "100%", maxWidth: esVistaPersonal ? 900 : 1200 }}>
 
       <h2 style={{ margin: "0 0 24px", fontSize: "1.3rem", fontWeight: 800, color: "#232946" }}>
         🎫 Tickets de soporte
@@ -136,31 +142,25 @@ export default function TiketsPage() {
         </div>
       )}
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 36 }}>
-
+      {esVistaPersonal ? (
         <SeccionUsuario
-          equipos={equipos}        tickets={misTickets}
+          equipos={equipos}           tickets={misTickets}
           loadingEquipos={loadingEquipos} loadingTickets={loadingTickets}
           onCrearTicket={setCrearTarget}
         />
-
-        {esTecnico && (
-          <>
-            <hr style={{ border: "none", borderTop: "2px dashed #e5e7eb" }} />
-            <SeccionTecnico
-              pendientes={pendientes}             asignados={asignados}
-              loadingPendientes={loadingPendientes} loadingAsignados={loadingAsignados}
-              onTomar={handleTomar}  onCerrar={setCerrarTarget}
-              tomarLoading={tomarLoading}
-            />
-          </>
-        )}
-
-      </div>
+      ) : (
+        <SeccionTecnico
+          pendientes={pendientes}             asignados={asignados}
+          loadingPendientes={loadingPendientes} loadingAsignados={loadingAsignados}
+          onTomar={handleTomar}   onCerrar={setCerrarTarget}
+          tomarLoading={tomarLoading}
+        />
+      )}
 
       {crearTarget && (
         <ModalCrearTicket
-          equipo={crearTarget}
+          equipo={typeof crearTarget === "object" ? crearTarget : null}
+          equipos={typeof crearTarget !== "object" ? equipos : []}
           onCrear={handleCrear}
           onCerrar={() => setCrearTarget(null)}
           loading={crearLoading}

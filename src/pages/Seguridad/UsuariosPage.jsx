@@ -1,59 +1,15 @@
 // src/pages/Seguridad/UsuariosPage.jsx
 import { useEffect, useState } from "react";
 import { personalApi }     from "../../api/personal.api";
-import { http }            from "../../services/http";
+import { usuariosApi }     from "../../api/usuarios.api";
+import { rolesApi }        from "../../api/roles.api";
 import PersonaForm         from "../Personal/PersonaForm";
-import UsuarioEditModal from "./UsuarioEditModal";
-import ModalDialog      from "../../components/ui/ModalDialog";
-import DataTable           from "../../components/ui/DataTable";
+import UsuarioEditModal    from "./UsuarioEditModal";
+import ModalDialog         from "../../Componentes_react/ui/ModalDialog";
+import DataTable           from "../../Componentes_react/ui/DataTable";
 import { usePermiso }      from "../../stores/menuSlice";
+import { makeColumnas }    from "./usuariosColumnas";
 
-// ─── Columnas de la tabla (recibe roles para resolver el nombre) ──────────────
-const makeColumnas = (roles) => [
-  {
-    key: "nombre", label: "Nombre completo", ancho: 220,
-    render: (p) => `${p.nombres} ${p.apellidosPaterno} ${p.apellidosMaterno}`,
-  },
-  {
-    key: "documento", label: "Documento", ancho: 140,
-    render: (p) => `${p.tipoDocumento}: ${p.numeroDocumento}`,
-  },
-  {
-    key: "userName", label: "Usuario", ancho: 130,
-    render: (p) => p.usuario
-      ? <span style={{ background: "#e0e7ff", color: "#4338ca", borderRadius: 20, padding: "2px 10px", fontWeight: 700, fontSize: "0.82rem" }}>
-          @{p.usuario.userName}
-        </span>
-      : <span style={{ color: "#d1d5db", fontSize: "0.82rem" }}>Sin usuario</span>,
-  },
-  {
-    key: "rol", label: "Rol", ancho: 150,
-    render: (p) => {
-      const rolNombre = roles.find(r => r.rolId === p.usuario?.rolId)?.nombre;
-      return rolNombre
-        ? <span style={{ background: "#fef3c7", color: "#92400e", borderRadius: 20, padding: "2px 10px", fontWeight: 700, fontSize: "0.82rem" }}>
-            {rolNombre}
-          </span>
-        : <span style={{ color: "#d1d5db", fontSize: "0.82rem" }}>Sin rol</span>;
-    },
-  },
-  {
-    key: "activo", label: "Estado", ancho: 110,
-    render: (p) => p.usuario
-      ? <span style={{
-          background: p.usuario.activo ? "#dcfce7" : "#fee2e2",
-          color: p.usuario.activo ? "#16a34a" : "#dc2626",
-          borderRadius: 20, padding: "2px 10px", fontWeight: 700, fontSize: "0.82rem",
-        }}>
-          {p.usuario.activo ? "Activo" : "Inactivo"}
-        </span>
-      : <span style={{ background: "#fef3c7", color: "#92400e", borderRadius: 20, padding: "2px 10px", fontWeight: 700, fontSize: "0.82rem" }}>
-          ⚠️ Sin usuario
-        </span>,
-  },
-];
-
-// ─── Página ───────────────────────────────────────────────────────────────────
 export default function UsuariosPage() {
   const { crear, modificar, eliminar } = usePermiso("Usuarios");
   const [items,       setItems]       = useState([]);
@@ -61,25 +17,23 @@ export default function UsuariosPage() {
   const [loading,     setLoading]     = useState(true);
   const [busqueda,    setBusqueda]    = useState("");
   const [confirm,     setConfirm]     = useState({ open: false, personaId: null, loading: false, error: "" });
-  const [form,        setForm]        = useState(null);   // null = cerrado, {} = crear nuevo
+  const [form,        setForm]        = useState(null);
   const [formLoading, setFormLoading] = useState(false);
   const [formError,   setFormError]   = useState("");
   const [editTarget,  setEditTarget]  = useState(null);
 
-  // ── Cargar personas, usuarios y roles ─────────────────────
   const cargar = async () => {
     setLoading(true);
     try {
       const [dataPersonas, dataRoles, dataUsuarios] = await Promise.all([
         personalApi.listarPersonas(),
-        personalApi.listarRoles(),
-        http("/api/Usuarios").catch(() => ({ datos: [] })),
+        rolesApi.listar(),
+        usuariosApi.listar().catch(() => ({ datos: [] })),
       ]);
       const toArr = (v) => Array.isArray(v) ? v : v ? [v] : [];
       const usuariosMap = {};
       toArr(dataUsuarios.datos).forEach(u => { usuariosMap[u.usuarioId] = u; });
 
-      // Mostrar TODAS las personas (incluso las sin usuario)
       const personas = toArr(dataPersonas.datos);
       personas.forEach(p => {
         if (!p.usuario?.usuarioId) return;
@@ -98,7 +52,6 @@ export default function UsuariosPage() {
 
   useEffect(() => { cargar(); }, []);
 
-  // ── Crear nueva persona + usuario ─────────────────────────
   const handleGuardar = async (valores) => {
     setFormLoading(true);
     try {
@@ -133,7 +86,6 @@ export default function UsuariosPage() {
         });
         if (resU?.exito === false) throw new Error(resU.mensaje || "No se pudo crear el usuario.");
       } catch (eUser) {
-        // Rollback: eliminar la persona para no dejar huérfanos
         await personalApi.eliminarPersona(personaId).catch(() => {});
         throw eUser;
       }
@@ -148,7 +100,6 @@ export default function UsuariosPage() {
     }
   };
 
-  // ── Eliminar ──────────────────────────────────────────────
   const confirmarEliminar = async () => {
     setConfirm(p => ({ ...p, loading: true }));
     try {
@@ -160,18 +111,15 @@ export default function UsuariosPage() {
     }
   };
 
-  // ── Filtro (nombre, usuario y rol) ────────────────────────
   const filtrados = items.filter(p => {
     const rolNombre = roles.find(r => r.rolId === p.usuario?.rolId)?.nombre ?? "";
     return `${p.nombres ?? ""} ${p.apellidosPaterno ?? ""} ${p.apellidosMaterno ?? ""} ${p.usuario?.userName ?? ""} ${rolNombre}`
       .toLowerCase().includes(busqueda.toLowerCase());
   });
 
-
   return (
     <div style={{ width: "100%", maxWidth: 1200 }}>
 
-      {/* Barra superior */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
         <h2 style={{ margin: 0, flex: 1, fontSize: "1.3rem", fontWeight: 800, color: "#232946" }}>
           👥 Usuarios del sistema
@@ -190,7 +138,6 @@ export default function UsuariosPage() {
         </button>}
       </div>
 
-      {/* Tabla */}
       <DataTable
         columnas={makeColumnas(roles)}
         datos={filtrados}
@@ -201,7 +148,6 @@ export default function UsuariosPage() {
         onDelete={eliminar ? (p) => setConfirm({ open: true, personaId: p.personaId, loading: false }) : undefined}
       />
 
-      {/* Formulario crear nuevo usuario */}
       {form !== null && (
         <PersonaForm
           initialData={form}
@@ -213,7 +159,6 @@ export default function UsuariosPage() {
         />
       )}
 
-      {/* Modal editar usuario existente */}
       {editTarget && (
         <UsuarioEditModal
           persona={editTarget}
@@ -221,7 +166,6 @@ export default function UsuariosPage() {
           onCerrar={() => setEditTarget(null)}
         />
       )}
-
 
       <ModalDialog
         open={confirm.open}

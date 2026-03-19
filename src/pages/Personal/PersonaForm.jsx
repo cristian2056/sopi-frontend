@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { dependenciasApi } from "../../api/administracion.api";
 import { personalApi } from "../../api/personal.api";
+import { rolesApi } from "../../api/roles.api";
+import AccesoSistema from "./AccesoSistema";
 
 const TIPOS_DOC = ["DNI", "CE", "PASAPORTE"];
 const SEXOS     = ["M", "F"];
@@ -34,7 +36,7 @@ export default function PersonaForm({ initialData = {}, onSubmit, loading, onCan
     dependenciasApi.listar()
       .then(r => setDependencias(r?.datos ?? []))
       .catch(() => {});
-    personalApi.listarRoles()
+    rolesApi.listar()
       .then(r => setRoles(Array.isArray(r.datos) ? r.datos : []))
       .catch(() => {});
   }, []);
@@ -59,12 +61,12 @@ export default function PersonaForm({ initialData = {}, onSubmit, loading, onCan
   };
   const row = { display: "flex", gap: 14, marginBottom: 14 };
   const col = (flex = 1) => ({ display: "flex", flexDirection: "column", flex, gap: 4 });
-  const label = { fontSize: "0.82rem", fontWeight: 600, color: "#374151" };
-  const input = {
+  const labelStyle = { fontSize: "0.82rem", fontWeight: 600, color: "#374151" };
+  const inputStyle = {
     padding: "8px 12px", borderRadius: 8, border: "1px solid #d1d5db",
     fontSize: "0.95rem", outline: "none",
   };
-  const select = { ...input, background: "#fff" };
+  const selectStyle = { ...inputStyle, background: "#fff" };
   const section = {
     fontWeight: 700, fontSize: "0.8rem", color: "#6b7280",
     textTransform: "uppercase", letterSpacing: 1,
@@ -83,20 +85,20 @@ export default function PersonaForm({ initialData = {}, onSubmit, loading, onCan
 
         <div style={row}>
           <div style={col(0.4)}>
-            <span style={label}>Tipo doc.</span>
-            <select style={select} value={datos.tipoDocumento}
+            <span style={labelStyle}>Tipo doc.</span>
+            <select style={selectStyle} value={datos.tipoDocumento}
               onChange={e => set("tipoDocumento", e.target.value)}>
               {TIPOS_DOC.map(t => <option key={t}>{t}</option>)}
             </select>
           </div>
           <div style={col()}>
-            <span style={label}>Nº documento *</span>
-            <input style={input} value={datos.numeroDocumento}
+            <span style={labelStyle}>Nº documento *</span>
+            <input style={inputStyle} value={datos.numeroDocumento}
               onChange={e => set("numeroDocumento", e.target.value)} placeholder="12345678" />
           </div>
           <div style={col(0.4)}>
-            <span style={label}>Sexo</span>
-            <select style={select} value={datos.sexo}
+            <span style={labelStyle}>Sexo</span>
+            <select style={selectStyle} value={datos.sexo}
               onChange={e => set("sexo", e.target.value)}>
               <option value="">-</option>
               {SEXOS.map(s => <option key={s}>{s}</option>)}
@@ -106,41 +108,41 @@ export default function PersonaForm({ initialData = {}, onSubmit, loading, onCan
 
         <div style={row}>
           <div style={col()}>
-            <span style={label}>Nombres *</span>
-            <input style={input} value={datos.nombres}
+            <span style={labelStyle}>Nombres *</span>
+            <input style={inputStyle} value={datos.nombres}
               onChange={e => set("nombres", e.target.value)} placeholder="Juan Carlos" />
           </div>
         </div>
 
         <div style={row}>
           <div style={col()}>
-            <span style={label}>Apellido paterno *</span>
-            <input style={input} value={datos.apellidosPaterno}
+            <span style={labelStyle}>Apellido paterno *</span>
+            <input style={inputStyle} value={datos.apellidosPaterno}
               onChange={e => set("apellidosPaterno", e.target.value)} />
           </div>
           <div style={col()}>
-            <span style={label}>Apellido materno *</span>
-            <input style={input} value={datos.apellidosMaterno}
+            <span style={labelStyle}>Apellido materno *</span>
+            <input style={inputStyle} value={datos.apellidosMaterno}
               onChange={e => set("apellidosMaterno", e.target.value)} />
           </div>
         </div>
 
         <div style={row}>
           <div style={col()}>
-            <span style={label}>Email</span>
-            <input style={input} type="email" value={datos.email}
+            <span style={labelStyle}>Email</span>
+            <input style={inputStyle} type="email" value={datos.email}
               onChange={e => set("email", e.target.value)} placeholder="correo@ejemplo.com" />
           </div>
           <div style={col()}>
-            <span style={label}>Teléfono</span>
-            <input style={input} value={datos.telefono}
+            <span style={labelStyle}>Teléfono</span>
+            <input style={inputStyle} value={datos.telefono}
               onChange={e => set("telefono", e.target.value)} placeholder="987654321" />
           </div>
         </div>
 
         <div style={{ marginBottom: 14 }}>
-          <span style={label}>Dirección</span>
-          <input style={{ ...input, width: "100%", boxSizing: "border-box", marginTop: 4 }}
+          <span style={labelStyle}>Dirección</span>
+          <input style={{ ...inputStyle, width: "100%", boxSizing: "border-box", marginTop: 4 }}
             value={datos.direccion}
             onChange={e => set("direccion", e.target.value)} placeholder="Av. Principal 123" />
         </div>
@@ -149,63 +151,18 @@ export default function PersonaForm({ initialData = {}, onSubmit, loading, onCan
         {!esEdicion && (
           <>
             <div style={section}>Acceso al sistema</div>
-
-            {/* Checkbox solo si NO es modoUsuario */}
-            {!modoUsuario && (
-              <label style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14, cursor: "pointer" }}>
-                <input type="checkbox" checked={datos.crearUsuario}
-                  onChange={e => set("crearUsuario", e.target.checked)} />
-                <span style={{ fontWeight: 600, color: "#374151" }}>
-                  Crear usuario para esta persona
-                </span>
-              </label>
-            )}
-
-            {(modoUsuario || datos.crearUsuario) && (
-              <>
-                <div style={row}>
-                  <div style={col()}>
-                    <span style={label}>Nombre de usuario *</span>
-                    <input style={input} value={datos.userName}
-                      onChange={e => set("userName", e.target.value)} placeholder="jperez" />
-                  </div>
-                </div>
-                <div style={{ marginBottom: 14 }}>
-                  <span style={label}>Contraseña *</span>
-                  <input style={{ ...input, width: "100%", boxSizing: "border-box", marginTop: 4 }}
-                    type="password" value={datos.password}
-                    onChange={e => set("password", e.target.value)} placeholder="Minimo 8 caracteres" />
-                </div>
-                <div style={{ marginBottom: 14 }}>
-                  <span style={label}>Dependencia *</span>
-                  <select
-                    style={{ ...select, width: "100%", boxSizing: "border-box", marginTop: 4 }}
-                    value={datos.dependenciaId}
-                    onChange={e => set("dependenciaId", e.target.value)}
-                  >
-                    <option value="">Seleccione una dependencia</option>
-                    {dependencias.map(d => (
-                      <option key={d.dependenciaId} value={d.dependenciaId}>
-                        {d.nombre}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div style={{ marginBottom: 14 }}>
-                  <span style={label}>Rol *</span>
-                  <select
-                    style={{ ...select, width: "100%", boxSizing: "border-box", marginTop: 4 }}
-                    value={datos.rolId}
-                    onChange={e => set("rolId", e.target.value)}
-                  >
-                    <option value="">Seleccione un rol</option>
-                    {roles.map(r => (
-                      <option key={r.rolId} value={r.rolId}>{r.nombre}</option>
-                    ))}
-                  </select>
-                </div>
-              </>
-            )}
+            <AccesoSistema
+              datos={datos}
+              set={set}
+              dependencias={dependencias}
+              roles={roles}
+              modoUsuario={modoUsuario}
+              input={inputStyle}
+              select={selectStyle}
+              label={labelStyle}
+              row={row}
+              col={col}
+            />
           </>
         )}
 

@@ -3,9 +3,9 @@
 // Estos son los registros que luego se seleccionan al agregar componentes a un equipo.
 import React, { useEffect, useState } from "react";
 import { componentesApi } from "../../api/componentes.api";
-import DataTable  from "../../components/ui/DataTable";
-import FormModal  from "../../components/ui/FormModal";
-import ModalDialog from "../../components/ui/ModalDialog";
+import DataTable  from "../../Componentes_react/ui/DataTable";
+import FormModal  from "../../Componentes_react/ui/FormModal";
+import ModalDialog from "../../Componentes_react/ui/ModalDialog";
 import { usePermiso } from "../../stores/menuSlice";
 
 const columnas = [

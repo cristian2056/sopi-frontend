@@ -2,7 +2,8 @@
 // Selector de UN solo rol por usuario (nuevo sistema)
 import React, { useEffect, useState } from "react";
 import { personalApi } from "../../api/personal.api";
-import { http } from "../../services/http";
+import { rolesApi } from "../../api/roles.api";
+import { usuariosApi } from "../../api/usuarios.api";
 
 export default function RolesModal({ persona, onClose }) {
   const usuario = persona.usuario;
@@ -13,7 +14,7 @@ export default function RolesModal({ persona, onClose }) {
   const [msg,       setMsg]       = useState("");
 
   useEffect(() => {
-    personalApi.listarRoles()
+    rolesApi.listar()
       .then(r => setRoles(Array.isArray(r.datos) ? r.datos : []))
       .catch(() => setMsg("No se pudieron cargar los roles."))
       .finally(() => setLoading(false));
@@ -24,14 +25,11 @@ export default function RolesModal({ persona, onClose }) {
     setGuardando(true);
     setMsg("");
     try {
-      await http(`/api/Usuarios/${usuario.usuarioId}`, {
-        method: "PUT",
-        body: {
-          userName:      usuario.userName,
-          dependenciaId: usuario.dependenciaId,
-          activo:        usuario.activo ?? true,
-          rolId:         Number(rolId),
-        },
+      await usuariosApi.editar(usuario.usuarioId, {
+        userName:      usuario.userName,
+        dependenciaId: usuario.dependenciaId,
+        activo:        usuario.activo ?? true,
+        rolId:         Number(rolId),
       });
       onClose();
     } catch (e) {

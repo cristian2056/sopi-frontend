@@ -2,10 +2,10 @@
 // Configuración de red (IP, MAC, Gateway, VLAN) de un equipo.
 import React, { useEffect, useState } from "react";
 import { equipoRedApi } from "../../../api/equipoExtras.api";
-import ConfirmInline from "../../../components/ui/ConfirmInline";
-import ErrorBanner   from "../../../components/ui/ErrorBanner";
-import FormBotones   from "../../../components/ui/FormBotones";
-import { inputStyle, labelStyle } from "../../../components/ui/formStyles";
+import ConfirmInline from "../../../Componentes_react/ui/ConfirmInline";
+import ErrorBanner   from "../../../Componentes_react/ui/ErrorBanner";
+import FormBotones   from "../../../Componentes_react/ui/FormBotones";
+import { inputStyle, labelStyle } from "../../../Componentes_react/ui/formStyles";
 
 const FORM_VACIO = { ipAddress: "", macAddress: "", gateway: "", vlan: "", comentarios: "" };
 

@@ -1,5 +1,5 @@
 import { C, btnSt } from "../constants";
-import Spinner from "../../../components/ui/Spinner";
+import Spinner from "../../../Componentes_react/ui/Spinner";
 
 const TABS = [
   { key: "objetos",  label: "🔐 Permisos" },

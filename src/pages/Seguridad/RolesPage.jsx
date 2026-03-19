@@ -4,8 +4,8 @@ import { C, btnSt } from "./constants";
 import { rolesApi, objetosApi, menuApi, rolObjetosApi, rolMenuApi, rolUsuariosApi } from "../../api/roles.api";
 import { usePermiso } from "../../stores/menuSlice";
 
-import Spinner             from "../../components/ui/Spinner";
-import ModalDialog         from "../../components/ui/ModalDialog";
+import Spinner             from "../../Componentes_react/ui/Spinner";
+import ModalDialog         from "../../Componentes_react/ui/ModalDialog";
 import RolLista            from "./components/RolLista";
 import TabObjetos          from "./components/TabObjetos";
 import TabMenus            from "./components/TabMenus";

@@ -2,12 +2,13 @@
 // Muestra los datos del equipo resolviendo IDs a nombres.
 // Incluye botón para editar los datos básicos mediante EquipoForm.
 import React, { useEffect, useState } from "react";
-import { http } from "../../../services/http";
 import { equiposApi } from "../../../api/equipos.api";
+import { marcasApi } from "../../../api/marcas.api";
+import { tiposActivosApi, proveedoresApi } from "../../../api/administracion.api";
 import EquipoForm   from "../EquipoForm";
-import EstadoBadge  from "../../../components/ui/EstadoBadge";
-import CampoLectura from "../../../components/ui/CampoLectura";
-import ErrorBanner  from "../../../components/ui/ErrorBanner";
+import EstadoBadge  from "../../../Componentes_react/ui/EstadoBadge";
+import CampoLectura from "../../../Componentes_react/ui/CampoLectura";
+import ErrorBanner  from "../../../Componentes_react/ui/ErrorBanner";
 
 export default function TabInfoGeneral({ equipo, equipoId, onActualizado, modificar }) {
   const [marcas,      setMarcas]      = useState([]);
@@ -20,9 +21,9 @@ export default function TabInfoGeneral({ equipo, equipoId, onActualizado, modifi
   // Carga catálogos para resolver IDs a nombres legibles
   useEffect(() => {
     Promise.all([
-      http("/api/Marcas"),
-      http("/api/TiposActivos"),
-      http("/api/Proveedores"),
+      marcasApi.listar(),
+      tiposActivosApi.listar(),
+      proveedoresApi.listar(),
     ]).then(([rM, rT, rP]) => {
       setMarcas(rM.datos      ?? []);
       setTiposActivo(rT.datos ?? []);

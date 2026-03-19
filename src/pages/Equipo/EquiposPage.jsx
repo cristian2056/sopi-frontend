@@ -2,8 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { equiposApi } from "../../api/equipos.api";
-import DataTable from "../../components/ui/DataTable";
-import ModalDialog from "../../components/ui/ModalDialog";
+import DataTable from "../../Componentes_react/ui/DataTable";
+import ModalDialog from "../../Componentes_react/ui/ModalDialog";
 import EquipoForm from "./EquipoForm";        // solo para EDITAR
 import EquipoWizard from "./EquipoWizard";    // para CREAR (wizard)
 import { usePermiso } from "../../stores/menuSlice";

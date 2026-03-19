@@ -1,6 +1,7 @@
 // src/pages/Personal/tabs/TabRolesPermisos.jsx
 import React, { useEffect, useState } from "react";
 import { personalApi } from "../../../api/personal.api";
+import { rolesApi } from "../../../api/roles.api";
 
 const PERMISOS = [
   { key: "leer",      label: "LISTAR"  },
@@ -27,7 +28,7 @@ export default function TabRolesPermisos({ persona }) {
       setLoading(true);
       try {
         const [rolesRes, objetosRes] = await Promise.all([
-          personalApi.listarRoles(),
+          rolesApi.listar(),
           personalApi.listarObjetos(),
         ]);
         const roles   = rolesRes.datos   ?? [];

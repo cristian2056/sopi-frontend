@@ -1,9 +1,9 @@
 // src/app/routes.jsx
 import React from "react";
 import { createBrowserRouter } from "react-router-dom";
-import { RequireAuth, PublicRoute } from "../components/auth/AuthGuards";
+import { RequireAuth, PublicRoute } from "../Componentes_react/auth/AuthGuards";
 
-import AppLayout      from "../components/layout/AppLayout.jsx";
+import AppLayout      from "../Componentes_react/layout/AppLayout.jsx";
 import LoginPage      from "../pages/Login/LoginPage";
 import Dashboard      from "../pages/Dashboard";
 import MarcasPage        from "../pages/Marcas/MarcasPage";

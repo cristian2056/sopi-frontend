@@ -1,113 +1,15 @@
 // src/pages/Equipo/tabs/TabComponentes.jsx
 // Lista y gestiona los componentes físicos instalados en un equipo.
-// El usuario escribe el nombre libremente; si no existe en el catálogo se crea automáticamente.
 import React, { useEffect, useState } from "react";
 import { componentesApi, composicionesApi } from "../../../api/componentes.api";
-import { http } from "../../../services/http";
-import EstadoBadge   from "../../../components/ui/EstadoBadge";
-import ConfirmInline from "../../../components/ui/ConfirmInline";
-import ErrorBanner   from "../../../components/ui/ErrorBanner";
-import FormBotones   from "../../../components/ui/FormBotones";
-import { inputStyle, labelStyle } from "../../../components/ui/formStyles";
+import EstadoBadge   from "../../../Componentes_react/ui/EstadoBadge";
+import ConfirmInline from "../../../Componentes_react/ui/ConfirmInline";
+import ErrorBanner   from "../../../Componentes_react/ui/ErrorBanner";
+import ComponenteForm, { FORM_VACIO_COMPONENTE } from "../components/ComponenteForm";
 
-const ESTADOS = ["INSTALADO", "RETIRADO", "EN_REPARACION", "RESERVA"];
-const FORM_VACIO = {
-  nombre: "", marcaId: "", codigo: "", numeroSerie: "",
-  especificaciones: "", estado: "INSTALADO",
-  fechaInstalacion: "", fechaRetiro: "", motivoRetiro: "",
-};
-
-// ─── Formulario de composición ────────────────────────────────────────────────
-function FormComposicion({ initial = FORM_VACIO, onGuardar, onCancelar, loading }) {
-  const [form, setForm] = useState(initial);
-  const [marcas, setMarcas] = useState([]);
-
-  useEffect(() => {
-    http("/api/Marcas").then(r => setMarcas(r.datos ?? [])).catch(() => {});
-  }, []);
-
-  const set = (campo) => (e) => setForm(p => ({ ...p, [campo]: e.target.value }));
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (form.nombre.trim().length < 3) return; // backend requiere mínimo 3 caracteres
-    onGuardar({ ...form, marcaId: form.marcaId ? parseInt(form.marcaId) : null });
-  };
-
-  return (
-    <form onSubmit={handleSubmit}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 18px" }}>
-
-        <div style={{ marginBottom: 14, gridColumn: "1 / -1" }}>
-          <label style={labelStyle}>Componente <span style={{ color: "#ef4444" }}>*</span></label>
-          <input type="text" value={form.nombre} onChange={set("nombre")} required minLength={3}
-            placeholder="Ej: Procesador Intel Core i7, RAM 8GB DDR4..."
-            style={inputStyle} />
-          {form.nombre.trim().length > 0 && form.nombre.trim().length < 3 && (
-            <div style={{ color: "#ef4444", fontSize: "0.8rem", marginTop: 4 }}>Mínimo 3 caracteres</div>
-          )}
-        </div>
-
-        <div style={{ marginBottom: 14 }}>
-          <label style={labelStyle}>Marca</label>
-          <select value={form.marcaId} onChange={set("marcaId")} style={{ ...inputStyle, cursor: "pointer" }}>
-            <option value="">-- Sin marca --</option>
-            {marcas.map(m => <option key={m.marcaId} value={m.marcaId}>{m.nombre}</option>)}
-          </select>
-        </div>
-
-        <div style={{ marginBottom: 14 }}>
-          <label style={labelStyle}>Estado <span style={{ color: "#ef4444" }}>*</span></label>
-          <select value={form.estado} onChange={set("estado")} style={{ ...inputStyle, cursor: "pointer" }}>
-            {ESTADOS.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
-        </div>
-
-        <div style={{ marginBottom: 14 }}>
-          <label style={labelStyle}>Código</label>
-          <input type="text" placeholder="Ej: CPU-001" value={form.codigo} onChange={set("codigo")} style={inputStyle} />
-        </div>
-
-        <div style={{ marginBottom: 14 }}>
-          <label style={labelStyle}>Nº de Serie</label>
-          <input type="text" placeholder="Ej: SN123456" value={form.numeroSerie} onChange={set("numeroSerie")} style={inputStyle} />
-        </div>
-
-        <div style={{ marginBottom: 14 }}>
-          <label style={labelStyle}>Fecha Instalación</label>
-          <input type="date" value={form.fechaInstalacion} onChange={set("fechaInstalacion")} style={inputStyle} />
-        </div>
-
-        <div style={{ marginBottom: 14 }}>
-          <label style={labelStyle}>Fecha Retiro</label>
-          <input type="date" value={form.fechaRetiro} onChange={set("fechaRetiro")} style={inputStyle} />
-        </div>
-      </div>
-
-      <div style={{ marginBottom: 14 }}>
-        <label style={labelStyle}>Especificaciones</label>
-        <textarea placeholder="Ej: Intel Core i7 10ma gen, 3.8GHz..."
-          value={form.especificaciones} onChange={set("especificaciones")}
-          rows={2} style={{ ...inputStyle, resize: "vertical" }} />
-      </div>
-
-      {/* Motivo de retiro solo cuando no está instalado */}
-      {form.estado !== "INSTALADO" && (
-        <div style={{ marginBottom: 14 }}>
-          <label style={labelStyle}>Motivo de Retiro</label>
-          <input type="text" placeholder="Opcional" value={form.motivoRetiro} onChange={set("motivoRetiro")} style={inputStyle} />
-        </div>
-      )}
-
-      <FormBotones onCancelar={onCancelar} loading={loading} textoGuardar="Guardar componente" />
-    </form>
-  );
-}
-
-// ─── Tab principal ─────────────────────────────────────────────────────────────
 export default function TabComponentes({ equipoId, crear, modificar, eliminar }) {
   const [lista,       setLista]       = useState([]);
-  const [catalogo,    setCatalogo]    = useState([]); // catálogo global de tipos de componente
+  const [catalogo,    setCatalogo]    = useState([]);
   const [loading,     setLoading]     = useState(true);
   const [error,       setError]       = useState("");
   const [mostrarForm, setMostrarForm] = useState(false);
@@ -118,13 +20,11 @@ export default function TabComponentes({ equipoId, crear, modificar, eliminar })
   const cargar = async () => {
     setLoading(true); setError("");
 
-    // 1. Catálogo de tipos de componente — debe cargar siempre para resolver IDs
     try {
       const rCat = await componentesApi.listar();
       setCatalogo(Array.isArray(rCat.datos) ? rCat.datos : []);
     } catch { /* si falla el catálogo, seguimos con [] */ }
 
-    // 2. Composiciones del equipo — se intenta por equipo, luego listar+filtrar
     try {
       try {
         const rComp = await composicionesApi.listarPorEquipo(equipoId);
@@ -144,7 +44,6 @@ export default function TabComponentes({ equipoId, crear, modificar, eliminar })
 
   useEffect(() => { cargar(); }, [equipoId]);
 
-  // Reutiliza componente existente por nombre o crea uno nuevo en el catálogo
   const resolverComponenteId = async (nombre) => {
     const existente = catalogo.find(c => c.nombre.toLowerCase() === nombre.toLowerCase());
     if (existente) return parseInt(existente.componenteId);
@@ -159,7 +58,7 @@ export default function TabComponentes({ equipoId, crear, modificar, eliminar })
       const componenteId = await resolverComponenteId(valores.nombre);
       const payload = {
         equipoId:         parseInt(equipoId),
-        componenteId:     parseInt(componenteId),   // Int64 requerido por el backend
+        componenteId:     parseInt(componenteId),
         marcaId:          valores.marcaId          || null,
         codigo:           valores.codigo           || null,
         numeroSerie:      valores.numeroSerie      || null,
@@ -207,7 +106,7 @@ export default function TabComponentes({ equipoId, crear, modificar, eliminar })
     fechaInstalacion: editando.fechaInstalacion ?? "",
     fechaRetiro:      editando.fechaRetiro      ?? "",
     motivoRetiro:     editando.motivoRetiro     ?? "",
-  } : FORM_VACIO;
+  } : FORM_VACIO_COMPONENTE;
 
   return (
     <div>
@@ -227,7 +126,7 @@ export default function TabComponentes({ equipoId, crear, modificar, eliminar })
           <h4 style={{ margin: "0 0 16px", fontSize: "0.97rem", fontWeight: 700, color: "#232946" }}>
             {editando ? "✏️ Editar componente" : "➕ Nuevo componente"}
           </h4>
-          <FormComposicion initial={initialEditar} onGuardar={handleGuardar} onCancelar={cerrarForm} loading={guardando} />
+          <ComponenteForm initial={initialEditar} onGuardar={handleGuardar} onCancelar={cerrarForm} loading={guardando} />
         </div>
       )}
 

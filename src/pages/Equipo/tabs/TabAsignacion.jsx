@@ -1,109 +1,11 @@
 // src/pages/Equipo/tabs/TabAsignacion.jsx
 // Asigna el equipo a un usuario responsable y dependencia.
-// Muestra el tipoUsuario (usuario / jefe) en el selector y en la lista.
 import React, { useEffect, useState } from "react";
 import { equipoAsignacionApi } from "../../../api/equipoExtras.api";
-import { http } from "../../../services/http";
-import ConfirmInline from "../../../components/ui/ConfirmInline";
-import ErrorBanner   from "../../../components/ui/ErrorBanner";
-import FormBotones   from "../../../components/ui/FormBotones";
-import { inputStyle, labelStyle } from "../../../components/ui/formStyles";
+import ConfirmInline from "../../../Componentes_react/ui/ConfirmInline";
+import ErrorBanner   from "../../../Componentes_react/ui/ErrorBanner";
+import FormAsignacion, { FORM_VACIO_ASIGNACION } from "../components/FormAsignacion";
 
-const FORM_VACIO = {
-  usuarioResponsableId: "", fechaAsignacion: "",
-  fechaDevolucion: "", observaciones: "", dependeciaId: "",
-};
-
-// ─── Formulario de asignación ─────────────────────────────────────────────────
-function FormAsignacion({ equipoId, initial = FORM_VACIO, onGuardar, onCancelar, loading }) {
-  const [form, setForm]           = useState(initial);
-  const [usuarios,     setUsuarios]     = useState([]);
-  const [dependencias, setDependencias] = useState([]);
-  const [cargando,     setCargando]     = useState(true);
-
-  useEffect(() => {
-    Promise.all([http("/api/Usuarios"), http("/api/Dependencias")])
-      .then(([rU, rD]) => {
-        setUsuarios(rU.datos     ?? []);
-        setDependencias(rD.datos ?? []);
-      })
-      .catch(() => {})
-      .finally(() => setCargando(false));
-  }, []);
-
-  const set = (campo) => (e) => setForm(p => ({ ...p, [campo]: e.target.value }));
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onGuardar({
-      equipoId:             parseInt(equipoId),
-      usuarioResponsableId: parseInt(form.usuarioResponsableId) || 0,
-      dependeciaId:         parseInt(form.dependeciaId)         || 0,
-      fechaAsignacion:      form.fechaAsignacion,
-      fechaDevolucion:      form.fechaDevolucion || null,
-      observaciones:        form.observaciones.trim() || null,
-    });
-  };
-
-  if (cargando) return <div style={{ color: "#888" }}>Cargando...</div>;
-
-  return (
-    <form onSubmit={handleSubmit}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 18px" }}>
-
-        {/* Usuario — muestra tipoUsuario entre corchetes para identificar jefes */}
-        <div style={{ marginBottom: 14 }}>
-          <label style={labelStyle}>Usuario Responsable <span style={{ color: "#ef4444" }}>*</span></label>
-          <select value={form.usuarioResponsableId} onChange={set("usuarioResponsableId")} required
-            style={{ ...inputStyle, cursor: "pointer" }}>
-            <option value="">-- Seleccionar --</option>
-            {usuarios.map(u => {
-              const nombre = u.nombreCompleto ?? u.userName ?? `Usuario #${u.usuarioId}`;
-              const tipo   = u.tipoUsuario ? ` [${u.tipoUsuario}]` : "";
-              return <option key={u.usuarioId} value={u.usuarioId}>{nombre}{tipo}</option>;
-            })}
-          </select>
-        </div>
-
-        <div style={{ marginBottom: 14 }}>
-          <label style={labelStyle}>Dependencia <span style={{ color: "#ef4444" }}>*</span></label>
-          <select value={form.dependeciaId} onChange={set("dependeciaId")} required
-            style={{ ...inputStyle, cursor: "pointer" }}>
-            <option value="">-- Seleccionar --</option>
-            {dependencias.map(d => (
-              <option key={d.dependeciaId ?? d.dependenciaId} value={d.dependeciaId ?? d.dependenciaId}>
-                {d.nombre}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div style={{ marginBottom: 14 }}>
-          <label style={labelStyle}>Fecha de Asignación <span style={{ color: "#ef4444" }}>*</span></label>
-          <input type="date" value={form.fechaAsignacion}
-            onChange={set("fechaAsignacion")} required style={inputStyle} />
-        </div>
-
-        <div style={{ marginBottom: 14 }}>
-          <label style={labelStyle}>Fecha de Devolución</label>
-          <input type="date" value={form.fechaDevolucion}
-            onChange={set("fechaDevolucion")} style={inputStyle} />
-        </div>
-      </div>
-
-      <div style={{ marginBottom: 18 }}>
-        <label style={labelStyle}>Observaciones</label>
-        <textarea placeholder="Notas sobre la asignación..."
-          value={form.observaciones} onChange={set("observaciones")}
-          rows={2} style={{ ...inputStyle, resize: "vertical" }} />
-      </div>
-
-      <FormBotones onCancelar={onCancelar} loading={loading} textoGuardar="Guardar asignación" />
-    </form>
-  );
-}
-
-// Badge de tipo de usuario (jefe = índigo, usuario = verde)
 function TipoUsuarioBadge({ tipo }) {
   if (!tipo) return null;
   const esJefe = tipo === "jefe";
@@ -118,7 +20,6 @@ function TipoUsuarioBadge({ tipo }) {
   );
 }
 
-// ─── Tab principal ─────────────────────────────────────────────────────────────
 export default function TabAsignacion({ equipoId, crear, modificar, eliminar }) {
   const [lista,       setLista]       = useState([]);
   const [loading,     setLoading]     = useState(true);
@@ -198,7 +99,7 @@ export default function TabAsignacion({ equipoId, crear, modificar, eliminar }) 
               fechaDevolucion:      editando.fechaDevolucion      ?? "",
               observaciones:        editando.observaciones        ?? "",
               dependeciaId:         editando.dependeciaId         ?? "",
-            } : FORM_VACIO}
+            } : FORM_VACIO_ASIGNACION}
             onGuardar={handleGuardar}
             onCancelar={cerrarForm}
             loading={guardando}
