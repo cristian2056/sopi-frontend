@@ -14,11 +14,18 @@ export default function ToggleActivo({ activo, onChange }) {
           {activo ? "Puede iniciar sesión" : "No puede iniciar sesión"}
         </div>
       </div>
-      <div onClick={onChange} style={{
-        width: 48, height: 26, borderRadius: 13, cursor: "pointer",
-        position: "relative", flexShrink: 0,
-        background: activo ? "#4c7318" : "#d1d5db", transition: "background .2s",
-      }}>
+      <div
+        role="switch"
+        aria-checked={activo}
+        tabIndex={0}
+        onClick={onChange}
+        onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onChange(); } }}
+        style={{
+          width: 48, height: 26, borderRadius: 13, cursor: "pointer",
+          position: "relative", flexShrink: 0,
+          background: activo ? "#4c7318" : "#d1d5db", transition: "background .2s",
+        }}
+      >
         <div style={{
           position: "absolute", top: 3, left: activo ? 25 : 3,
           width: 20, height: 20, borderRadius: "50%",

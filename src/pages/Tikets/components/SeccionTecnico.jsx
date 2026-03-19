@@ -12,7 +12,10 @@ const btnBase = {
 function FilaTicket({ ticket, accion, onClick }) {
   return (
     <div
+      role="button"
+      tabIndex={0}
       onClick={onClick}
+      onKeyDown={e => { if (e.key === "Enter" || e.key === " ") onClick(e); }}
       style={{
         border: "1px solid #e5e7eb", borderRadius: 10, padding: "12px 16px",
         display: "flex", alignItems: "center", gap: 12, background: "#fff",

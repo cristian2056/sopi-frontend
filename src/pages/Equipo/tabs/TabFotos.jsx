@@ -106,8 +106,13 @@ export default function TabFotos({ equipoId, crear, eliminar }) {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 14 }}>
           {lista.map((foto) => (
             <div key={foto.fotoId} style={{ background: "#fff", border: "1.5px solid #e5e7eb", borderRadius: 10, overflow: "hidden", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-              <div style={{ height: 120, background: "#f3f4f6", overflow: "hidden", cursor: "pointer" }}
-                onClick={() => setFotoAmpliada(foto)}>
+              <div
+                role="button"
+                tabIndex={0}
+                style={{ height: 120, background: "#f3f4f6", overflow: "hidden", cursor: "pointer" }}
+                onClick={() => setFotoAmpliada(foto)}
+                onKeyDown={e => { if (e.key === "Enter" || e.key === " ") setFotoAmpliada(foto); }}
+              >
                 <img src={`${API_BASE}${foto.url}`} alt={foto.nombre ?? "Foto"}
                   onError={e => { e.target.src = ""; e.target.style.display = "none"; }}
                   style={{ width: "100%", height: "100%", objectFit: "cover" }} />
@@ -136,8 +141,14 @@ export default function TabFotos({ equipoId, crear, eliminar }) {
       )}
 
       {fotoAmpliada && (
-        <div onClick={() => setFotoAmpliada(null)}
-          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9000, cursor: "zoom-out", padding: 24 }}>
+        <div
+          role="dialog"
+          aria-modal="true"
+          tabIndex={0}
+          onClick={() => setFotoAmpliada(null)}
+          onKeyDown={e => { if (e.key === "Escape") setFotoAmpliada(null); }}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9000, cursor: "zoom-out", padding: 24 }}
+        >
           <img src={`${API_BASE}${fotoAmpliada.url}`} alt={fotoAmpliada.nombre ?? "Foto"}
             style={{ maxWidth: "100%", maxHeight: "100%", borderRadius: 12, objectFit: "contain" }} />
           <button onClick={() => setFotoAmpliada(null)}

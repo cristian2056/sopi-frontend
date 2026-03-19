@@ -34,9 +34,12 @@ const inputSt = {
 };
 const labelSt = { display: "block", fontWeight: 600, marginBottom: 5, color: "#374151", fontSize: "0.87rem" };
 
+const EMPTY_OPTIONS = [];
+const EMPTY_FIELDS  = [];
+
 // ── Renderiza el input correcto según el tipo ────────────────────────────────
 function FieldInput({ field, value, onChange }) {
-  const { type = "text", placeholder, options = [], rows = 3, required } = field;
+  const { name, type = "text", placeholder, options = EMPTY_OPTIONS, rows = 3, required } = field;
 
   if (type === "toggle") {
     return (
@@ -50,6 +53,7 @@ function FieldInput({ field, value, onChange }) {
   if (type === "select") {
     return (
       <select
+        id={name}
         required={required} value={value ?? ""}
         onChange={e => onChange(e.target.value)}
         style={{ ...inputSt, color: value ? "#111" : "#9ca3af" }}
@@ -65,6 +69,7 @@ function FieldInput({ field, value, onChange }) {
   if (type === "textarea") {
     return (
       <textarea
+        id={name}
         required={required} rows={rows} placeholder={placeholder}
         value={value ?? ""} onChange={e => onChange(e.target.value)}
         style={{ ...inputSt, resize: "vertical", fontFamily: "inherit" }}
@@ -74,6 +79,7 @@ function FieldInput({ field, value, onChange }) {
 
   return (
     <input
+      id={name}
       required={required} type={type} placeholder={placeholder}
       value={value ?? ""} onChange={e => onChange(e.target.value)}
       style={inputSt}
@@ -83,7 +89,7 @@ function FieldInput({ field, value, onChange }) {
 
 // ── Componente principal ─────────────────────────────────────────────────────
 export default function FormModal({
-  title, fields = [], initialData = {},
+  title, fields = EMPTY_FIELDS, initialData = {},
   onSubmit, loading, onCancel,
   cols = 2, maxWidth = 520,
 }) {
@@ -125,7 +131,7 @@ export default function FormModal({
           <div style={{ display: "grid", gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: "14px 12px" }}>
             {fields.map(f => (
               <div key={f.name} style={{ gridColumn: (f.span === 2 || cols === 1) ? "1 / -1" : "auto" }}>
-                <label style={labelSt}>
+                <label htmlFor={f.name} style={labelSt}>
                   {f.label}
                   {f.required  && <span style={{ color: "#ef4444" }}> *</span>}
                   {!f.required && f.type !== "toggle" && (

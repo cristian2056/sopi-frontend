@@ -188,7 +188,10 @@ export default function Sidebar() {
     >
       {/* Header / logo */}
       <div
+        role="button"
+        tabIndex={0}
         onClick={() => setCollapsed(v => !v)}
+        onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setCollapsed(v => !v); } }}
         style={{
           display: "flex", alignItems: "center", gap: "0.75rem",
           padding: "1.1rem 1rem", minHeight: 60,

@@ -138,7 +138,7 @@ export default function TiketsPage() {
           display: "flex", justifyContent: "space-between",
         }}>
           <span>⚠️ {error}</span>
-          <span onClick={() => setError("")} style={{ cursor: "pointer", fontWeight: 700 }}>×</span>
+          <span role="button" tabIndex={0} onClick={() => setError("")} onKeyDown={e => { if (e.key === "Enter") setError(""); }} style={{ cursor: "pointer", fontWeight: 700 }}>×</span>
         </div>
       )}
 

@@ -28,7 +28,7 @@ export default function PasoIndicador({ pasoActual, pasoCompletado }) {
                 background: activo ? COLOR.primary : completado ? "#dcfce7" : "#f3f4f6",
                 color: activo ? "#fff" : completado ? COLOR.primary : "#9ca3af",
                 border: activo ? `2px solid ${COLOR.primary}` : completado ? `2px solid ${COLOR.primary}` : "2px solid #e5e7eb",
-                transition: "all 0.3s", flexShrink: 0,
+                transition: "background 0.3s, border-color 0.3s, color 0.3s", flexShrink: 0,
               }}>
                 {completado && !activo ? "✓" : paso.icon}
               </div>

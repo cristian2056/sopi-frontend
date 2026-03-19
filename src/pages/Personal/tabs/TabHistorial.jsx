@@ -26,10 +26,10 @@ export default function TabHistorial() {
       </p>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {EVENTOS_DEMO.map((ev, i) => {
+        {EVENTOS_DEMO.map((ev) => {
           const estilo = COLORES[ev.tipo] ?? COLORES.edicion;
           return (
-            <div key={i} style={{
+            <div key={`${ev.fecha}-${ev.tipo}`} style={{
               display: "flex", alignItems: "center", gap: 14,
               padding: "12px 16px", borderRadius: 10,
               background: "#f9fafb", border: "1px solid #e5e7eb",

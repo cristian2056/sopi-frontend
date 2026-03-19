@@ -63,13 +63,13 @@ export default function DependenciaForm({ initialData = {}, onSubmit, loading, o
             {/* Nombre + Tipo */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
               <div>
-                <label style={labelSt}>Nombre <span style={{ color: "#ef4444" }}>*</span></label>
-                <input required type="text" placeholder="Ej: Gerencia de TI" value={form.nombre}
+                <label htmlFor="dep-nombre" style={labelSt}>Nombre <span style={{ color: "#ef4444" }}>*</span></label>
+                <input id="dep-nombre" required type="text" placeholder="Ej: Gerencia de TI" value={form.nombre}
                   onChange={e => set("nombre", e.target.value)} style={inputSt} />
               </div>
               <div>
-                <label style={labelSt}>Tipo <span style={{ color: "#ef4444" }}>*</span></label>
-                <select required value={form.tipo} onChange={e => set("tipo", e.target.value)}
+                <label htmlFor="dep-tipo" style={labelSt}>Tipo <span style={{ color: "#ef4444" }}>*</span></label>
+                <select id="dep-tipo" required value={form.tipo} onChange={e => set("tipo", e.target.value)}
                   style={{ ...inputSt, color: form.tipo ? "#111" : "#9ca3af" }}>
                   <option value="">— Seleccionar —</option>
                   {TIPOS.map(t => <option key={t} value={t}>{t}</option>)}
@@ -79,8 +79,8 @@ export default function DependenciaForm({ initialData = {}, onSubmit, loading, o
 
             {/* Dependencia padre */}
             <div style={{ marginBottom: 14 }}>
-              <label style={labelSt}>Dependencia padre</label>
-              <select value={form.dependenciaPadreId} onChange={e => set("dependenciaPadreId", e.target.value)}
+              <label htmlFor="dep-padre" style={labelSt}>Dependencia padre</label>
+              <select id="dep-padre" value={form.dependenciaPadreId} onChange={e => set("dependenciaPadreId", e.target.value)}
                 style={{ ...inputSt, color: form.dependenciaPadreId ? "#111" : "#9ca3af" }}>
                 <option value="">— Ninguna (nivel raíz) —</option>
                 {padresDisponibles.map(p => (
@@ -94,13 +94,13 @@ export default function DependenciaForm({ initialData = {}, onSubmit, loading, o
             {/* Dirección + Ubigeo */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
               <div>
-                <label style={labelSt}>Dirección</label>
-                <input type="text" placeholder="Ej: Av. La Marina 123" value={form.direccion}
+                <label htmlFor="dep-dir" style={labelSt}>Dirección</label>
+                <input id="dep-dir" type="text" placeholder="Ej: Av. La Marina 123" value={form.direccion}
                   onChange={e => set("direccion", e.target.value)} style={inputSt} />
               </div>
               <div>
-                <label style={labelSt}>Ubigeo</label>
-                <input type="text" placeholder="Ej: 150101" value={form.ubigeo}
+                <label htmlFor="dep-ubigeo" style={labelSt}>Ubigeo</label>
+                <input id="dep-ubigeo" type="text" placeholder="Ej: 150101" value={form.ubigeo}
                   onChange={e => set("ubigeo", e.target.value)} style={inputSt} />
               </div>
             </div>

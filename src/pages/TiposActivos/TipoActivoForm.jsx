@@ -22,8 +22,9 @@ export default function TipoActivoForm({ initialData = {}, onSubmit, loading, on
 
         <form onSubmit={e => { e.preventDefault(); onSubmit({ nombre: nombre.trim() }); }}>
           <div style={{ marginBottom: 28 }}>
-            <label style={labelSt}>Nombre <span style={{ color: "#ef4444" }}>*</span></label>
+            <label htmlFor="ta-nombre" style={labelSt}>Nombre <span style={{ color: "#ef4444" }}>*</span></label>
             <input
+              id="ta-nombre"
               type="text" required
               placeholder="Ej: Laptop, Impresora, Monitor..."
               value={nombre} onChange={e => setNombre(e.target.value)}

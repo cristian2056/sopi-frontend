@@ -46,13 +46,13 @@ export default function ProveedorForm({ initialData = {}, onSubmit, loading, onC
           {/* Fila 1: Nombre + RUC */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
             <div>
-              <label style={labelSt}>Nombre <span style={{ color: "#ef4444" }}>*</span></label>
-              <input required type="text" placeholder="Razón social" value={form.nombre}
+              <label htmlFor="pf-nombre" style={labelSt}>Nombre <span style={{ color: "#ef4444" }}>*</span></label>
+              <input id="pf-nombre" required type="text" placeholder="Razón social" value={form.nombre}
                 onChange={e => set("nombre", e.target.value)} style={inputSt} />
             </div>
             <div>
-              <label style={labelSt}>RUC / NIT</label>
-              <input type="text" placeholder="20123456789" value={form.ruc}
+              <label htmlFor="pf-ruc" style={labelSt}>RUC / NIT</label>
+              <input id="pf-ruc" type="text" placeholder="20123456789" value={form.ruc}
                 onChange={e => set("ruc", e.target.value)} style={inputSt} />
             </div>
           </div>
@@ -60,13 +60,13 @@ export default function ProveedorForm({ initialData = {}, onSubmit, loading, onC
           {/* Fila 2: Rubro + Calificación */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
             <div>
-              <label style={labelSt}>Rubro</label>
-              <input type="text" placeholder="Ej: Tecnología" value={form.rubro}
+              <label htmlFor="pf-rubro" style={labelSt}>Rubro</label>
+              <input id="pf-rubro" type="text" placeholder="Ej: Tecnología" value={form.rubro}
                 onChange={e => set("rubro", e.target.value)} style={inputSt} />
             </div>
             <div>
-              <label style={labelSt}>Calificación</label>
-              <select value={form.calificacion} onChange={e => set("calificacion", e.target.value)}
+              <label htmlFor="pf-calificacion" style={labelSt}>Calificación</label>
+              <select id="pf-calificacion" value={form.calificacion} onChange={e => set("calificacion", e.target.value)}
                 style={{ ...inputSt, color: form.calificacion ? "#111" : "#9ca3af" }}>
                 <option value="">— Sin calificar —</option>
                 {CALIFICACIONES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -77,35 +77,35 @@ export default function ProveedorForm({ initialData = {}, onSubmit, loading, onC
           {/* Fila 3: Teléfono + Email */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
             <div>
-              <label style={labelSt}>Teléfono</label>
-              <input type="tel" placeholder="+51 999 999 999" value={form.telefono}
+              <label htmlFor="pf-telefono" style={labelSt}>Teléfono</label>
+              <input id="pf-telefono" type="tel" placeholder="+51 999 999 999" value={form.telefono}
                 onChange={e => set("telefono", e.target.value)} style={inputSt} />
             </div>
             <div>
-              <label style={labelSt}>Email</label>
-              <input type="email" placeholder="contacto@empresa.com" value={form.email}
+              <label htmlFor="pf-email" style={labelSt}>Email</label>
+              <input id="pf-email" type="email" placeholder="contacto@empresa.com" value={form.email}
                 onChange={e => set("email", e.target.value)} style={inputSt} />
             </div>
           </div>
 
           {/* Dirección */}
           <div style={groupSt}>
-            <label style={labelSt}>Dirección</label>
-            <input type="text" placeholder="Av. Principal 123, Lima" value={form.direccion}
+            <label htmlFor="pf-dir" style={labelSt}>Dirección</label>
+            <input id="pf-dir" type="text" placeholder="Av. Principal 123, Lima" value={form.direccion}
               onChange={e => set("direccion", e.target.value)} style={inputSt} />
           </div>
 
           {/* Contacto principal */}
           <div style={groupSt}>
-            <label style={labelSt}>Contacto principal</label>
-            <input type="text" placeholder="Nombre del contacto" value={form.contactoPrincipal}
+            <label htmlFor="pf-contacto" style={labelSt}>Contacto principal</label>
+            <input id="pf-contacto" type="text" placeholder="Nombre del contacto" value={form.contactoPrincipal}
               onChange={e => set("contactoPrincipal", e.target.value)} style={inputSt} />
           </div>
 
           {/* Observaciones */}
           <div style={{ marginBottom: 24 }}>
-            <label style={labelSt}>Observaciones</label>
-            <textarea
+            <label htmlFor="pf-obs" style={labelSt}>Observaciones</label>
+            <textarea id="pf-obs"
               rows={3} placeholder="Notas adicionales..." value={form.observaciones}
               onChange={e => set("observaciones", e.target.value)}
               style={{ ...inputSt, resize: "vertical", fontFamily: "inherit" }}

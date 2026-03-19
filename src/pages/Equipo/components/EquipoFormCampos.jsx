@@ -22,10 +22,10 @@ export default function EquipoFormCampos({ form, set, setForm, marcas, tiposActi
 
         {/* Cód. Patrimonial */}
         <div style={{ marginBottom: 16 }}>
-          <label style={labelStyle}>
+          <label htmlFor="eq-codPatr" style={labelStyle}>
             Cód. Patrimonial <span style={{ color: "#ef4444" }}>*</span>
           </label>
-          <input type="text" placeholder="Ej: SM-MJ0KNV05"
+          <input id="eq-codPatr" type="text" placeholder="Ej: SM-MJ0KNV05"
             value={form.codigoPatrimonial}
             onChange={set("codigoPatrimonial")}
             required style={inputStyle}
@@ -34,8 +34,8 @@ export default function EquipoFormCampos({ form, set, setForm, marcas, tiposActi
 
         {/* Cód. Interno */}
         <div style={{ marginBottom: 16 }}>
-          <label style={labelStyle}>Cód. Interno</label>
-          <input type="text" placeholder="Opcional"
+          <label htmlFor="eq-codInt" style={labelStyle}>Cód. Interno</label>
+          <input id="eq-codInt" type="text" placeholder="Opcional"
             value={form.codigoInterno}
             onChange={set("codigoInterno")}
             style={inputStyle}
@@ -44,8 +44,8 @@ export default function EquipoFormCampos({ form, set, setForm, marcas, tiposActi
 
         {/* Nombre */}
         <div style={{ marginBottom: 16 }}>
-          <label style={labelStyle}>Nombre</label>
-          <input type="text" placeholder="Ej: Computadora de escritorio"
+          <label htmlFor="eq-nombre" style={labelStyle}>Nombre</label>
+          <input id="eq-nombre" type="text" placeholder="Ej: Computadora de escritorio"
             value={form.nombre}
             onChange={set("nombre")}
             style={inputStyle}
@@ -54,8 +54,8 @@ export default function EquipoFormCampos({ form, set, setForm, marcas, tiposActi
 
         {/* Serial */}
         <div style={{ marginBottom: 16 }}>
-          <label style={labelStyle}>Serial</label>
-          <input type="text" placeholder="Ej: MJ0KNV05"
+          <label htmlFor="eq-serial" style={labelStyle}>Serial</label>
+          <input id="eq-serial" type="text" placeholder="Ej: MJ0KNV05"
             value={form.serial}
             onChange={set("serial")}
             style={inputStyle}
@@ -64,10 +64,10 @@ export default function EquipoFormCampos({ form, set, setForm, marcas, tiposActi
 
         {/* Tipo Activo */}
         <div style={{ marginBottom: 16 }}>
-          <label style={labelStyle}>
+          <label htmlFor="eq-tipoActivo" style={labelStyle}>
             Tipo de Activo <span style={{ color: "#ef4444" }}>*</span>
           </label>
-          <select value={form.tipoActivoId} onChange={set("tipoActivoId")}
+          <select id="eq-tipoActivo" value={form.tipoActivoId} onChange={set("tipoActivoId")}
             required style={{ ...inputStyle, cursor: "pointer" }}>
             <option value="">-- Seleccionar --</option>
             {tiposActivo.map((t) => (
@@ -80,10 +80,10 @@ export default function EquipoFormCampos({ form, set, setForm, marcas, tiposActi
 
         {/* Estado */}
         <div style={{ marginBottom: 16 }}>
-          <label style={labelStyle}>
+          <label htmlFor="eq-estado" style={labelStyle}>
             Estado <span style={{ color: "#ef4444" }}>*</span>
           </label>
-          <select value={form.estado} onChange={set("estado")}
+          <select id="eq-estado" value={form.estado} onChange={set("estado")}
             style={{ ...inputStyle, cursor: "pointer" }}>
             {ESTADOS.map((s) => (
               <option key={s} value={s}>{s}</option>
@@ -93,8 +93,8 @@ export default function EquipoFormCampos({ form, set, setForm, marcas, tiposActi
 
         {/* Marca */}
         <div style={{ marginBottom: 16 }}>
-          <label style={labelStyle}>Marca</label>
-          <select value={form.marcaId} onChange={set("marcaId")}
+          <label htmlFor="eq-marca" style={labelStyle}>Marca</label>
+          <select id="eq-marca" value={form.marcaId} onChange={set("marcaId")}
             style={{ ...inputStyle, cursor: "pointer" }}>
             <option value="">-- Sin marca --</option>
             {marcas.map((m) => (
@@ -107,8 +107,8 @@ export default function EquipoFormCampos({ form, set, setForm, marcas, tiposActi
 
         {/* Proveedor */}
         <div style={{ marginBottom: 16 }}>
-          <label style={labelStyle}>Proveedor</label>
-          <select value={form.proveedorId} onChange={set("proveedorId")}
+          <label htmlFor="eq-proveedor" style={labelStyle}>Proveedor</label>
+          <select id="eq-proveedor" value={form.proveedorId} onChange={set("proveedorId")}
             style={{ ...inputStyle, cursor: "pointer" }}>
             <option value="">-- Sin proveedor --</option>
             {proveedores.map((p) => (
@@ -121,8 +121,8 @@ export default function EquipoFormCampos({ form, set, setForm, marcas, tiposActi
 
         {/* Nº Factura */}
         <div style={{ marginBottom: 16 }}>
-          <label style={labelStyle}>Nº Factura</label>
-          <input type="text" placeholder="Ej: F001-00123"
+          <label htmlFor="eq-factura" style={labelStyle}>Nº Factura</label>
+          <input id="eq-factura" type="text" placeholder="Ej: F001-00123"
             value={form.numeroFactura}
             onChange={set("numeroFactura")}
             style={inputStyle}
@@ -131,8 +131,8 @@ export default function EquipoFormCampos({ form, set, setForm, marcas, tiposActi
 
         {/* Fecha Garantía */}
         <div style={{ marginBottom: 16 }}>
-          <label style={labelStyle}>Fecha Garantía</label>
-          <input type="date"
+          <label htmlFor="eq-garantia" style={labelStyle}>Fecha Garantía</label>
+          <input id="eq-garantia" type="date"
             value={form.fechaGarantia}
             onChange={set("fechaGarantia")}
             style={inputStyle}
@@ -141,8 +141,8 @@ export default function EquipoFormCampos({ form, set, setForm, marcas, tiposActi
 
         {/* Próx. Mantenimiento */}
         <div style={{ marginBottom: 16 }}>
-          <label style={labelStyle}>Próx. Mantenimiento</label>
-          <input type="date"
+          <label htmlFor="eq-proxMant" style={labelStyle}>Próx. Mantenimiento</label>
+          <input id="eq-proxMant" type="date"
             value={form.mantenimientoProximaFecha}
             onChange={set("mantenimientoProximaFecha")}
             style={inputStyle}
@@ -151,8 +151,8 @@ export default function EquipoFormCampos({ form, set, setForm, marcas, tiposActi
 
         {/* Frec. Mantenimiento */}
         <div style={{ marginBottom: 16 }}>
-          <label style={labelStyle}>Frec. Mantenimiento (días)</label>
-          <input type="number" placeholder="Ej: 180"
+          <label htmlFor="eq-frecMant" style={labelStyle}>Frec. Mantenimiento (días)</label>
+          <input id="eq-frecMant" type="number" placeholder="Ej: 180"
             value={form.mantenimientoFrecuenciaDias}
             onChange={set("mantenimientoFrecuenciaDias")}
             min={1} style={inputStyle}
@@ -175,8 +175,8 @@ export default function EquipoFormCampos({ form, set, setForm, marcas, tiposActi
 
       {/* Observaciones */}
       <div style={{ marginBottom: 28 }}>
-        <label style={labelStyle}>Observaciones</label>
-        <textarea
+        <label htmlFor="eq-obs" style={labelStyle}>Observaciones</label>
+        <textarea id="eq-obs"
           placeholder="Notas adicionales..."
           value={form.observaciones}
           onChange={set("observaciones")}

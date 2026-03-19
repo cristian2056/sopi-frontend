@@ -34,10 +34,13 @@ export default function RolLista({ roles, rolId, onSelect, onEditar, onEliminar 
         return (
           <div
             key={rol.rolId}
+            role="button"
+            tabIndex={0}
             onClick={() => onSelect(rol.rolId)}
+            onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(rol.rolId); } }}
             style={{
               padding: "13px 18px", borderBottom: `1px solid ${C.gray100}`,
-              cursor: "pointer", transition: "all 0.15s",
+              cursor: "pointer", transition: "background 0.15s, border-left-color 0.15s",
               background: activo ? C.primaryLight : C.white,
               borderLeft: activo ? `4px solid ${C.primary}` : "4px solid transparent",
             }}

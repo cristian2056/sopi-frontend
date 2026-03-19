@@ -48,8 +48,8 @@ export default function FormAsignacion({ equipoId, initial = FORM_VACIO_ASIGNACI
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 18px" }}>
 
         <div style={{ marginBottom: 14 }}>
-          <label style={labelStyle}>Usuario Responsable <span style={{ color: "#ef4444" }}>*</span></label>
-          <select value={form.usuarioResponsableId} onChange={set("usuarioResponsableId")} required
+          <label htmlFor="fa-responsable" style={labelStyle}>Usuario Responsable <span style={{ color: "#ef4444" }}>*</span></label>
+          <select id="fa-responsable" value={form.usuarioResponsableId} onChange={set("usuarioResponsableId")} required
             style={{ ...inputStyle, cursor: "pointer" }}>
             <option value="">-- Seleccionar --</option>
             {usuarios.map(u => {
@@ -61,8 +61,8 @@ export default function FormAsignacion({ equipoId, initial = FORM_VACIO_ASIGNACI
         </div>
 
         <div style={{ marginBottom: 14 }}>
-          <label style={labelStyle}>Dependencia <span style={{ color: "#ef4444" }}>*</span></label>
-          <select value={form.dependeciaId} onChange={set("dependeciaId")} required
+          <label htmlFor="fa-dependencia" style={labelStyle}>Dependencia <span style={{ color: "#ef4444" }}>*</span></label>
+          <select id="fa-dependencia" value={form.dependeciaId} onChange={set("dependeciaId")} required
             style={{ ...inputStyle, cursor: "pointer" }}>
             <option value="">-- Seleccionar --</option>
             {dependencias.map(d => (
@@ -74,21 +74,21 @@ export default function FormAsignacion({ equipoId, initial = FORM_VACIO_ASIGNACI
         </div>
 
         <div style={{ marginBottom: 14 }}>
-          <label style={labelStyle}>Fecha de Asignación <span style={{ color: "#ef4444" }}>*</span></label>
-          <input type="date" value={form.fechaAsignacion}
+          <label htmlFor="fa-fAsignacion" style={labelStyle}>Fecha de Asignación <span style={{ color: "#ef4444" }}>*</span></label>
+          <input id="fa-fAsignacion" type="date" value={form.fechaAsignacion}
             onChange={set("fechaAsignacion")} required style={inputStyle} />
         </div>
 
         <div style={{ marginBottom: 14 }}>
-          <label style={labelStyle}>Fecha de Devolución</label>
-          <input type="date" value={form.fechaDevolucion}
+          <label htmlFor="fa-fDevolucion" style={labelStyle}>Fecha de Devolución</label>
+          <input id="fa-fDevolucion" type="date" value={form.fechaDevolucion}
             onChange={set("fechaDevolucion")} style={inputStyle} />
         </div>
       </div>
 
       <div style={{ marginBottom: 18 }}>
-        <label style={labelStyle}>Observaciones</label>
-        <textarea placeholder="Notas sobre la asignación..."
+        <label htmlFor="fa-obs" style={labelStyle}>Observaciones</label>
+        <textarea id="fa-obs" placeholder="Notas sobre la asignación..."
           value={form.observaciones} onChange={set("observaciones")}
           rows={2} style={{ ...inputStyle, resize: "vertical" }} />
       </div>

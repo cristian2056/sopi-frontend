@@ -1,7 +1,9 @@
 // src/pages/Marcas/MarcaList.jsx
 import React from "react";
 
-export default function MarcaList({ items = [], onDelete }) {
+const EMPTY_ITEMS = [];
+
+export default function MarcaList({ items = EMPTY_ITEMS, onDelete }) {
   return (
     <table style={{ width: "100%", borderCollapse: "collapse" }}>
       <thead>

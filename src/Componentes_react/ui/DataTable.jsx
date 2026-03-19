@@ -74,6 +74,8 @@ const estilos = {
 };
 
 // ─── COMPONENTE PRINCIPAL ──────────────────────────────────────────────────────
+const EMPTY_ARRAY = [];
+
 /**
  * DataTable — tabla genérica reutilizable
  *
@@ -93,8 +95,8 @@ const estilos = {
  * @param {string} mensajeVacio - texto cuando no hay datos
  */
 export default function DataTable({
-  columnas = [],
-  datos = [],
+  columnas = EMPTY_ARRAY,
+  datos = EMPTY_ARRAY,
   loading = false,
   keyField = "id",
   onEdit,

@@ -268,7 +268,7 @@ export default function TabRolesPermisos({ persona }) {
                                     fontWeight: 900, fontSize: "1rem",
                                     cursor: guardando ? "not-allowed" : "pointer",
                                     display: "inline-flex", alignItems: "center",
-                                    justifyContent: "center", transition: "all 0.15s",
+                                    justifyContent: "center", transition: "background 0.15s, border-color 0.15s, color 0.15s",
                                   }}>
                                   {activo ? "✓" : ""}
                                 </button>

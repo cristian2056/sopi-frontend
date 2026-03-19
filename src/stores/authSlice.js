@@ -33,7 +33,6 @@ export const { setCredentials, logoutLocal } = authSlice.actions;
 
 // para leer el estado desde cualquier componente
 export const selectUsuario         = (state) => state.auth.usuario;
-export const selectAccessToken     = (state) => state.auth.accessToken;
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
 
 export default authSlice.reducer;

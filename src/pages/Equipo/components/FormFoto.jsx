@@ -73,8 +73,8 @@ export default function FormFoto({ onGuardar, onCancelar, loading }) {
   return (
     <form onSubmit={handleSubmit}>
       <div style={{ marginBottom: 14 }}>
-        <label style={labelStyle}>Descripción (opcional)</label>
-        <input type="text" placeholder="Ej: Vista frontal, pantalla..."
+        <label htmlFor="ff-nombre" style={labelStyle}>Descripción (opcional)</label>
+        <input id="ff-nombre" type="text" placeholder="Ej: Vista frontal, pantalla..."
           value={nombre} onChange={e => setNombre(e.target.value)} style={inputStyle} />
       </div>
 

@@ -2,6 +2,7 @@
 import { useState } from "react";
 
 const PRIORIDADES = ["BAJA", "MEDIA", "ALTA", "URGENTE"];
+const EMPTY_EQUIPOS = [];
 
 const S = {
   overlay: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1200 },
@@ -14,7 +15,7 @@ const S = {
 
 // equipo  → ticket para un equipo ya seleccionado (desde la tarjeta del equipo)
 // equipos → lista para seleccionar dentro del modal (desde el botón superior)
-export default function ModalCrearTicket({ equipo, equipos = [], onCrear, onCerrar, loading }) {
+export default function ModalCrearTicket({ equipo, equipos = EMPTY_EQUIPOS, onCrear, onCerrar, loading }) {
   const primeraOpcion = equipo ?? (equipos.length === 1 ? equipos[0] : null);
 
   const [equipoId,  setEquipoId]  = useState(primeraOpcion?.equipoId ?? "");
@@ -57,13 +58,14 @@ export default function ModalCrearTicket({ equipo, equipos = [], onCrear, onCerr
         {/* Selector de equipo (solo si no viene pre-seleccionado o hay múltiples) */}
         {!equipo && (
           <div style={S.field}>
-            <label style={S.label}>Equipo <span style={{ color: "#ef4444" }}>*</span></label>
+            <label htmlFor="mt-equipo" style={S.label}>Equipo <span style={{ color: "#ef4444" }}>*</span></label>
             {!equipos.length ? (
               <div style={{ color: "#9ca3af", fontSize: "0.88rem", padding: "8px 0" }}>
                 No tienes equipos asignados. Contactá al administrador.
               </div>
             ) : (
               <select
+                id="mt-equipo"
                 style={{ ...S.input, background: "#fff", cursor: "pointer" }}
                 value={equipoId}
                 onChange={e => setEquipoId(e.target.value)}
@@ -82,8 +84,8 @@ export default function ModalCrearTicket({ equipo, equipos = [], onCrear, onCerr
 
         {/* Prioridad */}
         <div style={S.field}>
-          <label style={S.label}>Prioridad</label>
-          <select style={{ ...S.input, background: "#fff", cursor: "pointer" }}
+          <label htmlFor="mt-prior" style={S.label}>Prioridad</label>
+          <select id="mt-prior" style={{ ...S.input, background: "#fff", cursor: "pointer" }}
             value={prioridad} onChange={e => setPrioridad(e.target.value)}>
             {PRIORIDADES.map(p => <option key={p} value={p}>{p}</option>)}
           </select>
@@ -91,8 +93,8 @@ export default function ModalCrearTicket({ equipo, equipos = [], onCrear, onCerr
 
         {/* Descripción */}
         <div style={S.field}>
-          <label style={S.label}>Descripción del problema <span style={{ color: "#ef4444" }}>*</span></label>
-          <textarea rows={4} style={{ ...S.input, resize: "vertical", fontFamily: "inherit" }}
+          <label htmlFor="mt-desc" style={S.label}>Descripción del problema <span style={{ color: "#ef4444" }}>*</span></label>
+          <textarea id="mt-desc" rows={4} style={{ ...S.input, resize: "vertical", fontFamily: "inherit" }}
             placeholder="Describe el problema con detalle (mínimo 10 caracteres)..."
             value={solicitud} onChange={e => setSolicitud(e.target.value)} />
         </div>

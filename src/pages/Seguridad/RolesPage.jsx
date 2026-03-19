@@ -206,7 +206,7 @@ export default function RolesPage() {
           display: "flex", justifyContent: "space-between", alignItems: "center",
         }}>
           <span>⚠️ {error}</span>
-          <span onClick={() => setError("")} style={{ cursor: "pointer", fontWeight: 700, fontSize: "1.1rem" }}>×</span>
+          <span role="button" tabIndex={0} onClick={() => setError("")} onKeyDown={e => { if (e.key === "Enter") setError(""); }} style={{ cursor: "pointer", fontWeight: 700, fontSize: "1.1rem" }}>×</span>
         </div>
       )}
 
