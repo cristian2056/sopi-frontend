@@ -127,21 +127,18 @@ export default function PersonalPage() {
   return (
     <div style={{ width: "100%", maxWidth: 1100 }}>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+      <div className="page-toolbar">
         <h2 style={{ margin: 0, flex: 1 }}>Personal</h2>
         <input
           type="text"
           placeholder="🔍 Buscar por nombre, DNI o email..."
           value={busqueda}
           onChange={e => setBusqueda(e.target.value)}
-          style={{ padding: "8px 14px", borderRadius: 8,
-            border: "1px solid #d1d5db", fontSize: "0.95rem", minWidth: 260 }}
+          className="search-input"
         />
         {crear && <button
           onClick={() => setForm({})}
-          style={{ padding: "9px 20px", borderRadius: 8,
-            background: "#4c7318", color: "#fff", border: "none",
-            fontWeight: 700, fontSize: "0.95rem", cursor: "pointer", whiteSpace: "nowrap" }}>
+          className="btn-primary">
           + Nueva persona
         </button>}
       </div>

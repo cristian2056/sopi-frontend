@@ -1,52 +1,257 @@
+/* ─── Glassmorphism Design System ─────────────────────────────────────────── */
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --verde-400: #a0d744;
+  --verde-600: #649719;
+  --verde-700: #4c7318;
+  --verde-800: #3e5b19;
+  --verde-900: #1e3a09;
+
+  font-family: 'Inter', system-ui, -apple-system, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
   color-scheme: light;
-  color: #213547;
-  background-color: #ffffff;
-
+  color: #1a3a0a;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
+/* ── Fondo: verde intenso que muestra el glass ── */
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background:
+    linear-gradient(145deg,
+      #1e4a0e 0%,
+      #2d6e18 35%,
+      #1a4a0a 65%,
+      #3a7a20 100%);
+  background-attachment: fixed;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+/* Luces radiales de profundidad */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 15% 10%, rgba(160,215,68,0.18) 0%, transparent 45%),
+    radial-gradient(ellipse at 85% 90%, rgba(100,151,25,0.14) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0.04) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
 }
+
+a {
+  font-weight: 500;
+  color: var(--verde-700);
+  text-decoration: inherit;
+}
+a:hover { color: var(--verde-800); }
+
+h1 { font-size: 2.2em; line-height: 1.1; }
 
 button {
-  border-radius: 8px;
+  border-radius: 9px;
   border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
+  padding: 0.55em 1.1em;
+  font-size: 0.95em;
+  font-weight: 600;
   font-family: inherit;
-  background-color: #f9f9f9;
+  background-color: rgba(255,255,255,0.9);
   cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
 }
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
+button:hover { border-color: var(--verde-600); }
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 2px solid var(--verde-400);
+  outline-offset: 2px;
 }
+
+/* ── Barra superior de páginas (dentro del panel glass blanco) ── */
+.page-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+  background: rgba(160,215,68,0.10);
+  border: 1.5px solid rgba(100,151,25,0.20);
+  border-radius: 14px;
+  padding: 12px 18px;
+}
+.page-toolbar h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #1a3a0a;
+  flex: 1;
+}
+
+/* ── Input de búsqueda ── */
+.search-input {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.88);
+  font-size: 0.93rem;
+  outline: none;
+  font-family: inherit;
+  color: #1a3a0a;
+  min-width: 220px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.search-input:focus {
+  border-color: #a0d744;
+  box-shadow: 0 0 0 3px rgba(160,215,68,0.25);
+}
+.search-input::placeholder { color: #6b7280; }
+
+/* ── Botón primario ── */
+.btn-primary {
+  padding: 9px 20px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #a0d744, #4c7318);
+  color: #fff;
+  border: none;
+  font-weight: 700;
+  font-size: 0.92rem;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 3px 14px rgba(76,115,24,0.45);
+  transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
+  font-family: inherit;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.btn-primary:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(76,115,24,0.5);
+}
+.btn-primary:active { transform: none; }
+
+/* Inputs heredan font */
+input[type="text"], input[type="email"], input[type="password"],
+input[type="number"], input[type="tel"], input[type="date"],
+select, textarea { font-family: inherit; }
+
+/* ════════════════════════════════════════════
+   RESPONSIVO
+   ════════════════════════════════════════════ */
+
+/* Panel glass principal (AppLayout content) */
+.content-scroll {
+  flex: 1;
+  overflow: auto;
+  padding: 1.5rem 1.75rem 2rem;
+}
+.content-glass {
+  background: rgba(255,255,255,0.78);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(255,255,255,0.50);
+  border-radius: 20px;
+  box-shadow: 0 12px 48px rgba(15,40,6,0.28), inset 0 1px 0 rgba(255,255,255,0.6);
+  padding: 1.75rem 2rem;
+  min-height: calc(100vh - 130px);
+  color: #1a3a0a;
+}
+
+/* Hamburguesa — oculta en desktop */
+.hamburger-btn { display: none !important; }
+
+/* ── Sidebar móvil ── */
+.app-sidebar {
+  /* Desktop: posición normal en el flujo */
+}
+
+/* ── Tablet: menú más angosto ── */
+@media (max-width: 1024px) {
+  .content-scroll { padding: 1.25rem 1.25rem 1.5rem; }
+  .content-glass  { padding: 1.5rem 1.5rem; }
+}
+
+/* ── Login responsive ── */
+@media (max-width: 767px) {
+  /* Ocultar panel decorativo izquierdo en móvil */
+  .login-panel-left  { display: none !important; }
+  /* El panel del form ocupa todo el ancho */
+  .login-panel-right { flex: unset; width: 100%; }
+  /* Mostrar el header con logo en móvil */
+  .login-mobile-header { display: block !important; }
+}
+
+/* ── Móvil (< 768px) ── */
+@media (max-width: 767px) {
+
+  /* Sidebar: overlay fijo fuera de pantalla por defecto */
+  .app-sidebar {
+    position: fixed !important;
+    top: 0;
+    left: -260px !important;    /* Oculto a la izquierda */
+    width: 230px !important;    /* Siempre expandido en móvil */
+    height: 100vh;
+    z-index: 1200;
+    transition: left 0.28s cubic-bezier(0.4,0,0.2,1) !important;
+  }
+  /* Cuando está abierto */
+  .app-sidebar.sidebar-movil-abierto {
+    left: 0 !important;
+  }
+
+  /* Mostrar hamburguesa */
+  .hamburger-btn {
+    display: flex !important;
+  }
+
+  /* Ocultar nombre de usuario en header pequeño */
+  .header-user-info {
+    display: none;
+  }
+
+  /* Contenido sin el espacio del sidebar */
+  .content-scroll {
+    padding: 1rem 0.9rem 1.5rem;
+  }
+  .content-glass {
+    padding: 1.25rem 1rem;
+    border-radius: 14px;
+    min-height: calc(100vh - 110px);
+  }
+
+  /* Toolbar: apila verticalmente */
+  .page-toolbar {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 14px;
+  }
+  .page-toolbar h2 {
+    width: 100%;
+    font-size: 1.05rem;
+  }
+  .search-input {
+    min-width: 0;
+    flex: 1;
+    width: 100%;
+  }
+  .btn-primary {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* ── Móvil muy pequeño (< 480px) ── */
+@media (max-width: 479px) {
+  .content-scroll { padding: 0.75rem 0.6rem 1.2rem; }
+  .content-glass  { padding: 1rem 0.85rem; border-radius: 12px; }
+}
+
+/* ── Scrollbar delgada ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(160,215,68,0.4);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(160,215,68,0.65); }

@@ -1,4 +1,4 @@
-// src/components/ui/Overlay.jsx
+// src/components/ui/Overlay.jsx — glassmorphism modal overlay
 import React from "react";
 
 export default function Overlay({ children, onCerrar }) {
@@ -6,7 +6,10 @@ export default function Overlay({ children, onCerrar }) {
     <div
       onClick={onCerrar}
       style={{
-        position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)",
+        position: "fixed", inset: 0,
+        background: "rgba(10, 30, 6, 0.55)",
+        backdropFilter: "blur(6px)",
+        WebkitBackdropFilter: "blur(6px)",
         display: "flex", alignItems: "center", justifyContent: "center",
         zIndex: 5000, padding: "24px 16px",
       }}
@@ -14,9 +17,14 @@ export default function Overlay({ children, onCerrar }) {
       <div
         onClick={e => e.stopPropagation()}
         style={{
-          background: "#fff", borderRadius: 16, padding: "32px 36px",
-          boxShadow: "0 16px 56px rgba(0,0,0,0.25)",
-          border: "1.5px solid #e5e7eb", width: "100%",
+          background: "rgba(255, 255, 255, 0.93)",
+          backdropFilter: "blur(28px)",
+          WebkitBackdropFilter: "blur(28px)",
+          borderRadius: 20,
+          padding: "32px 36px",
+          boxShadow: "0 20px 60px rgba(15, 40, 6, 0.35)",
+          border: "1.5px solid rgba(255,255,255,0.6)",
+          width: "100%",
         }}
       >
         {children}

@@ -91,26 +91,14 @@ export default function SoftwarePage() {
   return (
     <div style={{ width: "100%", maxWidth: 1050 }}>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-        <div style={{ flex: 1 }}>
-          <h2 style={{ margin: 0 }}>💿 Software</h2>
-          <p style={{ margin: "2px 0 0", color: "#6b7280", fontSize: "0.87rem" }}>
-            Catálogo de software para registrar instalaciones en equipos
-          </p>
-        </div>
-        <input
-          type="text"
-          placeholder="🔍 Buscar por nombre, tipo o versión..."
-          value={busqueda}
-          onChange={e => setBusqueda(e.target.value)}
-          style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid #d1d5db", fontSize: "0.95rem", minWidth: 260 }}
-        />
-        {crear && <button
-          onClick={() => setForm({})}
-          style={{ padding: "9px 20px", borderRadius: 8, background: "#4c7318", color: "#fff", border: "none", fontWeight: 700, fontSize: "0.95rem", cursor: "pointer", whiteSpace: "nowrap" }}
-        >
-          + Nuevo software
-        </button>}
+      <div className="page-toolbar">
+        <h2>💿 Software</h2>
+        <input className="search-input" type="text" placeholder="🔍 Buscar por nombre, tipo o versión..." value={busqueda} onChange={(e) => setBusqueda(e.target.value)} />
+        {crear && (
+          <button className="btn-primary" onClick={() => setForm({})}>
+            + Nuevo software
+          </button>
+        )}
       </div>
 
       <DataTable

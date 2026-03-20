@@ -127,9 +127,9 @@ export default function TiketsPage() {
   return (
     <div style={{ width: "100%", maxWidth: esVistaPersonal ? 900 : 1200 }}>
 
-      <h2 style={{ margin: "0 0 24px", fontSize: "1.3rem", fontWeight: 800, color: "#232946" }}>
-        🎫 Tickets de soporte
-      </h2>
+      <div className="page-toolbar">
+        <h2 style={{ margin: 0, flex: 1 }}>🎫 Tickets de soporte</h2>
+      </div>
 
       {error && (
         <div style={{

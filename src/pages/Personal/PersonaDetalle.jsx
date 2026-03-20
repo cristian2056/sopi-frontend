@@ -55,41 +55,43 @@ export default function PersonaDetalle() {
     <div style={{ width: "100%", maxWidth: 1100 }}>
 
       {/* Cabecera */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
+      <div className="page-toolbar" style={{ marginBottom: 20 }}>
         <button onClick={() => navigate("/personal")}
-          style={{ background: "none", border: "none", cursor: "pointer",
-            fontSize: "1.3rem", color: "#4c7318" }}>
+          style={{ background: "none", border: "none", cursor: "pointer", fontSize: "1.2rem", color: "#4c7318", padding: "0 4px" }}>
           ←
         </button>
-        <div>
-          <h2 style={{ margin: 0, fontSize: "1.3rem" }}>{nombreCompleto}</h2>
-          <span style={{ color: "#6b7280", fontSize: "0.9rem" }}>
+        <div style={{ flex: 1 }}>
+          <h2 style={{ margin: 0, fontSize: "1.2rem" }}>{nombreCompleto}</h2>
+          <span style={{ color: "#649719", fontSize: "0.85rem", fontWeight: 500 }}>
             {persona.tipoDocumento}: {persona.numeroDocumento}
             {persona.usuario ? ` · Usuario: ${persona.usuario.userName}` : " · Sin usuario"}
           </span>
         </div>
         <span style={{
-          marginLeft: "auto", padding: "4px 14px", borderRadius: 20,
-          background: persona.activo ? "#dcfce7" : "#fee2e2",
+          padding: "4px 14px", borderRadius: 20,
+          background: persona.activo ? "rgba(220,252,231,0.8)" : "rgba(254,226,226,0.8)",
           color: persona.activo ? "#16a34a" : "#dc2626",
-          fontWeight: 700, fontSize: "0.85rem",
+          fontWeight: 700, fontSize: "0.83rem",
+          border: `1px solid ${persona.activo ? "rgba(22,163,74,0.3)" : "rgba(220,38,38,0.3)"}`,
         }}>
           {persona.activo ? "ACTIVO" : "INACTIVO"}
         </span>
       </div>
 
       {/* Tabs */}
-      <div style={{ display: "flex", gap: 4, borderBottom: "2px solid #e5e7eb",
-        marginBottom: 24, overflowX: "auto" }}>
+      <div style={{ display: "flex", gap: 4, borderBottom: "2px solid rgba(100,151,25,0.2)", marginBottom: 20, overflowX: "auto" }}>
         {TABS.map((tab) => (
           <button key={tab.key} onClick={() => setTabActiva(tab.key)}
             style={{
-              padding: "10px 18px", border: "none",
+              padding: "9px 16px", border: "none",
               borderBottom: tabActiva === tab.key ? "3px solid #4c7318" : "3px solid transparent",
-              background: "none", cursor: "pointer",
+              background: tabActiva === tab.key ? "rgba(160,215,68,0.12)" : "none",
+              cursor: "pointer",
               fontWeight: tabActiva === tab.key ? 700 : 500,
-              color: tabActiva === tab.key ? "#4c7318" : "#6b7280",
-              fontSize: "0.93rem", marginBottom: -2, whiteSpace: "nowrap",
+              color: tabActiva === tab.key ? "#3e5b19" : "#6b7280",
+              fontSize: "0.9rem", marginBottom: -2, whiteSpace: "nowrap",
+              borderRadius: "8px 8px 0 0",
+              transition: "background 0.15s, color 0.15s",
             }}>
             {tab.label}
           </button>

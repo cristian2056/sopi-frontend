@@ -76,19 +76,14 @@ export default function TiposActivosPage() {
 
   return (
     <div style={{ width: "100%", maxWidth: 780 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
-        <h2 style={{ margin: 0, flex: 1, fontSize: "1.3rem", fontWeight: 800, color: "#232946" }}>
-          🗂️ Tipos de Activos
-        </h2>
-        <input
-          type="text" value={busqueda} onChange={e => setBusqueda(e.target.value)}
-          placeholder="🔍 Buscar..."
-          style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid #d1d5db", fontSize: "0.93rem", minWidth: 200 }}
-        />
-        {crear && <button onClick={() => setForm({})} style={{
-          padding: "9px 20px", borderRadius: 8, background: "#4c7318",
-          color: "#fff", border: "none", fontWeight: 700, fontSize: "0.95rem", cursor: "pointer",
-        }}>+ Nuevo tipo</button>}
+      <div className="page-toolbar">
+        <h2>🗂️ Tipos de Activos</h2>
+        <input className="search-input" type="text" placeholder="🔍 Buscar..." value={busqueda} onChange={(e) => setBusqueda(e.target.value)} />
+        {crear && (
+          <button className="btn-primary" onClick={() => setForm({})}>
+            + Nuevo tipo
+          </button>
+        )}
       </div>
 
       <DataTable

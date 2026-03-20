@@ -1,6 +1,6 @@
 // src/pages/Seguridad/RolesPage.jsx
 import { useEffect, useState, useCallback } from "react";
-import { C, btnSt } from "./constants";
+import { C } from "./constants";
 import { rolesApi, objetosApi, menuApi, rolObjetosApi, rolMenuApi, rolUsuariosApi } from "../../api/roles.api";
 import { usePermiso } from "../../stores/menuSlice";
 
@@ -211,8 +211,8 @@ export default function RolesPage() {
       )}
 
       {/* Encabezado */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24 }}>
-        <div>
+      <div className="page-toolbar">
+        <div style={{ flex: 1 }}>
           <h2 style={{ margin: 0, fontSize: "1.4rem", fontWeight: 800, color: C.gray900 }}>🎭 Gestión de Roles</h2>
           <p style={{ margin: "4px 0 0", color: C.gray400, fontSize: "0.87rem" }}>
             Creá roles, asigná usuarios y configurá permisos por objeto
@@ -221,9 +221,7 @@ export default function RolesPage() {
         {crear && (
           <button
             onClick={() => setModalRol("nuevo")}
-            style={btnSt({ background: C.primary, color: C.white, padding: "10px 20px" })}
-            onMouseEnter={e => e.currentTarget.style.background = C.primaryHover}
-            onMouseLeave={e => e.currentTarget.style.background = C.primary}
+            className="btn-primary"
           >
             ＋ Nuevo rol
           </button>

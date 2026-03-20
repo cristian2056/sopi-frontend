@@ -1,6 +1,5 @@
 // src/components/layout/AppLayout.jsx
-// Sin appLayout.css — estilos inline
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectUsuario } from "../../stores/authSlice";
@@ -29,23 +28,22 @@ export default function AppLayout() {
   const usuario  = useSelector(selectUsuario);
   const menus    = useSelector(selectMenus);
 
+  // Estado del menú en móvil
+  const [menuMovil, setMenuMovil] = useState(false);
+
+  // Cierra el menú móvil al cambiar de ruta
+  useEffect(() => { setMenuMovil(false); }, [location.pathname]);
+
   const title = useMemo(() => {
     const ruta = location.pathname;
-
-    // Busca en menús principales del backend
     const encontrado = menus.find(m => m.url === ruta);
     if (encontrado) return encontrado.nombre;
-
-    // Busca en submenús
     for (const m of menus) {
       const sub = m.subMenus?.find(s => s.url === ruta);
       if (sub) return sub.nombre;
     }
-
-    // Rutas con parámetros
     if (ruta.startsWith("/equipos/"))  return "Detalle de Equipo";
     if (ruta.startsWith("/personal/")) return "Detalle de Personal";
-
     return TITULOS_FALLBACK[ruta] ?? "Parque Informático";
   }, [location.pathname, menus]);
 
@@ -53,35 +51,39 @@ export default function AppLayout() {
   const tipoUsuario   = usuario?.tipoUsuario    ?? "";
 
   return (
-    <div style={{
-      display: "flex",
-      minHeight: "100vh",
-      background: "#f5f6fa",
-      width: "100vw",
-    }}>
-      <Sidebar />
+    <div style={{ display: "flex", minHeight: "100vh", width: "100vw", position: "relative", zIndex: 1 }}>
 
-      <div style={{
-        flex: 1,
-        display: "flex",
-        flexDirection: "column",
-        minWidth: 0,
-        maxWidth: "100vw",
-      }}>
+      {/* Sidebar — en móvil es overlay */}
+      <Sidebar menuMovil={menuMovil} onCerrarMovil={() => setMenuMovil(false)} />
+
+      {/* Backdrop oscuro en móvil cuando el menú está abierto */}
+      {menuMovil && (
+        <div
+          onClick={() => setMenuMovil(false)}
+          style={{
+            position: "fixed", inset: 0,
+            background: "rgba(5,20,2,0.55)",
+            backdropFilter: "blur(3px)",
+            WebkitBackdropFilter: "blur(3px)",
+            zIndex: 1100,
+          }}
+        />
+      )}
+
+      {/* Columna derecha */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
         <Header
           title={title}
           nombreUsuario={nombreUsuario}
           tipoUsuario={tipoUsuario}
+          onMenuToggle={() => setMenuMovil(v => !v)}
         />
 
-        <div style={{
-          flex: 1,
-          padding: "2.5rem 2.5rem 2.5rem 2rem",
-          background: "#f5f6fa",
-          overflow: "auto",
-          color: "#232946",
-        }}>
-          <Outlet />
+        {/* Área de contenido — estilos en index.css (.content-scroll / .content-glass) */}
+        <div className="content-scroll">
+          <div className="content-glass">
+            <Outlet />
+          </div>
         </div>
       </div>
     </div>

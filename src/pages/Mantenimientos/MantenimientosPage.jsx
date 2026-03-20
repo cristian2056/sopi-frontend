@@ -141,14 +141,9 @@ export default function MantenimientosPage() {
   return (
     <div style={{ width: "100%", maxWidth: 1100 }}>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
-        <h2 style={{ margin: 0, flex: 1, fontSize: "1.3rem", fontWeight: 800, color: "#232946" }}>
-          🔧 Mantenimientos
-        </h2>
-        <input type="text" value={busqueda} onChange={e => setBusqueda(e.target.value)}
-          placeholder="🔍 Buscar por descripción..."
-          style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid #d1d5db",
-            fontSize: "0.93rem", minWidth: 220 }} />
+      <div className="page-toolbar">
+        <h2>🔧 Mantenimientos</h2>
+        <input className="search-input" type="text" placeholder="🔍 Buscar por descripción..." value={busqueda} onChange={(e) => setBusqueda(e.target.value)} />
         <select value={filtroTipo} onChange={e => setFiltroTipo(e.target.value)}
           style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #d1d5db",
             fontSize: "0.93rem", cursor: "pointer" }}>
@@ -162,9 +157,7 @@ export default function MantenimientosPage() {
           {ESTADOS.map(s => <option key={s} value={s}>{s.replace("_", " ")}</option>)}
         </select>
         {crear && (
-          <button onClick={() => setForm({ ...FORM_VACIO })}
-            style={{ padding: "9px 20px", borderRadius: 8, background: "#4c7318", color: "#fff",
-              border: "none", fontWeight: 700, fontSize: "0.95rem", cursor: "pointer" }}>
+          <button className="btn-primary" onClick={() => setForm({ ...FORM_VACIO })}>
             + Nuevo mantenimiento
           </button>
         )}

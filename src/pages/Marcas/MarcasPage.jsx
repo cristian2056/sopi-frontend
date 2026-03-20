@@ -88,29 +88,20 @@ export default function MarcasPage() {
     <div style={{ width: "100%", maxWidth: 980 }}>
 
       {/* Barra superior */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-        <h2 style={{ margin: 0, flex: 1 }}>Marcas</h2>
+      <div className="page-toolbar">
+        <h2>Marcas</h2>
         <input
+          className="search-input"
           type="text"
           placeholder="🔍 Buscar por nombre o modelo..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
-          style={{
-            padding: "8px 14px", borderRadius: 8,
-            border: "1px solid #d1d5db", fontSize: "0.95rem", minWidth: 240,
-          }}
         />
-        {crear && <button
-          onClick={() => setForm({})}
-          style={{
-            padding: "9px 20px", borderRadius: 8,
-            background: "#232946", color: "#fff",
-            border: "none", fontWeight: 700,
-            fontSize: "0.95rem", cursor: "pointer", whiteSpace: "nowrap",
-          }}
-        >
-          + Nueva marca
-        </button>}
+        {crear && (
+          <button className="btn-primary" onClick={() => setForm({})}>
+            + Nueva marca
+          </button>
+        )}
       </div>
 
       {/* Tabla genérica */}

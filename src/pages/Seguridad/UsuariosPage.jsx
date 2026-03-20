@@ -120,22 +120,14 @@ export default function UsuariosPage() {
   return (
     <div style={{ width: "100%", maxWidth: 1200 }}>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
-        <h2 style={{ margin: 0, flex: 1, fontSize: "1.3rem", fontWeight: 800, color: "#232946" }}>
-          👥 Usuarios del sistema
-        </h2>
-        <input
-          type="text"
-          placeholder="🔍 Buscar por nombre, usuario o rol..."
-          value={busqueda}
-          onChange={e => setBusqueda(e.target.value)}
-          style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid #d1d5db", fontSize: "0.93rem", minWidth: 240 }}
-        />
-        {crear && <button
-          onClick={() => setForm({})}
-          style={{ padding: "9px 20px", borderRadius: 8, background: "#4c7318", color: "#fff", border: "none", fontWeight: 700, fontSize: "0.95rem", cursor: "pointer" }}>
-          + Nuevo usuario
-        </button>}
+      <div className="page-toolbar">
+        <h2>👥 Usuarios del sistema</h2>
+        <input className="search-input" type="text" placeholder="🔍 Buscar por nombre, usuario o rol..." value={busqueda} onChange={(e) => setBusqueda(e.target.value)} />
+        {crear && (
+          <button className="btn-primary" onClick={() => setForm({})}>
+            + Nuevo usuario
+          </button>
+        )}
       </div>
 
       <DataTable

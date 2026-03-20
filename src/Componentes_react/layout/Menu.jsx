@@ -47,40 +47,44 @@ function filtrarMenu(items) {
 
 // ─── Estilos ──────────────────────────────────────────────────────────────────
 const sidebarBase = {
-  width: 220,
-  background: `linear-gradient(to bottom, ${LIMA[400]} 0%, ${LIMA[600]} 45%, ${LIMA[800]} 100%)`,
+  width: 230,
+  /* Glass oscuro verde — visible sobre el fondo verde del body */
+  background: "rgba(12, 32, 5, 0.72)",
+  backdropFilter: "blur(30px)",
+  WebkitBackdropFilter: "blur(30px)",
   height: "100vh",
   color: "#fff",
   display: "flex",
   flexDirection: "column",
-  boxShadow: "2px 0 14px rgba(26,43,8,0.30)",
+  boxShadow: "6px 0 40px rgba(5,20,2,0.50)",
   zIndex: 1200,
   overflow: "hidden",
   flexShrink: 0,
-  transition: "width 0.2s ease",
+  transition: "width 0.22s cubic-bezier(0.4,0,0.2,1)",
+  borderRight: "1px solid rgba(160,215,68,0.18)",
 };
 
 const itemBase = {
   background: "none",
   border: "none",
   borderLeft: "3px solid transparent",
-  color: "#fff",
+  color: "rgba(255,255,255,0.82)",
   textAlign: "left",
-  padding: "0.7rem 1rem",
-  fontSize: "0.95rem",
+  padding: "0.62rem 0.85rem",
+  fontSize: "0.9rem",
   fontWeight: 500,
   display: "flex",
   alignItems: "center",
-  gap: "0.8rem",
-  borderRadius: 8,
+  gap: "0.72rem",
+  borderRadius: 10,
   cursor: "pointer",
   whiteSpace: "nowrap",
   overflow: "hidden",
-  textShadow: "0 1px 3px rgba(0,0,0,0.20)",
   width: "100%",
+  transition: "background 0.14s, color 0.14s",
 };
 
-export default function Sidebar() {
+export default function Sidebar({ menuMovil = false, onCerrarMovil }) {
   const navigate  = useNavigate();
   const location  = useLocation();
   const dispatch  = useDispatch();
@@ -99,6 +103,7 @@ export default function Sidebar() {
   const [abiertos,  setAbiertos]  = useState({});
   const [hoveredId, setHoveredId] = useState(null);
 
+  // En desktop: cierra al hacer clic fuera
   useEffect(() => {
     const handler = (e) => {
       if (!document.getElementById("app-sidebar")?.contains(e.target)) {
@@ -133,15 +138,17 @@ export default function Sidebar() {
 
     const estilo = {
       ...itemBase,
-      paddingLeft: nivel > 0 ? 36 : 14,
-      fontSize: nivel > 0 ? "0.88rem" : "0.95rem",
-      borderLeft: activo ? "3px solid rgba(255,255,255,0.85)" : "3px solid transparent",
+      paddingLeft: nivel > 0 ? 34 : 12,
+      fontSize: nivel > 0 ? "0.85rem" : "0.9rem",
+      borderLeft: activo ? "3px solid #a0d744" : "3px solid transparent",
       background: activo
-        ? "rgba(255,255,255,0.20)"
+        ? "linear-gradient(90deg, rgba(160,215,68,0.25), rgba(160,215,68,0.08))"
         : isHov
-          ? "rgba(255,255,255,0.13)"
+          ? "rgba(255,255,255,0.08)"
           : "none",
       fontWeight: activo ? 700 : 500,
+      color: activo ? "#c8f06a" : "rgba(255,255,255,0.80)",
+      boxShadow: activo ? "inset 0 0 12px rgba(160,215,68,0.12)" : "none",
     };
 
     return (
@@ -182,7 +189,8 @@ export default function Sidebar() {
   return (
     <aside
       id="app-sidebar"
-      style={{ ...sidebarBase, width: expanded ? 220 : 64 }}
+      className={`app-sidebar${menuMovil ? " sidebar-movil-abierto" : ""}`}
+      style={{ ...sidebarBase, width: expanded ? 230 : 64 }}
       onMouseEnter={() => collapsed && setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -193,54 +201,75 @@ export default function Sidebar() {
         onClick={() => setCollapsed(v => !v)}
         onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setCollapsed(v => !v); } }}
         style={{
-          display: "flex", alignItems: "center", gap: "0.75rem",
-          padding: "1.1rem 1rem", minHeight: 60,
-          borderBottom: "1px solid rgba(255,255,255,0.20)",
+          display: "flex", alignItems: "center", gap: "0.8rem",
+          padding: "1rem 0.9rem", minHeight: 64,
+          borderBottom: "1px solid rgba(160,215,68,0.15)",
           cursor: "pointer", userSelect: "none", overflow: "hidden",
+          transition: "background 0.15s",
         }}
-        onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.12)"}
+        onMouseEnter={e => e.currentTarget.style.background = "rgba(160,215,68,0.10)"}
         onMouseLeave={e => e.currentTarget.style.background = "transparent"}
       >
-        <img src={goreaLogo} alt="Logo"
-          style={{ width: 38, height: 38, objectFit: "contain", flexShrink: 0 }} />
+        {/* Logo con fondo glass lima */}
+        <div style={{
+          width: 40, height: 40, borderRadius: 12, flexShrink: 0,
+          background: "rgba(160,215,68,0.18)",
+          border: "1px solid rgba(160,215,68,0.35)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          backdropFilter: "blur(8px)",
+        }}>
+          <img src={goreaLogo} alt="Logo"
+            style={{ width: 28, height: 28, objectFit: "contain" }} />
+        </div>
         {expanded && (
-          <span style={{
-            fontWeight: 700, fontSize: "1.02rem",
-            whiteSpace: "nowrap", overflow: "hidden",
-            textShadow: "0 1px 4px rgba(0,0,0,0.25)",
-          }}>
-            Parque Informático
-          </span>
+          <div style={{ overflow: "hidden" }}>
+            <div style={{
+              fontWeight: 800, fontSize: "0.95rem",
+              whiteSpace: "nowrap", color: "#fff",
+              letterSpacing: "0.01em",
+            }}>
+              Parque Informático
+            </div>
+            <div style={{
+              fontSize: "0.72rem", color: "rgba(160,215,68,0.9)",
+              fontWeight: 600, letterSpacing: "0.04em",
+              marginTop: 1,
+            }}>
+              SISTEMA DE GESTIÓN
+            </div>
+          </div>
         )}
       </div>
 
       {/* Nav scrolleable */}
       <nav style={{
         flex: 1, overflowY: "auto", overflowX: "hidden",
-        padding: "0.5rem 0.5rem",
-        // Scrollbar delgada
+        padding: "0.6rem 0.55rem",
         scrollbarWidth: "thin",
-        scrollbarColor: "rgba(255,255,255,0.25) transparent",
+        scrollbarColor: "rgba(160,215,68,0.25) transparent",
       }}>
         {items.map(item => renderItem(item))}
       </nav>
 
-      {/* Cerrar sesión — siempre visible */}
+      {/* Cerrar sesión */}
       <div style={{
         flexShrink: 0,
-        borderTop: "1px solid rgba(255,255,255,0.15)",
-        padding: "0.5rem",
+        borderTop: "1px solid rgba(160,215,68,0.12)",
+        padding: "0.55rem",
       }}>
         <button
-          style={{
-            ...itemBase,
-            borderLeft: "3px solid transparent",
+          style={{ ...itemBase, borderLeft: "3px solid transparent" }}
+          onMouseEnter={e => {
+            e.currentTarget.style.background = "rgba(220,38,38,0.22)";
+            e.currentTarget.style.color = "#fca5a5";
           }}
-          onMouseEnter={e => e.currentTarget.style.background = "rgba(220,50,50,0.25)"}
-          onMouseLeave={e => e.currentTarget.style.background = "none"}
+          onMouseLeave={e => {
+            e.currentTarget.style.background = "none";
+            e.currentTarget.style.color = "rgba(255,255,255,0.80)";
+          }}
           onClick={handleLogout}
         >
-          <span style={{ fontSize: "1.15rem", flexShrink: 0 }}>🚪</span>
+          <span style={{ fontSize: "1.1rem", flexShrink: 0 }}>🚪</span>
           {expanded && <span>Cerrar sesión</span>}
         </button>
       </div>
