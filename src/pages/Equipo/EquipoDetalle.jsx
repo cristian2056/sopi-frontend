@@ -3,12 +3,12 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { equiposApi } from "../../api/equipos.api";
 import { usePermiso } from "../../stores/menuSlice";
-import TabInfoGeneral from "./tabs/TabInfoGeneral";
-import TabComponentes from "./tabs/TabComponentes";
-import TabSoftware    from "./tabs/TabSoftware";
-import TabRed         from "./tabs/TabRed";
-import TabFotos       from "./tabs/TabFotos";
-import TabAsignacion  from "./tabs/TabAsignacion";
+import TabInfoGeneral from "../../Componentes_react/equipo/tabs/TabInfoGeneral";
+import TabComponentes from "../../Componentes_react/equipo/tabs/TabComponentes";
+import TabSoftware    from "../../Componentes_react/equipo/tabs/TabSoftware";
+import TabRed         from "../../Componentes_react/equipo/tabs/TabRed";
+import TabFotos       from "../../Componentes_react/equipo/tabs/TabFotos";
+import TabAsignacion  from "../../Componentes_react/equipo/tabs/TabAsignacion";
 
 const TABS = [
   { key: "info",        label: "📋 Info General" },

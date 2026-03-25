@@ -7,7 +7,7 @@ import ModalDialog    from "../../Componentes_react/ui/ModalDialog";
 import Overlay        from "../../Componentes_react/ui/Overlay";
 import { usePermiso } from "../../stores/menuSlice";
 import { selectUsuario } from "../../stores/authSlice";
-import MantenimientoForm from "./MantenimientoForm";
+import MantenimientoForm from "../../Componentes_react/mantenimientos/MantenimientoForm";
 
 const TIPOS   = ["PREVENTIVO", "CORRECTIVO"];
 const ESTADOS = ["ABIERTO", "EN_PROCESO", "CERRADO"];

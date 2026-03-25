@@ -3,12 +3,12 @@ import { useEffect, useState } from "react";
 import { personalApi }     from "../../api/personal.api";
 import { usuariosApi }     from "../../api/usuarios.api";
 import { rolesApi }        from "../../api/roles.api";
-import PersonaForm         from "../Personal/PersonaForm";
-import UsuarioEditModal    from "./UsuarioEditModal";
+import PersonaForm         from "../../Componentes_react/personal/PersonaForm";
+import UsuarioEditModal    from "../../Componentes_react/seguridad/UsuarioEditModal";
 import ModalDialog         from "../../Componentes_react/ui/ModalDialog";
 import DataTable           from "../../Componentes_react/ui/DataTable";
 import { usePermiso }      from "../../stores/menuSlice";
-import { makeColumnas }    from "./usuariosColumnas";
+import { makeColumnas }    from "../../Componentes_react/seguridad/usuariosColumnas";
 
 export default function UsuariosPage() {
   const { crear, modificar, eliminar } = usePermiso("Usuarios");

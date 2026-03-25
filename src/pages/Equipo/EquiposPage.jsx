@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { equiposApi } from "../../api/equipos.api";
 import DataTable from "../../Componentes_react/ui/DataTable";
 import ModalDialog from "../../Componentes_react/ui/ModalDialog";
-import EquipoForm from "./EquipoForm";        // solo para EDITAR
-import EquipoWizard from "./EquipoWizard";    // para CREAR (wizard)
+import EquipoForm from "../../Componentes_react/equipo/EquipoForm";        // solo para EDITAR
+import EquipoWizard from "../../Componentes_react/equipo/EquipoWizard";    // para CREAR (wizard)
 import { usePermiso } from "../../stores/menuSlice";
 
 const columnas = [

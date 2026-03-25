@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { marcasApi } from "../../api/marcas.api";
 import ModalDialog from "../../Componentes_react/ui/ModalDialog";
 import DataTable   from "../../Componentes_react/ui/DataTable";
-import MarcaForm   from "./MarcaForm";
+import MarcaForm   from "../../Componentes_react/marcas/MarcaForm";
 import { usePermiso } from "../../stores/menuSlice";
 
 const FIELDS = [

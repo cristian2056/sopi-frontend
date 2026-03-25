@@ -6,14 +6,14 @@ import { usePermiso } from "../../stores/menuSlice";
 
 import Spinner             from "../../Componentes_react/ui/Spinner";
 import ModalDialog         from "../../Componentes_react/ui/ModalDialog";
-import RolLista            from "./components/RolLista";
-import TabObjetos          from "./components/TabObjetos";
-import TabMenus            from "./components/TabMenus";
-import TabUsuarios         from "./components/TabUsuarios";
-import ModalRol            from "./components/ModalRol";
-import ModalAgregarUsuario from "./components/ModalAgregarUsuario";
-import PanelVacioRoles     from "./components/PanelVacioRoles";
-import PanelRolDetalle     from "./components/PanelRolDetalle";
+import RolLista            from "../../Componentes_react/roles/RolLista";
+import TabObjetos          from "../../Componentes_react/roles/TabObjetos";
+import TabMenus            from "../../Componentes_react/roles/TabMenus";
+import TabUsuarios         from "../../Componentes_react/roles/TabUsuarios";
+import ModalRol            from "../../Componentes_react/roles/ModalRol";
+import ModalAgregarUsuario from "../../Componentes_react/roles/ModalAgregarUsuario";
+import PanelVacioRoles     from "../../Componentes_react/roles/PanelVacioRoles";
+import PanelRolDetalle     from "../../Componentes_react/roles/PanelRolDetalle";
 
 // Convierte estructura anidada { menuId, subMenus:[] } en lista plana con menuPadreId
 function aplanarMenus(items, padreId = null) {

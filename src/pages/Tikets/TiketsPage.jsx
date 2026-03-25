@@ -4,10 +4,10 @@ import { useSelector } from "react-redux";
 import { selectUsuario } from "../../stores/authSlice";
 import { ticketsApi } from "../../api/tickets.api";
 
-import SeccionUsuario    from "./components/SeccionUsuario";
-import SeccionTecnico    from "./components/SeccionTecnico";
-import ModalCrearTicket  from "./components/ModalCrearTicket";
-import ModalCerrarTicket from "./components/ModalCerrarTicket";
+import SeccionUsuario    from "../../Componentes_react/tickets/SeccionUsuario";
+import SeccionTecnico    from "../../Componentes_react/tickets/SeccionTecnico";
+import ModalCrearTicket  from "../../Componentes_react/tickets/ModalCrearTicket";
+import ModalCerrarTicket from "../../Componentes_react/tickets/ModalCerrarTicket";
 
 // Rol "usuario" en cualquier variante de mayúsculas → vista personal
 const esRolUsuario = (rolNombre = "") =>

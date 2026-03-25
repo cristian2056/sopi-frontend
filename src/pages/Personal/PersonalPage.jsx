@@ -4,10 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { personalApi } from "../../api/personal.api";
 import ModalDialog  from "../../Componentes_react/ui/ModalDialog";
 import DataTable    from "../../Componentes_react/ui/DataTable";
-import PersonaForm  from "./PersonaForm";
-import RolesModal   from "./RolesModal";
+import PersonaForm  from "../../Componentes_react/personal/PersonaForm";
+import RolesModal   from "../../Componentes_react/personal/RolesModal";
 import { usePermiso } from "../../stores/menuSlice";
-import { columnas } from "./personalColumnas";
+import { columnas } from "../../Componentes_react/personal/personalColumnas";
 
 export default function PersonalPage() {
   const navigate = useNavigate();

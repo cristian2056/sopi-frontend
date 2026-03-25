@@ -1,7 +1,7 @@
 // src/components/ui/Overlay.jsx — glassmorphism modal overlay
 import React from "react";
 
-export default function Overlay({ children, onCerrar }) {
+export default function Overlay({ children, onCerrar, maxWidth }) {
   return (
     <div
       onClick={onCerrar}
@@ -25,6 +25,7 @@ export default function Overlay({ children, onCerrar }) {
           boxShadow: "0 20px 60px rgba(15, 40, 6, 0.35)",
           border: "1.5px solid rgba(255,255,255,0.6)",
           width: "100%",
+          maxWidth: maxWidth ?? 620,
         }}
       >
         {children}

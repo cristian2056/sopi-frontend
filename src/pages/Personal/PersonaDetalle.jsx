@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { personalApi } from "../../api/personal.api";
-import TabInfoPersonal  from "./tabs/TabInfoPersonal";
-import TabRolesPermisos from "./tabs/TabRolesPermisos";
-import TabHistorial     from "./tabs/TabHistorial";
+import TabInfoPersonal  from "../../Componentes_react/personal/tabs/TabInfoPersonal";
+import TabRolesPermisos from "../../Componentes_react/personal/tabs/TabRolesPermisos";
+import TabHistorial     from "../../Componentes_react/personal/tabs/TabHistorial";
 
 const TABS = [
   { key: "info",    label: "📋 Info Personal"     },

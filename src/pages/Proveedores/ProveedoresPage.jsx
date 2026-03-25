@@ -6,11 +6,7 @@ import ModalDialog from "../../Componentes_react/ui/ModalDialog";
 import FormModal   from "../../Componentes_react/ui/FormModal";
 import { usePermiso } from "../../stores/menuSlice";
 
-const CALIFICACIONES = [
-  { value: "Alta", label: "Alta" },
-  { value: "Media", label: "Media" },
-  { value: "Baja", label: "Baja" },
-];
+const CALIFICACIONES = [1, 2, 3, 4, 5].map(n => ({ value: n, label: String(n) }));
 
 const FIELDS = [
   { name: "nombre",            label: "Nombre",           type: "text",     required: true, placeholder: "Razón social" },
