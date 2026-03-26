@@ -10,7 +10,13 @@ const inputSt = {
 };
 const labelSt = { display: "block", fontWeight: 600, marginBottom: 5, color: "#374151", fontSize: "0.87rem" };
 const groupSt = { marginBottom: 14 };
-const CALIFICACIONES = ["Alta", "Media", "Baja"];
+const CALIFICACIONES = [
+  { value: "1", label: "1 - Pésimo" },
+  { value: "2", label: "2 - Regular" },
+  { value: "3", label: "3 - Aceptable" },
+  { value: "4", label: "4 - Bueno" },
+  { value: "5", label: "5 - Excelente" },
+];
 
 export default function ProveedorForm({ initialData = {}, onSubmit, loading, onCancel }) {
   const [form, setForm] = useState({
@@ -69,7 +75,7 @@ export default function ProveedorForm({ initialData = {}, onSubmit, loading, onC
               <select id="pf-calificacion" value={form.calificacion} onChange={e => set("calificacion", e.target.value)}
                 style={{ ...inputSt, color: form.calificacion ? "#111" : "#9ca3af" }}>
                 <option value="">— Sin calificar —</option>
-                {CALIFICACIONES.map(c => <option key={c} value={c}>{c}</option>)}
+                {CALIFICACIONES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
               </select>
             </div>
           </div>

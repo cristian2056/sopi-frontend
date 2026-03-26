@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { logoutLocal } from "../../stores/authSlice";
+import { logoutLocal, selectUsuario } from "../../stores/authSlice";
 import { clearMenu, selectMenus, selectMenuCargado } from "../../stores/menuSlice";
 import { authApi } from "../../api/auth.api";
 import { menuItems as menuFallback } from "../../app/menuItems";
@@ -38,6 +38,8 @@ const ICONOS = {
   "equipos red":    "🌐",
   "tipos de activo":"📋",
   "roles":          "🎭",
+  "mis equipos":    "🖥️",
+  "mis tickets":    "🎫",
 };
 const getIcono = (nombre) => ICONOS[nombre?.toLowerCase()] ?? "📄";
 
@@ -91,12 +93,22 @@ export default function Sidebar({ menuMovil = false, onCerrarMovil }) {
 
   const menusRedux  = useSelector(selectMenus);
   const menuCargado = useSelector(selectMenuCargado);
+  const usuario     = useSelector(selectUsuario);
+  const esUsuario   = (usuario?.tipoUsuario ?? usuario?.rolNombre ?? "").toLowerCase().includes("usuario");
 
-  const items = filtrarMenu(
-    menuCargado && menusRedux.length > 0
-      ? [...menusRedux].sort((a, b) => (a.orden ?? 99) - (b.orden ?? 99))
-      : menuFallback.map(m => ({ nombre: m.name, url: m.path, orden: 99, subMenus: [], _icon: m.icon }))
-  );
+  const ITEMS_USUARIO = [
+    { nombre: "Inicio",      url: "/",            orden: 0, subMenus: [], _icon: "🏠" },
+    { nombre: "Mis equipos", url: "/mis-equipos", orden: 1, subMenus: [], _icon: "🖥️" },
+    { nombre: "Tickets",     url: "/tickets",     orden: 2, subMenus: [], _icon: "🎫" },
+  ];
+
+  const items = esUsuario
+    ? ITEMS_USUARIO
+    : filtrarMenu(
+        menuCargado && menusRedux.length > 0
+          ? [...menusRedux].sort((a, b) => (a.orden ?? 99) - (b.orden ?? 99))
+          : menuFallback.map(m => ({ nombre: m.name, url: m.path, orden: 99, subMenus: [], _icon: m.icon }))
+      );
 
   const [collapsed, setCollapsed] = useState(false);
   const [hovered,   setHovered]   = useState(false);

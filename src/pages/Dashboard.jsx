@@ -1,18 +1,82 @@
 // src/pages/Dashboard.jsx
 import React from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { selectUsuario } from "../stores/authSlice";
 
-const MODULOS = [
+const MODULOS_ADMIN = [
   { label: "Equipos",          icon: "💻", color: "#4c7318", bg: "rgba(76,115,24,0.10)",   border: "rgba(76,115,24,0.20)"   },
   { label: "Tickets abiertos", icon: "🎫", color: "#2563eb", bg: "rgba(37,99,235,0.08)",   border: "rgba(37,99,235,0.18)"   },
   { label: "Mantenimientos",   icon: "🔧", color: "#d97706", bg: "rgba(217,119,6,0.08)",   border: "rgba(217,119,6,0.18)"   },
   { label: "Personal",         icon: "👥", color: "#7c3aed", bg: "rgba(124,58,237,0.08)",  border: "rgba(124,58,237,0.18)"  },
 ];
 
+const MODULOS_USUARIO = [
+  { label: "Mis equipos", icon: "🖥️", color: "#4c7318", bg: "rgba(76,115,24,0.10)", border: "rgba(76,115,24,0.20)", path: "/mis-equipos" },
+  { label: "Mis tickets", icon: "🎫", color: "#2563eb", bg: "rgba(37,99,235,0.08)", border: "rgba(37,99,235,0.18)", path: "/tickets"     },
+];
+
+function DashboardUsuario({ nombre }) {
+  const navigate = useNavigate();
+  return (
+    <div>
+      <div style={{
+        display: "flex", alignItems: "center", gap: 18, padding: "20px 24px",
+        background: "linear-gradient(135deg, rgba(160,215,68,0.18), rgba(76,115,24,0.12))",
+        border: "1.5px solid rgba(100,151,25,0.22)", borderRadius: 16, marginBottom: 28,
+        boxShadow: "0 2px 12px rgba(15,40,6,0.06)",
+      }}>
+        <div style={{
+          width: 54, height: 54, borderRadius: 15, flexShrink: 0,
+          background: "linear-gradient(135deg, #a0d744, #3e5b19)",
+          display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem",
+        }}>🖥️</div>
+        <div>
+          <h2 style={{ margin: "0 0 4px", fontWeight: 800, fontSize: "1.35rem", color: "#1a3a0a" }}>
+            Bienvenido, {nombre}
+          </h2>
+          <p style={{ margin: 0, color: "#4c7318", fontSize: "0.92rem", fontWeight: 600 }}>
+            Sistema de Gestión de Parque Informático
+          </p>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16, maxWidth: 500 }}>
+        {MODULOS_USUARIO.map(m => (
+          <button
+            key={m.label}
+            onClick={() => navigate(m.path)}
+            style={{
+              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+              gap: 14, padding: "32px 20px", borderRadius: 16, border: `1.5px solid ${m.border}`,
+              background: m.bg, cursor: "pointer", transition: "transform 0.15s, box-shadow 0.15s",
+              boxShadow: "0 2px 10px rgba(15,40,6,0.06)",
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "0 6px 20px rgba(15,40,6,0.12)"; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = "none";             e.currentTarget.style.boxShadow = "0 2px 10px rgba(15,40,6,0.06)"; }}
+          >
+            <div style={{
+              width: 54, height: 54, borderRadius: 14, background: m.bg,
+              border: `1px solid ${m.border}`,
+              display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.6rem",
+            }}>
+              {m.icon}
+            </div>
+            <span style={{ fontWeight: 800, color: m.color, fontSize: "1rem" }}>{m.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const usuario = useSelector(selectUsuario);
   const nombre  = usuario?.nombreCompleto ?? "Usuario";
+  const rol     = (usuario?.tipoUsuario ?? usuario?.rolNombre ?? "").toLowerCase();
+  const esUsuario = rol.includes("usuario");
+
+  if (esUsuario) return <DashboardUsuario nombre={nombre} />;
 
   return (
     <div>
@@ -52,7 +116,7 @@ export default function Dashboard() {
         gap: 14,
         marginBottom: 22,
       }}>
-        {MODULOS.map(m => (
+        {MODULOS_ADMIN.map(m => (
           <div key={m.label} style={{
             display: "flex", flexDirection: "column", alignItems: "center",
             textAlign: "center", gap: 10, padding: "20px 14px",

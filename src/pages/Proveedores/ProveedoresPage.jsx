@@ -7,9 +7,11 @@ import FormModal   from "../../Componentes_react/ui/FormModal";
 import { usePermiso } from "../../stores/menuSlice";
 
 const CALIFICACIONES = [
-  { value: "Alta", label: "Alta" },
-  { value: "Media", label: "Media" },
-  { value: "Baja", label: "Baja" },
+  { value: "1", label: "1 - Pésimo" },
+  { value: "2", label: "2 - Regular" },
+  { value: "3", label: "3 - Aceptable" },
+  { value: "4", label: "4 - Bueno" },
+  { value: "5", label: "5 - Excelente" },
 ];
 
 const FIELDS = [
@@ -25,9 +27,11 @@ const FIELDS = [
 ];
 
 const BADGE_CAL = {
-  Alta:  { bg: "#dcfce7", color: "#16a34a" },
-  Media: { bg: "#fef9c3", color: "#a16207" },
-  Baja:  { bg: "#fee2e2", color: "#dc2626" },
+  "1": { bg: "#fee2e2", color: "#dc2626", label: "1 - Pésimo" },
+  "2": { bg: "#fef9c3", color: "#a16207", label: "2 - Regular" },
+  "3": { bg: "#e0f2fe", color: "#0369a1", label: "3 - Aceptable" },
+  "4": { bg: "#dcfce7", color: "#16a34a", label: "4 - Bueno" },
+  "5": { bg: "#d1fae5", color: "#059669", label: "5 - Excelente" },
 };
 
 const columnas = [
@@ -40,10 +44,10 @@ const columnas = [
     key: "calificacion", label: "Calificación", ancho: 110,
     render: p => {
       if (!p.calificacion) return <span style={{ color: "#d1d5db" }}>—</span>;
-      const s = BADGE_CAL[p.calificacion] ?? { bg: "#f3f4f6", color: "#6b7280" };
+      const s = BADGE_CAL[String(p.calificacion)] ?? { bg: "#f3f4f6", color: "#6b7280", label: p.calificacion };
       return (
         <span style={{ background: s.bg, color: s.color, borderRadius: 20, padding: "2px 10px", fontWeight: 700, fontSize: "0.8rem" }}>
-          {p.calificacion}
+          {s.label}
         </span>
       );
     },

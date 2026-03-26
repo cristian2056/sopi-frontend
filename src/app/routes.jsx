@@ -21,6 +21,7 @@ import RolesPage           from "../pages/Seguridad/RolesPage";
 import TiketsPage          from "../pages/Tikets/TiketsPage";
 import MantenimientosPage  from "../pages/Mantenimientos/MantenimientosPage";
 import EquiposRedPage      from "../pages/EquiposRed/EquiposRedPage";
+import MisEquiposPage      from "../pages/Usuario/MisEquiposPage";
 
 export const router = createBrowserRouter([
 
@@ -60,6 +61,9 @@ export const router = createBrowserRouter([
           // ── Seguridad ─────────────────────────────────
           { path: "usuarios", element: <UsuariosPage /> },
           { path: "roles",            element:<RolesPage />},
+
+          // ── Usuario ──────────────────────────────────
+          { path: "mis-equipos", element: <MisEquiposPage /> },
 
           // ── Personal (existente) ──────────────────────
           { path: "personal",         element: <PersonalPage /> },

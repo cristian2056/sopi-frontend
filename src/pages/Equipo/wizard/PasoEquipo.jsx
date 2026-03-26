@@ -115,14 +115,6 @@ export default function PasoEquipo({ onCreado, onCancelar }) {
         </div>
 
         <div style={{ marginBottom: 14 }}>
-          <label style={labelStyle}>Estado <span style={{ color: "#ef4444" }}>*</span></label>
-          <select value={form.estado} onChange={set("estado")}
-            style={{ ...inputStyle, cursor: "pointer" }}>
-            {ESTADOS.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
-        </div>
-
-        <div style={{ marginBottom: 14 }}>
           <label style={labelStyle}>Marca</label>
           <select value={form.marcaId} onChange={set("marcaId")}
             style={{ ...inputStyle, cursor: "pointer" }}>
@@ -147,7 +139,7 @@ export default function PasoEquipo({ onCreado, onCancelar }) {
         </div>
 
         <div style={{ marginBottom: 14 }}>
-          <label style={labelStyle}>Fecha Garantía</label>
+          <label style={labelStyle}>Cierre de Garantía</label>
           <input type="date" value={form.fechaGarantia}
             onChange={set("fechaGarantia")} style={inputStyle} />
         </div>
@@ -165,15 +157,6 @@ export default function PasoEquipo({ onCreado, onCancelar }) {
             onChange={set("mantenimientoFrecuenciaDias")} min={1} style={inputStyle} />
         </div>
 
-      </div>
-
-      <div style={{ marginBottom: 14, display: "flex", alignItems: "center", gap: 10 }}>
-        <input type="checkbox" id="activo" checked={form.activo}
-          onChange={e => setForm(p => ({ ...p, activo: e.target.checked }))}
-          style={{ width: 18, height: 18, cursor: "pointer" }} />
-        <label htmlFor="activo" style={{ ...labelStyle, margin: 0, cursor: "pointer" }}>
-          Equipo activo
-        </label>
       </div>
 
       <div style={{ marginBottom: 20 }}>

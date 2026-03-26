@@ -2,6 +2,7 @@
 // Asigna el equipo a un usuario responsable y dependencia.
 import React, { useEffect, useState } from "react";
 import { equipoAsignacionApi } from "../../../api/equipoExtras.api";
+import { usuariosApi } from "../../../api/usuarios.api";
 import ConfirmInline from "../../../Componentes_react/ui/ConfirmInline";
 import ErrorBanner   from "../../../Componentes_react/ui/ErrorBanner";
 import FormAsignacion, { FORM_VACIO_ASIGNACION } from "../components/FormAsignacion";
@@ -32,9 +33,22 @@ export default function TabAsignacion({ equipoId, crear, modificar, eliminar }) 
   const cargar = async () => {
     setLoading(true); setError("");
     try {
-      const data = await equipoAsignacionApi.listar();
+      const [data, rU] = await Promise.all([
+        equipoAsignacionApi.listar(),
+        usuariosApi.listar().catch(() => ({ datos: [] })),
+      ]);
       const todas = Array.isArray(data.datos) ? data.datos : data.datos ? [data.datos] : [];
-      setLista(todas.filter(a => String(a.equipoId) === String(equipoId)));
+      const usuariosMap = Object.fromEntries(
+        (rU.datos ?? []).map(u => [u.usuarioId, u.nombreCompleto ?? u.userName ?? null])
+      );
+      setLista(
+        todas
+          .filter(a => String(a.equipoId) === String(equipoId))
+          .map(a => ({
+            ...a,
+            usuarioNombre: a.usuarioNombre ?? usuariosMap[a.usuarioResponsableId] ?? null,
+          }))
+      );
     } catch (e) {
       setError(e.message || "Error al cargar asignaciones.");
     } finally {

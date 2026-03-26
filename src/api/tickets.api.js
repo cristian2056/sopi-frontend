@@ -15,10 +15,12 @@ export const ticketsApi = {
   cerrar:       (id, body) => http(`/api/Ticket/${id}/cerrar`, { method: "POST", body }),
 
   // ── Admin CRUD ────────────────────────────────────────────────────────────
-  listar:     ()         => http("/api/Ticket"),
-  obtener:    (id)       => http(`/api/Ticket/${id}`),
-  actualizar: (id, body) => http(`/api/Ticket/${id}`, { method: "PUT", body }),
-  eliminar:   (id)       => http(`/api/Ticket/${id}`, { method: "DELETE" }),
+  listar:          ()         => http("/api/Ticket"),
+  obtener:         (id)       => http(`/api/Ticket/${id}`),
+  actualizar:      (id, body) => http(`/api/Ticket/${id}`, { method: "PUT", body }),
+  eliminar:        (id)       => http(`/api/Ticket/${id}`, { method: "DELETE" }),
+  crearAdmin:      (body)     => http("/api/Ticket/crear-admin", { method: "POST", body }),
+  asignarTecnico:  (id, body) => http(`/api/Ticket/${id}/asignar`, { method: "POST", body }),
 };
 
 export const ticketArchivosApi = {

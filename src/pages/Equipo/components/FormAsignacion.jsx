@@ -2,7 +2,6 @@
 // Formulario para asignar un equipo a un usuario responsable y dependencia
 import React, { useEffect, useState } from "react";
 import { usuariosApi } from "../../../api/usuarios.api";
-import { dependenciasApi } from "../../../api/administracion.api";
 import FormBotones from "../../../Componentes_react/ui/FormBotones";
 import { inputStyle, labelStyle } from "../../../Componentes_react/ui/formStyles";
 
@@ -12,31 +11,36 @@ export const FORM_VACIO_ASIGNACION = {
 };
 
 export default function FormAsignacion({ equipoId, initial = FORM_VACIO_ASIGNACION, onGuardar, onCancelar, loading }) {
-  const [form, setForm]           = useState(initial);
-  const [usuarios,     setUsuarios]     = useState([]);
-  const [dependencias, setDependencias] = useState([]);
-  const [cargando,     setCargando]     = useState(true);
+  const [form, setForm]     = useState(initial);
+  const [usuarios, setUsuarios] = useState([]);
+  const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    Promise.all([usuariosApi.listar(), dependenciasApi.listar()])
-      .then(([rU, rD]) => {
-        setUsuarios(rU.datos     ?? []);
-        setDependencias(rD.datos ?? []);
-      })
+    usuariosApi.listar()
+      .then(rU => setUsuarios(rU.datos ?? []))
       .catch(() => {})
       .finally(() => setCargando(false));
   }, []);
 
-  const set = (campo) => (e) => setForm(p => ({ ...p, [campo]: e.target.value }));
+  const handleUsuarioChange = (e) => {
+    const id = e.target.value;
+    const usuario = usuarios.find(u => String(u.usuarioId) === String(id));
+    setForm(p => ({
+      ...p,
+      usuarioResponsableId: id,
+      dependeciaId: usuario?.dependenciaId ?? usuario?.dependeciaId ?? "",
+    }));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const today = new Date().toISOString().split("T")[0];
     onGuardar({
       equipoId:             parseInt(equipoId),
       usuarioResponsableId: parseInt(form.usuarioResponsableId) || 0,
       dependeciaId:         parseInt(form.dependeciaId)         || 0,
-      fechaAsignacion:      form.fechaAsignacion,
-      fechaDevolucion:      form.fechaDevolucion || null,
+      fechaAsignacion:      today,
+      fechaDevolucion:      null,
       observaciones:        form.observaciones.trim() || null,
     });
   };
@@ -45,51 +49,22 @@ export default function FormAsignacion({ equipoId, initial = FORM_VACIO_ASIGNACI
 
   return (
     <form onSubmit={handleSubmit}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 18px" }}>
-
-        <div style={{ marginBottom: 14 }}>
-          <label htmlFor="fa-responsable" style={labelStyle}>Usuario Responsable <span style={{ color: "#ef4444" }}>*</span></label>
-          <select id="fa-responsable" value={form.usuarioResponsableId} onChange={set("usuarioResponsableId")} required
-            style={{ ...inputStyle, cursor: "pointer" }}>
-            <option value="">-- Seleccionar --</option>
-            {usuarios.map(u => {
-              const nombre = u.nombreCompleto ?? u.userName ?? `Usuario #${u.usuarioId}`;
-              const tipo   = u.tipoUsuario ? ` [${u.tipoUsuario}]` : "";
-              return <option key={u.usuarioId} value={u.usuarioId}>{nombre}{tipo}</option>;
-            })}
-          </select>
-        </div>
-
-        <div style={{ marginBottom: 14 }}>
-          <label htmlFor="fa-dependencia" style={labelStyle}>Dependencia <span style={{ color: "#ef4444" }}>*</span></label>
-          <select id="fa-dependencia" value={form.dependeciaId} onChange={set("dependeciaId")} required
-            style={{ ...inputStyle, cursor: "pointer" }}>
-            <option value="">-- Seleccionar --</option>
-            {dependencias.map(d => (
-              <option key={d.dependeciaId ?? d.dependenciaId} value={d.dependeciaId ?? d.dependenciaId}>
-                {d.nombre}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div style={{ marginBottom: 14 }}>
-          <label htmlFor="fa-fAsignacion" style={labelStyle}>Fecha de Asignación <span style={{ color: "#ef4444" }}>*</span></label>
-          <input id="fa-fAsignacion" type="date" value={form.fechaAsignacion}
-            onChange={set("fechaAsignacion")} required style={inputStyle} />
-        </div>
-
-        <div style={{ marginBottom: 14 }}>
-          <label htmlFor="fa-fDevolucion" style={labelStyle}>Fecha de Devolución</label>
-          <input id="fa-fDevolucion" type="date" value={form.fechaDevolucion}
-            onChange={set("fechaDevolucion")} style={inputStyle} />
-        </div>
+      <div style={{ marginBottom: 14 }}>
+        <label htmlFor="fa-responsable" style={labelStyle}>Usuario Responsable <span style={{ color: "#ef4444" }}>*</span></label>
+        <select id="fa-responsable" value={form.usuarioResponsableId} onChange={handleUsuarioChange} required
+          style={{ ...inputStyle, cursor: "pointer" }}>
+          <option value="">-- Seleccionar --</option>
+          {usuarios.map(u => {
+            const nombre = u.nombreCompleto ?? u.userName ?? `Usuario #${u.usuarioId}`;
+            return <option key={u.usuarioId} value={u.usuarioId}>{nombre}</option>;
+          })}
+        </select>
       </div>
 
       <div style={{ marginBottom: 18 }}>
         <label htmlFor="fa-obs" style={labelStyle}>Observaciones</label>
         <textarea id="fa-obs" placeholder="Notas sobre la asignación..."
-          value={form.observaciones} onChange={set("observaciones")}
+          value={form.observaciones} onChange={e => setForm(p => ({ ...p, observaciones: e.target.value }))}
           rows={2} style={{ ...inputStyle, resize: "vertical" }} />
       </div>
 

@@ -1,5 +1,6 @@
 // src/components/layout/Header.jsx
 import React from "react";
+import NotificacionesBell from "../ui/NotificacionesBell";
 
 export default function Header({ title, nombreUsuario, tipoUsuario, onMenuToggle }) {
   const inicial = nombreUsuario?.charAt(0)?.toUpperCase() ?? "U";
@@ -58,8 +59,9 @@ export default function Header({ title, nombreUsuario, tipoUsuario, onMenuToggle
         {title}
       </div>
 
-      {/* Usuario + avatar */}
+      {/* Notificaciones + usuario */}
       <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexShrink: 0 }}>
+        <NotificacionesBell />
         {/* Nombre — oculto en móvil pequeño via CSS */}
         <div className="header-user-info" style={{ textAlign: "right" }}>
           <div style={{ fontWeight: 700, color: "#fff", fontSize: "0.9rem", textShadow: "0 1px 4px rgba(0,0,0,0.2)", whiteSpace: "nowrap" }}>

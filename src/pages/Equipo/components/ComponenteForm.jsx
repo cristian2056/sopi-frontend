@@ -5,8 +5,6 @@ import { marcasApi } from "../../../api/marcas.api";
 import FormBotones from "../../../Componentes_react/ui/FormBotones";
 import { inputStyle, labelStyle } from "../../../Componentes_react/ui/formStyles";
 
-const ESTADOS = ["INSTALADO", "RETIRADO", "EN_REPARACION", "RESERVA"];
-
 export const FORM_VACIO_COMPONENTE = {
   nombre: "", marcaId: "", codigo: "", numeroSerie: "",
   especificaciones: "", estado: "INSTALADO",
@@ -26,7 +24,14 @@ export default function ComponenteForm({ initial = FORM_VACIO_COMPONENTE, onGuar
   const handleSubmit = (e) => {
     e.preventDefault();
     if (form.nombre.trim().length < 3) return;
-    onGuardar({ ...form, marcaId: form.marcaId ? parseInt(form.marcaId) : null });
+    const today = new Date().toISOString().split("T")[0];
+    onGuardar({
+      ...form,
+      estado: "INSTALADO",
+      fechaInstalacion: today,
+      fechaRetiro: null,
+      marcaId: form.marcaId ? parseInt(form.marcaId) : null,
+    });
   };
 
   return (
@@ -52,13 +57,6 @@ export default function ComponenteForm({ initial = FORM_VACIO_COMPONENTE, onGuar
         </div>
 
         <div style={{ marginBottom: 14 }}>
-          <label htmlFor="cf-estado" style={labelStyle}>Estado <span style={{ color: "#ef4444" }}>*</span></label>
-          <select id="cf-estado" value={form.estado} onChange={set("estado")} style={{ ...inputStyle, cursor: "pointer" }}>
-            {ESTADOS.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
-        </div>
-
-        <div style={{ marginBottom: 14 }}>
           <label htmlFor="cf-codigo" style={labelStyle}>Código</label>
           <input id="cf-codigo" type="text" placeholder="Ej: CPU-001" value={form.codigo} onChange={set("codigo")} style={inputStyle} />
         </div>
@@ -68,15 +66,6 @@ export default function ComponenteForm({ initial = FORM_VACIO_COMPONENTE, onGuar
           <input id="cf-serie" type="text" placeholder="Ej: SN123456" value={form.numeroSerie} onChange={set("numeroSerie")} style={inputStyle} />
         </div>
 
-        <div style={{ marginBottom: 14 }}>
-          <label htmlFor="cf-fInstall" style={labelStyle}>Fecha Instalación</label>
-          <input id="cf-fInstall" type="date" value={form.fechaInstalacion} onChange={set("fechaInstalacion")} style={inputStyle} />
-        </div>
-
-        <div style={{ marginBottom: 14 }}>
-          <label htmlFor="cf-fRetiro" style={labelStyle}>Fecha Retiro</label>
-          <input id="cf-fRetiro" type="date" value={form.fechaRetiro} onChange={set("fechaRetiro")} style={inputStyle} />
-        </div>
       </div>
 
       <div style={{ marginBottom: 14 }}>
@@ -85,13 +74,6 @@ export default function ComponenteForm({ initial = FORM_VACIO_COMPONENTE, onGuar
           value={form.especificaciones} onChange={set("especificaciones")}
           rows={2} style={{ ...inputStyle, resize: "vertical" }} />
       </div>
-
-      {form.estado !== "INSTALADO" && (
-        <div style={{ marginBottom: 14 }}>
-          <label htmlFor="cf-motivo" style={labelStyle}>Motivo de Retiro</label>
-          <input id="cf-motivo" type="text" placeholder="Opcional" value={form.motivoRetiro} onChange={set("motivoRetiro")} style={inputStyle} />
-        </div>
-      )}
 
       <FormBotones onCancelar={onCancelar} loading={loading} textoGuardar="Guardar componente" />
     </form>
