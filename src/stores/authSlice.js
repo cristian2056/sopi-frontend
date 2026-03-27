@@ -35,4 +35,9 @@ export const { setCredentials, logoutLocal } = authSlice.actions;
 export const selectUsuario         = (state) => state.auth.usuario;
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
 
+// Selectores de rol — usan rolId exacto del backend (1=Admin, 2=Técnico, 3=Usuario)
+export const selectEsAdmin   = (state) => state.auth.usuario?.rolId === 1;
+export const selectEsTecnico = (state) => state.auth.usuario?.rolId === 2;
+export const selectEsUsuario = (state) => state.auth.usuario?.rolId === 3;
+
 export default authSlice.reducer;

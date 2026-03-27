@@ -6,13 +6,11 @@ import CheckboxUI from "../../../Componentes_react/ui/CheckboxUI";
 export default function TabObjetos({ objetos, getRO, onTogglePerm, onToggleFila }) {
   const [busq,     setBusq]     = useState("");
   const [editando, setEditando] = useState(false);
-  const [guardado, setGuardado] = useState(false);
 
   const filtrados = objetos.filter(o =>
     (o.nombre ?? "").toLowerCase().includes(busq.toLowerCase())
   );
 
-  // Acceso = tiene al menos un permiso activado
   const tieneAcceso = (o) => {
     const ro = getRO(o.objetoId);
     return !!(ro && (ro.leer || ro.crear || ro.modificar || ro.eliminar));
@@ -20,12 +18,6 @@ export default function TabObjetos({ objetos, getRO, onTogglePerm, onToggleFila 
 
   const todosAcceso  = filtrados.length > 0 && filtrados.every(tieneAcceso);
   const algunoAcceso = filtrados.some(tieneAcceso);
-
-  const handleGuardar = () => {
-    setEditando(false);
-    setGuardado(true);
-    setTimeout(() => setGuardado(false), 2500);
-  };
 
   return (
     <div>
@@ -56,24 +48,12 @@ export default function TabObjetos({ objetos, getRO, onTogglePerm, onToggleFila 
             ✏️ Editar permisos
           </button>
         ) : (
-          <div style={{ display: "flex", gap: 8 }}>
-            <button
-              onClick={() => setEditando(false)}
-              style={btnSt({ background: C.white, color: C.gray600, padding: "6px 14px", fontSize: "0.82rem", border: `1px solid ${C.gray200}` })}
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={handleGuardar}
-              style={btnSt({ background: "#16a34a", color: C.white, padding: "6px 16px", fontSize: "0.82rem" })}
-            >
-              ✓ Guardar cambios
-            </button>
-          </div>
-        )}
-
-        {guardado && (
-          <span style={{ fontSize: "0.8rem", color: "#16a34a", fontWeight: 700 }}>✓ Guardado</span>
+          <button
+            onClick={() => setEditando(false)}
+            style={btnSt({ background: "#16a34a", color: C.white, padding: "6px 16px", fontSize: "0.82rem" })}
+          >
+            ✓ Listo
+          </button>
         )}
       </div>
 

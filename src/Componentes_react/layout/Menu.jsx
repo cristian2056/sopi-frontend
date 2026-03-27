@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { logoutLocal, selectUsuario } from "../../stores/authSlice";
+import { logoutLocal } from "../../stores/authSlice";
 import { clearMenu, selectMenus, selectMenuCargado } from "../../stores/menuSlice";
 import { authApi } from "../../api/auth.api";
 import { menuItems as menuFallback } from "../../app/menuItems";
@@ -40,6 +40,8 @@ const ICONOS = {
   "roles":          "🎭",
   "mis equipos":    "🖥️",
   "mis tickets":    "🎫",
+  "auditoria":      "📋",
+  "auditoría":      "📋",
 };
 const getIcono = (nombre) => ICONOS[nombre?.toLowerCase()] ?? "📄";
 
@@ -55,6 +57,8 @@ const sidebarBase = {
   backdropFilter: "blur(30px)",
   WebkitBackdropFilter: "blur(30px)",
   height: "100vh",
+  position: "sticky",   /* queda fijo mientras el contenido scrollea */
+  top: 0,
   color: "#fff",
   display: "flex",
   flexDirection: "column",
@@ -93,22 +97,13 @@ export default function Sidebar({ menuMovil = false, onCerrarMovil }) {
 
   const menusRedux  = useSelector(selectMenus);
   const menuCargado = useSelector(selectMenuCargado);
-  const usuario     = useSelector(selectUsuario);
-  const esUsuario   = (usuario?.tipoUsuario ?? usuario?.rolNombre ?? "").toLowerCase().includes("usuario");
 
-  const ITEMS_USUARIO = [
-    { nombre: "Inicio",      url: "/",            orden: 0, subMenus: [], _icon: "🏠" },
-    { nombre: "Mis equipos", url: "/mis-equipos", orden: 1, subMenus: [], _icon: "🖥️" },
-    { nombre: "Tickets",     url: "/tickets",     orden: 2, subMenus: [], _icon: "🎫" },
-  ];
-
-  const items = esUsuario
-    ? ITEMS_USUARIO
-    : filtrarMenu(
-        menuCargado && menusRedux.length > 0
-          ? [...menusRedux].sort((a, b) => (a.orden ?? 99) - (b.orden ?? 99))
-          : menuFallback.map(m => ({ nombre: m.name, url: m.path, orden: 99, subMenus: [], _icon: m.icon }))
-      );
+  // El backend ya filtra los menús por rol — se consume directamente
+  const items = filtrarMenu(
+    menuCargado && menusRedux.length > 0
+      ? [...menusRedux].sort((a, b) => (a.orden ?? 99) - (b.orden ?? 99))
+      : menuFallback.map(m => ({ nombre: m.name, url: m.path, orden: 99, subMenus: [], _icon: m.icon }))
+  );
 
   const [collapsed, setCollapsed] = useState(false);
   const [hovered,   setHovered]   = useState(false);

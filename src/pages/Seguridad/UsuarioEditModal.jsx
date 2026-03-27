@@ -2,9 +2,10 @@
 // Orquesta estado, lógica y layout. Los sub-componentes viven en ./components/
 import { useState, useEffect } from "react";
 import { dependenciasApi } from "../../api/administracion.api";
-import { personalApi } from "../../api/personal.api";
-import { rolesApi } from "../../api/roles.api";
-import { usuariosApi } from "../../api/usuarios.api";
+import { personalApi }     from "../../api/personal.api";
+import { rolesApi }        from "../../api/roles.api";
+import { usuariosApi }     from "../../api/usuarios.api";
+import { auditoriaApi }    from "../../api/auditoria.api";
 import TabPersonaEdit from "./components/TabPersonaEdit";
 import TabCuentaEdit  from "./components/TabCuentaEdit";
 
@@ -114,6 +115,17 @@ export default function UsuarioEditModal({ persona, onGuardado, onCerrar }) {
         const resU = await usuariosApi.editar(usuario.usuarioId, bodyU);
         if (resU?.exito === false) throw new Error(resU.mensaje || "No se pudo actualizar la cuenta.");
 
+        // Auditar cambio de rol si fue modificado
+        if (Number(datosCuenta.rolId) !== usuario.rolId) {
+          await auditoriaApi.registrar({
+            tabla:             "usuario",
+            registroId:        String(usuario.usuarioId),
+            accion:            "MODIFIED",
+            valoresAnteriores: JSON.stringify({ rolId: usuario.rolId }),
+            valoresNuevos:     JSON.stringify({ rolId: Number(datosCuenta.rolId) }),
+          }).catch(() => {});
+        }
+
       } else {
         const rolNombre = roles.find(r => r.rolId === Number(datosCuenta.rolId))?.nombre ?? "";
         const resU = await personalApi.crearUsuario({
@@ -127,6 +139,15 @@ export default function UsuarioEditModal({ persona, onGuardado, onCerrar }) {
           activo:         true,
         });
         if (resU?.exito === false) throw new Error(resU.mensaje || "No se pudo crear el usuario.");
+
+        // Auditar creación de cuenta de usuario
+        await auditoriaApi.registrar({
+          tabla:         "usuario",
+          registroId:    String(resU.datos?.usuarioId ?? persona.personaId),
+          accion:        "ADDED",
+          valoresAnteriores: JSON.stringify({}),
+          valoresNuevos: JSON.stringify({ personaId: persona.personaId, rolId: Number(datosCuenta.rolId) }),
+        }).catch(() => {});
       }
 
       setExito(true);

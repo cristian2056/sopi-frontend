@@ -22,6 +22,7 @@ import TiketsPage          from "../pages/Tikets/TiketsPage";
 import MantenimientosPage  from "../pages/Mantenimientos/MantenimientosPage";
 import EquiposRedPage      from "../pages/EquiposRed/EquiposRedPage";
 import MisEquiposPage      from "../pages/Usuario/MisEquiposPage";
+import AuditoriaPage       from "../pages/Auditoria/AuditoriaPage";
 
 export const router = createBrowserRouter([
 
@@ -41,31 +42,34 @@ export const router = createBrowserRouter([
         children: [
           { index: true,              element: <Dashboard /> },
 
-          // ── Inventario ────────────────────────────────
+          // Inventario
           { path: "equipos",          element: <EquiposPage /> },
           { path: "equipos/:id",      element: <EquipoDetalle /> },
           { path: "componentes",      element: <ComponentesPage /> },
           { path: "software",         element: <SoftwarePage /> },
           { path: "equipos-red",      element: <EquiposRedPage /> },
 
-          // ── Administración ────────────────────────────
+          // Administración
           { path: "marcas",           element: <MarcasPage /> },
           { path: "tipos-activos",    element: <TiposActivosPage /> },
           { path: "proveedores",      element: <ProveedoresPage /> },
           { path: "dependencias",     element: <DependenciasPage /> },
 
-          // ── Soporte ───────────────────────────────────
+          // Soporte
           { path: "tickets",          element: <TiketsPage /> },
           { path: "mantenimientos",   element: <MantenimientosPage /> },
 
-          // ── Seguridad ─────────────────────────────────
-          { path: "usuarios", element: <UsuariosPage /> },
-          { path: "roles",            element:<RolesPage />},
+          // Seguridad
+          { path: "usuarios",         element: <UsuariosPage /> },
+          { path: "roles",            element: <RolesPage /> },
 
-          // ── Usuario ──────────────────────────────────
-          { path: "mis-equipos", element: <MisEquiposPage /> },
+          // Auditoría
+          { path: "auditoria",        element: <AuditoriaPage /> },
 
-          // ── Personal (existente) ──────────────────────
+          // Usuario final
+          { path: "mis-equipos",      element: <MisEquiposPage /> },
+
+          // Personal
           { path: "personal",         element: <PersonalPage /> },
           { path: "personal/:id",     element: <PersonaDetalle /> },
         ],

@@ -50,8 +50,8 @@ const FORM_VACIO = {
   descripcion:       "",
   fechaProgramada:   "",
   estado:            "ABIERTO",
-  responsableId:     "",
-  equipoId:          "",
+  equipoIds:         [],
+  tecnicoIds:        [],
 };
 
 export default function MantenimientosPage() {
@@ -128,8 +128,8 @@ export default function MantenimientosPage() {
     descripcion:       m.descripcion ?? "",
     fechaProgramada:   m.fechaProgramada ?? "",
     estado:            m.estado ?? "ABIERTO",
-    responsableId:     m.responsableId ?? "",
-    equipoId:          m.equipoId ?? "",
+    equipoIds:         [],   // no se reasignan equipos al editar
+    tecnicoIds:        [],   // no se reasignan técnicos al editar
   });
 
   const filtrados = items.filter(m =>

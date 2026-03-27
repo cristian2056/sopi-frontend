@@ -51,7 +51,7 @@ export default function AppLayout() {
   const tipoUsuario   = usuario?.tipoUsuario    ?? "";
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", width: "100vw", position: "relative", zIndex: 1 }}>
+    <div style={{ display: "flex", minHeight: "100vh", width: "100%", position: "relative", zIndex: 1 }}>
 
       {/* Sidebar — en móvil es overlay */}
       <Sidebar menuMovil={menuMovil} onCerrarMovil={() => setMenuMovil(false)} />

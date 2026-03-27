@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { C } from "./constants";
 import { rolesApi, objetosApi, menuApi, rolObjetosApi, rolMenuApi, rolUsuariosApi } from "../../api/roles.api";
+import { auditoriaApi } from "../../api/auditoria.api";
 import { usePermiso } from "../../stores/menuSlice";
 
 import Spinner             from "../../Componentes_react/ui/Spinner";
@@ -90,6 +91,16 @@ export default function RolesPage() {
     cargarRol(id);
   };
 
+  // ── Auditoría — registra sin romper el flujo principal ───────────────────
+  const auditar = (tabla, registroId, accion, anterior, nuevo) =>
+    auditoriaApi.registrar({
+      tabla,
+      registroId:        String(registroId),
+      accion,
+      valoresAnteriores: JSON.stringify(anterior ?? {}),
+      valoresNuevos:     JSON.stringify(nuevo     ?? {}),
+    }).catch(() => {});
+
   // ── Helpers de permisos ───────────────────────────────────────────────────
   const getRO = (objetoId) => rolObjetos.find(ro => ro.objetoId === objetoId) ?? null;
 
@@ -97,19 +108,23 @@ export default function RolesPage() {
     const ro = getRO(objetoId);
     try {
       if (!ro) {
-        const body = { rolId, objetoId, leer: false, crear: false, modificar: false, eliminar: false, [accion]: true };
-        const res  = await rolObjetosApi.asignar(body);
-        setRolObjetos(prev => [...prev, res.datos ?? { ...body, rolObjetoId: Date.now() }]);
+        const body  = { rolId, objetoId, leer: false, crear: false, modificar: false, eliminar: false, [accion]: true };
+        const res   = await rolObjetosApi.asignar(body);
+        const nuevo = res.datos ?? { ...body, rolObjetoId: Date.now() };
+        setRolObjetos(prev => [...prev, nuevo]);
+        auditar("rol_objeto", nuevo.rolObjetoId, "ADDED", {}, body);
       } else {
-        const nuevo = !ro[accion];
-        const body  = { ...ro, [accion]: nuevo };
+        const nuevoVal = !ro[accion];
+        const body     = { ...ro, [accion]: nuevoVal };
         const todosEnFalse = !body.leer && !body.crear && !body.modificar && !body.eliminar;
         if (todosEnFalse) {
           await rolObjetosApi.quitar(ro.rolObjetoId);
           setRolObjetos(prev => prev.filter(x => x.rolObjetoId !== ro.rolObjetoId));
+          auditar("rol_objeto", ro.rolObjetoId, "DELETED", ro, {});
         } else {
           await rolObjetosApi.actualizar(ro.rolObjetoId, body);
-          setRolObjetos(prev => prev.map(x => x.rolObjetoId === ro.rolObjetoId ? { ...x, [accion]: nuevo } : x));
+          setRolObjetos(prev => prev.map(x => x.rolObjetoId === ro.rolObjetoId ? { ...x, [accion]: nuevoVal } : x));
+          auditar("rol_objeto", ro.rolObjetoId, "MODIFIED", ro, body);
         }
       }
     } catch (e) { setError(e.message); }
@@ -122,14 +137,18 @@ export default function RolesPage() {
       if (tieneAcceso) {
         await rolObjetosApi.quitar(ro.rolObjetoId);
         setRolObjetos(prev => prev.filter(x => x.rolObjetoId !== ro.rolObjetoId));
+        auditar("rol_objeto", ro.rolObjetoId, "DELETED", ro, {});
       } else if (!ro) {
-        const body = { rolId, objetoId, leer: true, crear: true, modificar: true, eliminar: true };
-        const res  = await rolObjetosApi.asignar(body);
-        setRolObjetos(prev => [...prev, res.datos ?? { ...body, rolObjetoId: Date.now() }]);
+        const body  = { rolId, objetoId, leer: true, crear: true, modificar: true, eliminar: true };
+        const res   = await rolObjetosApi.asignar(body);
+        const nuevo = res.datos ?? { ...body, rolObjetoId: Date.now() };
+        setRolObjetos(prev => [...prev, nuevo]);
+        auditar("rol_objeto", nuevo.rolObjetoId, "ADDED", {}, body);
       } else {
         const body = { ...ro, leer: true, crear: true, modificar: true, eliminar: true };
         await rolObjetosApi.actualizar(ro.rolObjetoId, body);
         setRolObjetos(prev => prev.map(x => x.rolObjetoId === ro.rolObjetoId ? body : x));
+        auditar("rol_objeto", ro.rolObjetoId, "MODIFIED", ro, body);
       }
     } catch (e) { setError(e.message); }
   };
@@ -143,10 +162,13 @@ export default function RolesPage() {
       if (rm) {
         await rolMenuApi.quitar(rm.rolMenuId);
         setRolMenus(prev => prev.filter(x => x.menuId !== menuId));
+        auditar("rol_menu", rm.rolMenuId, "DELETED", rm, {});
       } else {
-        const body = { rolId, menuId, acceso: true };
-        const res  = await rolMenuApi.asignar(body);
-        setRolMenus(prev => [...prev, res.datos ?? { ...body, rolMenuId: Date.now() }]);
+        const body  = { rolId, menuId, acceso: true };
+        const res   = await rolMenuApi.asignar(body);
+        const nuevo = res.datos ?? { ...body, rolMenuId: Date.now() };
+        setRolMenus(prev => [...prev, nuevo]);
+        auditar("rol_menu", nuevo.rolMenuId, "ADDED", {}, body);
       }
     } catch (e) { setError(e.message); }
   };
@@ -160,6 +182,10 @@ export default function RolesPage() {
         activo:        usuario.activo ?? true,
         rolId,
       });
+      auditar("usuario", usuario.usuarioId, "MODIFIED",
+        { rolId: usuario.rolId },
+        { rolId },
+      );
       const r = await rolUsuariosApi.listarTodos();
       setRolUsuarios((r.datos ?? []).filter(u => u.rolId === rolId));
       setModalUsu(false);
@@ -171,11 +197,14 @@ export default function RolesPage() {
     setGuardando(true);
     try {
       if (datos.rolId) {
+        const anterior = roles.find(r => r.rolId === datos.rolId) ?? {};
         await rolesApi.actualizar(datos.rolId, datos);
         setRoles(prev => prev.map(r => r.rolId === datos.rolId ? { ...r, ...datos } : r));
+        auditar("rol", datos.rolId, "MODIFIED", anterior, datos);
       } else {
         const res = await rolesApi.crear(datos);
         setRoles(prev => [...prev, res.datos]);
+        auditar("rol", res.datos?.rolId, "ADDED", {}, datos);
       }
       setModalRol(null);
     } catch (e) { setError(e.message); }
@@ -183,10 +212,12 @@ export default function RolesPage() {
   };
 
   const handleEliminarRol = async () => {
+    const rolAEliminar = roles.find(r => r.rolId === confirmEl);
     try {
       await rolesApi.eliminar(confirmEl);
       setRoles(prev => prev.filter(r => r.rolId !== confirmEl));
       if (rolId === confirmEl) setRolId(null);
+      auditar("rol", confirmEl, "DELETED", rolAEliminar ?? {}, {});
       setConfirmEl(null);
     } catch (e) { setError(e.message); }
   };

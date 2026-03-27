@@ -11,12 +11,10 @@ import { usePermiso } from "../../stores/menuSlice";
 const columnas = [
   { key: "componenteId", label: "ID",          ancho: 70,  render: (c) => `#${c.componenteId}` },
   { key: "nombre",       label: "Nombre",       ancho: 220 },
-  { key: "descripcion",  label: "Descripción",  ancho: 380 },
 ];
 
 const FIELDS = [
-  { name: "nombre",      label: "Nombre",      type: "text",     required: true,  placeholder: "Ej: Procesador, RAM, Disco SSD...", span: 2 },
-  { name: "descripcion", label: "Descripción", type: "textarea", required: false,  placeholder: "Descripción opcional del tipo de componente", rows: 2, span: 2 },
+  { name: "nombre", label: "Nombre", type: "text", required: true, placeholder: "Ej: Procesador, RAM, Disco SSD...", span: 2 },
 ];
 
 export default function ComponentesPage() {
@@ -79,8 +77,7 @@ export default function ComponentesPage() {
   };
 
   const itemsFiltrados = items.filter(c =>
-    (c.nombre      ?? "").toLowerCase().includes(busqueda.toLowerCase()) ||
-    (c.descripcion ?? "").toLowerCase().includes(busqueda.toLowerCase())
+    (c.nombre ?? "").toLowerCase().includes(busqueda.toLowerCase())
   );
 
   return (
@@ -102,7 +99,7 @@ export default function ComponentesPage() {
         loading={loading}
         keyField="componenteId"
         mensajeVacio="No hay componentes registrados. Creá uno para poder asignarlo a equipos."
-        onEdit={modificar ? c => setForm({ componenteId: c.componenteId, nombre: c.nombre, descripcion: c.descripcion ?? "" }) : undefined}
+        onEdit={modificar ? c => setForm({ componenteId: c.componenteId, nombre: c.nombre }) : undefined}
         onDelete={eliminar ? c => setConfirm({ open: true, id: c.componenteId, loading: false }) : undefined}
       />
 

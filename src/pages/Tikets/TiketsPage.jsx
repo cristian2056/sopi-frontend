@@ -1,7 +1,7 @@
 // src/pages/Tikets/TiketsPage.jsx
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { selectUsuario } from "../../stores/authSlice";
+import { selectEsAdmin, selectEsTecnico } from "../../stores/authSlice";
 import { ticketsApi } from "../../api/tickets.api";
 import { usuariosApi } from "../../api/usuarios.api";
 import { equiposApi } from "../../api/equipos.api";
@@ -14,13 +14,9 @@ import ModalCrearTicketAdmin   from "./components/ModalCrearTicketAdmin";
 import ModalAsignarTecnico     from "./components/ModalAsignarTecnico";
 import ModalCerrarTicket       from "./components/ModalCerrarTicket";
 
-const getRol = (u) => (u?.tipoUsuario ?? u?.rolNombre ?? "").toLowerCase();
-
 export default function TiketsPage() {
-  const usuario    = useSelector(selectUsuario);
-  const rol        = getRol(usuario);
-  const esAdmin    = rol.includes("admin");
-  const esTecnico  = !esAdmin && !rol.includes("usuario");
+  const esAdmin   = useSelector(selectEsAdmin);
+  const esTecnico = useSelector(selectEsTecnico);
 
   // ── Datos usuario ─────────────────────────────────────────────────────────
   const [equipos,        setEquipos]        = useState([]);
