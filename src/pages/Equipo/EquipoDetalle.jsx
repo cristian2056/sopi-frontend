@@ -129,9 +129,10 @@ export default function EquipoDetalle() {
     setPdfLoading(true);
     setPdfError(null);
     try {
-      // Si ya tenemos una URL cacheada la reutilizamos
-      const url = previewUrl ?? await equiposApi.obtenerBlobUrlPdf(id);
-      if (!previewUrl) setPreviewUrl(url);
+      // Siempre generamos un PDF fresco para reflejar las fotos actuales
+      if (previewUrl) window.URL.revokeObjectURL(previewUrl);
+      const url = await equiposApi.obtenerBlobUrlPdf(id);
+      setPreviewUrl(url);
       setPreviewOpen(true);
     } catch (e) {
       setPdfError(e.message || "No se pudo generar la vista previa.");

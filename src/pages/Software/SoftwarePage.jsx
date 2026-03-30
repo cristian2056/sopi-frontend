@@ -9,18 +9,12 @@ import ModalDialog from "../../Componentes_react/ui/ModalDialog";
 import { usePermiso } from "../../stores/menuSlice";
 
 const columnas = [
-  { key: "softwareId",  label: "ID",          ancho: 70,  render: (s) => `#${s.softwareId}` },
-  { key: "nombre",      label: "Nombre",       ancho: 200 },
-  { key: "version",     label: "Versión",      ancho: 130 },
-  { key: "tipo",        label: "Tipo",         ancho: 150 },
-  { key: "descripcion", label: "Descripción",  ancho: 280 },
+  { key: "softwareId", label: "ID",     ancho: 70,  render: (s) => `#${s.softwareId}` },
+  { key: "nombre",     label: "Nombre", ancho: 400 },
 ];
 
 const FIELDS = [
-  { name: "nombre",      label: "Nombre",      type: "text",     required: true,  placeholder: "Ej: Microsoft Office", span: 2 },
-  { name: "version",     label: "Versión",     type: "text",     required: false, placeholder: "Ej: 2021, 365...", span: 1 },
-  { name: "tipo",        label: "Tipo",        type: "text",     required: false, placeholder: "Ej: Ofimática, Antivirus, SO...", span: 1 },
-  { name: "descripcion", label: "Descripción", type: "textarea", required: false, placeholder: "Descripción opcional", rows: 2, span: 2 },
+  { name: "nombre", label: "Nombre", type: "text", required: true, placeholder: "Ej: Microsoft Office", span: 2 },
 ];
 
 export default function SoftwarePage() {
@@ -83,9 +77,7 @@ export default function SoftwarePage() {
   };
 
   const itemsFiltrados = items.filter(s =>
-    (s.nombre      ?? "").toLowerCase().includes(busqueda.toLowerCase()) ||
-    (s.tipo        ?? "").toLowerCase().includes(busqueda.toLowerCase()) ||
-    (s.version     ?? "").toLowerCase().includes(busqueda.toLowerCase())
+    (s.nombre ?? "").toLowerCase().includes(busqueda.toLowerCase())
   );
 
   return (
@@ -93,7 +85,7 @@ export default function SoftwarePage() {
 
       <div className="page-toolbar">
         <h2>💿 Software</h2>
-        <input className="search-input" type="text" placeholder="🔍 Buscar por nombre, tipo o versión..." value={busqueda} onChange={(e) => setBusqueda(e.target.value)} />
+        <input className="search-input" type="text" placeholder="🔍 Buscar por nombre..." value={busqueda} onChange={(e) => setBusqueda(e.target.value)} />
         {crear && (
           <button className="btn-primary" onClick={() => setForm({})}>
             + Nuevo software
@@ -107,7 +99,7 @@ export default function SoftwarePage() {
         loading={loading}
         keyField="softwareId"
         mensajeVacio="No hay software registrado. Creá uno para poder asignarlo a equipos."
-        onEdit={modificar ? s => setForm({ softwareId: s.softwareId, nombre: s.nombre, version: s.version ?? "", tipo: s.tipo ?? "", descripcion: s.descripcion ?? "" }) : undefined}
+        onEdit={modificar ? s => setForm({ softwareId: s.softwareId, nombre: s.nombre }) : undefined}
         onDelete={eliminar ? s => setConfirm({ open: true, id: s.softwareId, loading: false }) : undefined}
       />
 
