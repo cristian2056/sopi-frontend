@@ -44,8 +44,9 @@ export default function TabFotos({ equipoId, crear, eliminar }) {
       formData.append("archivo",        archivo);
       formData.append("equipoId",       String(equipoId));
       formData.append("nombre",         nombre || archivo.name);
-      if (usuario?.id ?? usuario?.usuarioId) {
-        formData.append("usuarioSubioId", String(usuario?.id ?? usuario?.usuarioId));
+      const uid = usuario?.id ?? usuario?.usuarioId;
+      if (uid != null) {
+        formData.append("usuarioSubioId", String(uid));
       }
 
       const res = await fetch(`${API_BASE}/api/Fotos/upload`, {
