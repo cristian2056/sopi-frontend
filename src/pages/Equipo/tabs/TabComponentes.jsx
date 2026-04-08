@@ -18,28 +18,24 @@ export default function TabComponentes({ equipoId, crear, modificar, eliminar })
   const [confirmElim, setConfirmElim] = useState(null);
 
   const cargar = async () => {
+    // Guard: sin equipoId no hay nada que cargar (equipo nuevo aún no guardado)
+    if (!equipoId) { setLoading(false); return; }
     setLoading(true); setError("");
 
     try {
       const rCat = await componentesApi.listar();
       setCatalogo(Array.isArray(rCat.datos) ? rCat.datos : []);
-    } catch { /* si falla el catálogo, seguimos con [] */ }
+    } catch { /* catálogo opcional, continuamos con [] */ }
 
     try {
-      try {
-        const rComp = await composicionesApi.listarPorEquipo(equipoId);
-        setLista(Array.isArray(rComp.datos) ? rComp.datos : []);
-      } catch {
-        const rComp = await composicionesApi.listar();
-        const todas = Array.isArray(rComp.datos) ? rComp.datos : [];
-        setLista(todas.filter(c => String(c.equipoId) === String(equipoId)));
-      }
+      const rComp = await composicionesApi.listarPorEquipo(equipoId);
+      setLista(Array.isArray(rComp.datos) ? rComp.datos : []);
     } catch (e) {
       setLista([]);
-      setError(e.message || "Error al cargar componentes.");
+      setError(e.message || "No se pudieron cargar los componentes. Intenta de nuevo.");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   useEffect(() => { cargar(); }, [equipoId]);
