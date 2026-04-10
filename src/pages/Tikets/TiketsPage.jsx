@@ -1,11 +1,12 @@
 // src/pages/Tikets/TiketsPage.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { selectEsAdmin, selectEsTecnico } from "../../stores/authSlice";
 import { ticketsApi } from "../../api/tickets.api";
 import { usuariosApi } from "../../api/usuarios.api";
 import { equiposApi } from "../../api/equipos.api";
 import { useTicketAcciones } from "./hooks/useTicketAcciones";
+import { onSignalR } from "../../services/signalrService";
 
 import SeccionUsuario          from "./components/SeccionUsuario";
 import SeccionTecnico          from "./components/SeccionTecnico";
@@ -76,10 +77,20 @@ export default function TiketsPage() {
     } finally { setLoadingTodos(false); }
   };
 
+  // Recarga al montar
   useEffect(() => {
     if (esAdmin)       cargarAdmin();
     else if (esTecnico) cargarTecnico();
     else               cargarUsuario();
+  }, [esAdmin, esTecnico]);
+
+  // SignalR: recargar cuando cambia cualquier ticket (sin F5)
+  useEffect(() => {
+    return onSignalR("ticketCambio", () => {
+      if (esAdmin)        cargarAdmin();
+      else if (esTecnico) cargarTecnico();
+      else                cargarUsuario();
+    });
   }, [esAdmin, esTecnico]);
 
   // ── Acciones (hook) ───────────────────────────────────────────────────────

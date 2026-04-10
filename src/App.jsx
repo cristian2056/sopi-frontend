@@ -6,10 +6,12 @@ import { setCredentials } from "./stores/authSlice";
 import { setMenu } from "./stores/menuSlice";
 import { authApi } from "./api/auth.api";
 import { router } from "./app/routes";
+import { useSignalR } from "./hooks/useSignalR";
 
 
 export default function App() {
   const dispatch = useDispatch();
+  useSignalR();   // conecta/desconecta SignalR según estado de auth
 
   const [checking, setChecking] = useState(true);
 
