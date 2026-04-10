@@ -1,8 +1,7 @@
 // src/pages/Seguridad/usuariosColumnas.jsx
-// Column definitions and badge helpers for UsuariosPage
 import React from "react";
 
-export const makeColumnas = (roles) => [
+export const makeColumnas = (roles, onToggle) => [
   {
     key: "nombre", label: "Nombre completo", ancho: 220,
     render: (p) => `${p.nombres} ${p.apellidosPaterno} ${p.apellidosMaterno}`,
@@ -31,17 +30,38 @@ export const makeColumnas = (roles) => [
     },
   },
   {
-    key: "activo", label: "Estado", ancho: 110,
-    render: (p) => p.usuario
-      ? <span style={{
-          background: p.usuario.activo ? "#dcfce7" : "#fee2e2",
-          color: p.usuario.activo ? "#16a34a" : "#dc2626",
-          borderRadius: 20, padding: "2px 10px", fontWeight: 700, fontSize: "0.82rem",
-        }}>
-          {p.usuario.activo ? "Activo" : "Inactivo"}
-        </span>
-      : <span style={{ background: "#fef3c7", color: "#92400e", borderRadius: 20, padding: "2px 10px", fontWeight: 700, fontSize: "0.82rem" }}>
+    key: "activo", label: "Estado", ancho: 160,
+    render: (p) => {
+      if (!p.usuario) return (
+        <span style={{ background: "#fef3c7", color: "#92400e", borderRadius: 20, padding: "2px 10px", fontWeight: 700, fontSize: "0.82rem" }}>
           ⚠️ Sin usuario
-        </span>,
+        </span>
+      );
+      const activo = p.usuario.activo;
+      return (
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{
+            background: activo ? "#dcfce7" : "#fee2e2",
+            color: activo ? "#16a34a" : "#dc2626",
+            borderRadius: 20, padding: "2px 10px", fontWeight: 700, fontSize: "0.82rem",
+          }}>
+            {activo ? "Activo" : "Inactivo"}
+          </span>
+          {onToggle && (
+            <button
+              title={activo ? "Inhabilitar usuario" : "Habilitar usuario"}
+              onClick={() => onToggle(p)}
+              style={{
+                border: "none", background: "none", cursor: "pointer",
+                fontSize: "1rem", padding: "2px 4px", borderRadius: 6,
+                color: activo ? "#dc2626" : "#16a34a",
+              }}
+            >
+              {activo ? "🚫" : "✅"}
+            </button>
+          )}
+        </div>
+      );
+    },
   },
 ];

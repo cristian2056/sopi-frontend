@@ -2,11 +2,12 @@
 import { http } from "../services/http";
 
 export const usuariosApi = {
-  listar:   ()         => http("/api/Usuarios"),
-  obtener:  (id)       => http(`/api/Usuarios/${id}`),
-  crear:    (body)     => http("/api/Usuarios", { method: "POST", body }),
-  editar:   (id, body) => http(`/api/Usuarios/${id}`, { method: "PUT", body }),
-  eliminar: (id)       => http(`/api/Usuarios/${id}`, { method: "DELETE" }),
+  listar:       ()         => http("/api/Usuarios"),
+  obtener:      (id)       => http(`/api/Usuarios/${id}`),
+  crear:        (body)     => http("/api/Usuarios", { method: "POST", body }),
+  editar:       (id, body) => http(`/api/Usuarios/${id}`, { method: "PUT", body }),
+  eliminar:     (id)       => http(`/api/Usuarios/${id}`, { method: "DELETE" }),
+  toggleActivo: (id)       => http(`/api/Usuarios/${id}/toggle-activo`, { method: "PATCH" }),
 };
 
 export const usuarioRolApi = {
