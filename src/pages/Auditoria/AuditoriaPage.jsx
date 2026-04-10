@@ -160,22 +160,44 @@ export default function AuditoriaPage() {
       <ErrorBanner mensaje={error} />
 
       {buscado && (
-        <DataTable
-          columnas={COLUMNAS}
-          datos={resultados}
-          keyField="auditoriaId"
-          loading={loading}
-          mostrarAcciones
-          mensajeVacio="No se encontraron registros con los filtros aplicados."
-          accionesExtra={row => (
-            <button
-              onClick={() => setHistorial({ tabla: row.tabla, registroId: row.registroId })}
-              style={{ background: "rgba(76,115,24,0.1)", color: "#4c7318", border: "none", borderRadius: 7, padding: "4px 10px", cursor: "pointer", fontWeight: 700, fontSize: "0.8rem" }}
-            >
-              Ver
-            </button>
-          )}
-        />
+        <div style={{
+          background: "rgba(255,255,255,0.75)",
+          backdropFilter: "blur(8px)",
+          border: "1.5px solid rgba(76,115,24,0.15)",
+          borderRadius: 16,
+          boxShadow: "0 2px 10px rgba(15,40,6,0.05)",
+          overflow: "hidden",
+        }}>
+          <div style={{
+            padding: "10px 16px",
+            borderBottom: "1px solid rgba(76,115,24,0.1)",
+            fontWeight: 700,
+            fontSize: "0.85rem",
+            color: "#4c7318",
+          }}>
+            {resultados.length === 0
+              ? "Sin resultados"
+              : `${resultados.length} registro${resultados.length !== 1 ? "s" : ""} encontrado${resultados.length !== 1 ? "s" : ""}`}
+          </div>
+          <div style={{ maxHeight: "calc(100vh - 380px)", overflowY: "auto", overflowX: "auto" }}>
+            <DataTable
+              columnas={COLUMNAS}
+              datos={resultados}
+              keyField="auditoriaId"
+              loading={loading}
+              mostrarAcciones
+              mensajeVacio="No se encontraron registros con los filtros aplicados."
+              accionesExtra={row => (
+                <button
+                  onClick={() => setHistorial({ tabla: row.tabla, registroId: row.registroId })}
+                  style={{ background: "rgba(76,115,24,0.1)", color: "#4c7318", border: "none", borderRadius: 7, padding: "4px 10px", cursor: "pointer", fontWeight: 700, fontSize: "0.8rem" }}
+                >
+                  Ver
+                </button>
+              )}
+            />
+          </div>
+        </div>
       )}
 
       <HistorialAuditoria
