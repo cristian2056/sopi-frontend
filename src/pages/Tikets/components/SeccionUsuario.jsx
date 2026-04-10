@@ -3,15 +3,20 @@ import { useState } from "react";
 import { BadgePrioridad, BadgeEstado } from "./TicketBadges";
 
 // ─── Fila de ticket ───────────────────────────────────────────────────────────
-function FilaTicket({ ticket, onClick }) {
+function FilaTicket({ ticket, onClick, onConfirmar }) {
+  const esPendiente = ticket.estado === "PENDIENTE_CONFIRMACION";
+  const esReclamado = ticket.estado === "RECLAMADO";
+
   return (
     <div
       role="button" tabIndex={0}
       onClick={onClick}
       onKeyDown={e => { if (e.key === "Enter") onClick(); }}
       style={{
-        border: "1px solid #e5e7eb", borderRadius: 10, padding: "12px 16px",
-        display: "flex", alignItems: "center", gap: 12, background: "#fff",
+        border: `1.5px solid ${esReclamado ? "#fca5a5" : esPendiente ? "#c4b5fd" : "#e5e7eb"}`,
+        borderRadius: 10, padding: "12px 16px",
+        display: "flex", alignItems: "center", gap: 12,
+        background: esReclamado ? "#fff7f7" : esPendiente ? "#faf5ff" : "#fff",
         cursor: "pointer", transition: "box-shadow 0.15s",
       }}
       onMouseEnter={e => e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.08)"}
@@ -22,20 +27,21 @@ function FilaTicket({ ticket, onClick }) {
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontWeight: 600, color: "#111827", fontSize: "0.88rem" }}>{ticket.serie}</div>
-        <div style={{ color: "#6b7280", fontSize: "0.78rem", marginTop: 2 }}>
-          {ticket.equipoNombre ?? "Sin equipo"}
-        </div>
-        <div style={{ color: "#9ca3af", fontSize: "0.77rem", marginTop: 2 }}>
-          {ticket.solicitud?.length > 70 ? `${ticket.solicitud.substring(0, 70)}…` : ticket.solicitud}
-        </div>
+        <div style={{ color: "#6b7280", fontSize: "0.78rem", marginTop: 2 }}>{ticket.equipoNombre ?? "Sin equipo"}</div>
+        {esPendiente && <div style={{ color: "#7c3aed", fontWeight: 700, fontSize: "0.77rem", marginTop: 2 }}>⚡ Requiere tu confirmación</div>}
+        {esReclamado && <div style={{ color: "#dc2626", fontWeight: 700, fontSize: "0.77rem", marginTop: 2 }}>🔴 En proceso de revisión por admin</div>}
       </div>
       <div style={{ display: "flex", gap: 5, alignItems: "center", flexShrink: 0 }}>
         <BadgePrioridad value={ticket.prioridad} />
         <BadgeEstado    value={ticket.estado}    />
       </div>
-      <div style={{ color: "#9ca3af", fontSize: "0.77rem", flexShrink: 0 }}>
-        {ticket.fechaCreacion ? String(ticket.fechaCreacion).substring(0, 10) : "—"}
-      </div>
+      {esPendiente && onConfirmar && (
+        <button
+          onClick={e => { e.stopPropagation(); onConfirmar(ticket); }}
+          style={{ padding: "6px 12px", borderRadius: 7, border: "none", background: "#7c3aed", color: "#fff", fontWeight: 700, fontSize: "0.8rem", cursor: "pointer", flexShrink: 0 }}>
+          Revisar
+        </button>
+      )}
     </div>
   );
 }
@@ -134,7 +140,7 @@ function TarjetaEquipo({ equipo, onCrear }) {
 }
 
 // ─── Sección principal del usuario ───────────────────────────────────────────
-export default function SeccionUsuario({ equipos, tickets, loadingEquipos, loadingTickets, onCrearTicket }) {
+export default function SeccionUsuario({ equipos, tickets, loadingEquipos, loadingTickets, onCrearTicket, onConfirmarTicket }) {
   const [detalle, setDetalle] = useState(null);
 
   const activos  = tickets.filter(t => t.estado !== "CERRADO");
@@ -181,7 +187,7 @@ export default function SeccionUsuario({ equipos, tickets, loadingEquipos, loadi
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {activos.map(t => <FilaTicket key={t.ticketId} ticket={t} onClick={() => setDetalle(t)} />)}
+              {activos.map(t => <FilaTicket key={t.ticketId} ticket={t} onClick={() => setDetalle(t)} onConfirmar={onConfirmarTicket} />)}
             </div>
           )}
         </div>

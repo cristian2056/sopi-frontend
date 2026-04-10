@@ -14,6 +14,10 @@ export const ticketsApi = {
   tomar:        (id)       => http(`/api/Ticket/${id}/tomar`,  { method: "POST" }),
   cerrar:       (id, body) => http(`/api/Ticket/${id}/cerrar`, { method: "POST", body }),
 
+  // ── Cliente ──────────────────────────────────────────────────────────────
+  confirmar:    (id)       => http(`/api/Ticket/${id}/confirmar`, { method: "POST" }),
+  reclamar:     (id, body) => http(`/api/Ticket/${id}/reclamar`, { method: "POST", body }),
+
   // ── Admin CRUD ────────────────────────────────────────────────────────────
   listar:          ()         => http("/api/Ticket"),
   obtener:         (id)       => http(`/api/Ticket/${id}`),

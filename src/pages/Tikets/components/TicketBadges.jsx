@@ -6,9 +6,11 @@ const PRIORIDAD_MAP = {
 };
 
 const ESTADO_MAP = {
-  abierto:    { bg: "#dbeafe", color: "#1d4ed8" },
-  en_proceso: { bg: "#fef9c3", color: "#a16207" },
-  cerrado:    { bg: "#f3f4f6", color: "#6b7280" },
+  abierto:                { bg: "#dbeafe", color: "#1d4ed8" },
+  en_proceso:             { bg: "#fef9c3", color: "#a16207" },
+  cerrado:                { bg: "#f3f4f6", color: "#6b7280" },
+  pendiente_confirmacion: { bg: "#f3e8ff", color: "#7c3aed" },
+  reclamado:              { bg: "#fee2e2", color: "#dc2626" },
 };
 
 const S = { borderRadius: 20, padding: "2px 10px", fontWeight: 700, fontSize: "0.8rem" };

@@ -18,11 +18,13 @@ export const equipoRedApi = {
 };
 
 export const fotosApi = {
-  listar:     ()         => http("/api/Fotos"),
-  obtener:    (id)       => http(`/api/Fotos/${id}`),
-  crear:      (body)     => http("/api/Fotos", { method: "POST", body }),
-  actualizar: (id, body) => http(`/api/Fotos/${id}`, { method: "PUT", body }),
-  eliminar:   (id)       => http(`/api/Fotos/${id}`, { method: "DELETE" }),
+  listar:                ()         => http("/api/Fotos"),
+  obtener:               (id)       => http(`/api/Fotos/${id}`),
+  crear:                 (body)     => http("/api/Fotos", { method: "POST", body }),
+  actualizar:            (id, body) => http(`/api/Fotos/${id}`, { method: "PUT", body }),
+  eliminar:              (id)       => http(`/api/Fotos/${id}`, { method: "DELETE" }),
+  listarActivasByEquipo: (eid)      => http(`/api/Fotos/equipo/${eid}`),
+  piezasCambiadas:       (eid)      => http(`/api/Fotos/equipo/${eid}/piezas-cambiadas`),
 };
 
 export const equipoAsignacionApi = {

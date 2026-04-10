@@ -5,6 +5,7 @@ import { selectEsAdmin, selectEsTecnico } from "../../stores/authSlice";
 import { ticketsApi } from "../../api/tickets.api";
 import { usuariosApi } from "../../api/usuarios.api";
 import { equiposApi } from "../../api/equipos.api";
+import { useTicketAcciones } from "./hooks/useTicketAcciones";
 
 import SeccionUsuario          from "./components/SeccionUsuario";
 import SeccionTecnico          from "./components/SeccionTecnico";
@@ -13,41 +14,30 @@ import ModalCrearTicket        from "./components/ModalCrearTicket";
 import ModalCrearTicketAdmin   from "./components/ModalCrearTicketAdmin";
 import ModalAsignarTecnico     from "./components/ModalAsignarTecnico";
 import ModalCerrarTicket       from "./components/ModalCerrarTicket";
+import ModalConfirmarTicket    from "./components/ModalConfirmarTicket";
+
+const toArr = v => Array.isArray(v) ? v : v ? [v] : [];
 
 export default function TiketsPage() {
   const esAdmin   = useSelector(selectEsAdmin);
   const esTecnico = useSelector(selectEsTecnico);
 
-  // ── Datos usuario ─────────────────────────────────────────────────────────
-  const [equipos,        setEquipos]        = useState([]);
-  const [misTickets,     setMisTickets]     = useState([]);
-  const [loadingEquipos, setLoadingEquipos] = useState(true);
-  const [loadingTickets, setLoadingTickets] = useState(true);
+  // ── Datos ─────────────────────────────────────────────────────────────────
+  const [equipos,   setEquipos]   = useState([]);
+  const [misTickets, setMisTickets] = useState([]);
+  const [pendientes, setPendientes] = useState([]);
+  const [asignados,  setAsignados]  = useState([]);
+  const [todosTickets, setTodosTickets] = useState([]);
+  const [todosUsuarios, setTodosUsuarios] = useState([]);
+  const [todosEquipos,  setTodosEquipos]  = useState([]);
 
-  // ── Datos técnico ─────────────────────────────────────────────────────────
-  const [pendientes,        setPendientes]        = useState([]);
-  const [asignados,         setAsignados]         = useState([]);
-  const [loadingPendientes, setLoadingPendientes] = useState(false);
-  const [loadingAsignados,  setLoadingAsignados]  = useState(false);
+  const [loadingEquipos,   setLoadingEquipos]   = useState(true);
+  const [loadingTickets,   setLoadingTickets]   = useState(true);
+  const [loadingPendientes,setLoadingPendientes] = useState(false);
+  const [loadingAsignados, setLoadingAsignados]  = useState(false);
+  const [loadingTodos,     setLoadingTodos]      = useState(false);
 
-  // ── Datos admin ───────────────────────────────────────────────────────────
-  const [todosTickets,   setTodosTickets]   = useState([]);
-  const [loadingTodos,   setLoadingTodos]   = useState(false);
-  const [todosUsuarios,  setTodosUsuarios]  = useState([]);
-  const [todosEquipos,   setTodosEquipos]   = useState([]);
-
-  // ── Modales ───────────────────────────────────────────────────────────────
-  const [crearTarget,      setCrearTarget]      = useState(null);
-  const [mostrarCrearAdmin, setMostrarCrearAdmin] = useState(false);
-  const [asignarTarget,    setAsignarTarget]    = useState(null);
-  const [cerrarTarget,     setCerrarTarget]     = useState(null);
-  const [crearLoading,     setCrearLoading]     = useState(false);
-  const [asignarLoading,   setAsignarLoading]   = useState(false);
-  const [cerrarLoading,    setCerrarLoading]    = useState(false);
-  const [tomarLoading,     setTomarLoading]     = useState(null);
-  const [error,            setError]            = useState("");
-
-  // ── Carga inicial ─────────────────────────────────────────────────────────
+  // ── Cargas ────────────────────────────────────────────────────────────────
   const cargarUsuario = async () => {
     setLoadingEquipos(true); setLoadingTickets(true);
     try {
@@ -55,12 +45,9 @@ export default function TiketsPage() {
         ticketsApi.misEquipos().catch(() => ({ datos: [] })),
         ticketsApi.misTickets().catch(() => ({ datos: [] })),
       ]);
-      const toArr = v => Array.isArray(v) ? v : v ? [v] : [];
       setEquipos(toArr(rE.datos));
       setMisTickets(toArr(rT.datos));
-    } finally {
-      setLoadingEquipos(false); setLoadingTickets(false);
-    }
+    } finally { setLoadingEquipos(false); setLoadingTickets(false); }
   };
 
   const cargarTecnico = async () => {
@@ -70,12 +57,9 @@ export default function TiketsPage() {
         ticketsApi.pendientes().catch(() => ({ datos: [] })),
         ticketsApi.misAsignados().catch(() => ({ datos: [] })),
       ]);
-      const toArr = v => Array.isArray(v) ? v : v ? [v] : [];
       setPendientes(toArr(rP.datos));
       setAsignados(toArr(rA.datos));
-    } finally {
-      setLoadingPendientes(false); setLoadingAsignados(false);
-    }
+    } finally { setLoadingPendientes(false); setLoadingAsignados(false); }
   };
 
   const cargarAdmin = async () => {
@@ -86,13 +70,10 @@ export default function TiketsPage() {
         usuariosApi.listar().catch(() => ({ datos: [] })),
         equiposApi.listar().catch(() => ({ datos: [] })),
       ]);
-      const toArr = v => Array.isArray(v) ? v : v ? [v] : [];
       setTodosTickets(toArr(rT.datos));
       setTodosUsuarios(toArr(rU.datos));
       setTodosEquipos(toArr(rE.datos));
-    } finally {
-      setLoadingTodos(false);
-    }
+    } finally { setLoadingTodos(false); }
   };
 
   useEffect(() => {
@@ -101,165 +82,75 @@ export default function TiketsPage() {
     else               cargarUsuario();
   }, [esAdmin, esTecnico]);
 
-  // ── Acciones usuario ──────────────────────────────────────────────────────
-  const handleCrear = async (body) => {
-    setCrearLoading(true);
-    try {
-      const res = await ticketsApi.crear(body);
-      if (res?.exito === false) throw new Error(res.mensaje || "No se pudo crear el ticket.");
-      setCrearTarget(null);
-      cargarUsuario();
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setCrearLoading(false);
-    }
-  };
-
-  // ── Acciones técnico ──────────────────────────────────────────────────────
-  const handleTomar = async (ticketId) => {
-    setTomarLoading(ticketId);
-    try {
-      const res = await ticketsApi.tomar(ticketId);
-      if (res?.exito === false) throw new Error(res.mensaje || "No se pudo tomar el ticket.");
-      cargarTecnico();
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setTomarLoading(null);
-    }
-  };
-
-  const handleCerrar = async (body) => {
-    setCerrarLoading(true);
-    try {
-      const res = await ticketsApi.cerrar(cerrarTarget.ticketId, body);
-      if (res?.exito === false) throw new Error(res.mensaje || "No se pudo cerrar el ticket.");
-      setCerrarTarget(null);
-      esAdmin ? cargarAdmin() : cargarTecnico();
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setCerrarLoading(false);
-    }
-  };
-
-  // ── Acciones admin ────────────────────────────────────────────────────────
-  const handleCrearAdmin = async (body) => {
-    setCrearLoading(true);
-    try {
-      const res = await ticketsApi.crearAdmin(body);
-      if (res?.exito === false) throw new Error(res.mensaje || "No se pudo crear el ticket.");
-      setMostrarCrearAdmin(false);
-      cargarAdmin();
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setCrearLoading(false);
-    }
-  };
-
-  const handleAsignarTecnico = async (body) => {
-    setAsignarLoading(true);
-    try {
-      const res = await ticketsApi.asignarTecnico(asignarTarget.ticketId, body);
-      if (res?.exito === false) throw new Error(res.mensaje || "No se pudo asignar el técnico.");
-      setAsignarTarget(null);
-      cargarAdmin();
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setAsignarLoading(false);
-    }
-  };
+  // ── Acciones (hook) ───────────────────────────────────────────────────────
+  const A = useTicketAcciones({ cargarUsuario, cargarTecnico, cargarAdmin, esAdmin });
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div style={{ width: "100%", maxWidth: esAdmin ? 1200 : 900 }}>
-
       <div className="page-toolbar">
         <h2 style={{ margin: 0, flex: 1 }}>🎫 Tickets de soporte</h2>
       </div>
 
-      {error && (
-        <div style={{
-          background: "#fef2f2", border: "1px solid #fca5a5", borderRadius: 8,
-          padding: "10px 16px", marginBottom: 20, color: "#dc2626", fontSize: "0.9rem",
-          display: "flex", justifyContent: "space-between",
-        }}>
-          <span>⚠️ {error}</span>
-          <span role="button" tabIndex={0} onClick={() => setError("")}
-            onKeyDown={e => { if (e.key === "Enter") setError(""); }}
-            style={{ cursor: "pointer", fontWeight: 700 }}>×</span>
+      {A.error && (
+        <div style={{ background: "#fef2f2", border: "1px solid #fca5a5", borderRadius: 8, padding: "10px 16px", marginBottom: 20, color: "#dc2626", fontSize: "0.9rem", display: "flex", justifyContent: "space-between" }}>
+          <span>⚠️ {A.error}</span>
+          <span role="button" tabIndex={0} onClick={() => A.setError("")} onKeyDown={e => { if (e.key === "Enter") A.setError(""); }} style={{ cursor: "pointer", fontWeight: 700 }}>×</span>
         </div>
       )}
 
       {esAdmin ? (
-        <SeccionAdmin
-          todos={todosTickets}
-          loading={loadingTodos}
-          onCrear={() => setMostrarCrearAdmin(true)}
-          onAsignar={setAsignarTarget}
-          onCerrar={setCerrarTarget}
-        />
+        <SeccionAdmin todos={todosTickets} loading={loadingTodos}
+          onCrear={() => A.setMostrarCrearAdmin(true)}
+          onAsignar={A.setAsignarTarget}
+          onCerrar={A.setCerrarTarget} />
       ) : esTecnico ? (
         <SeccionTecnico
-          pendientes={pendientes}              asignados={asignados}
+          pendientes={pendientes} asignados={asignados}
           loadingPendientes={loadingPendientes} loadingAsignados={loadingAsignados}
-          onTomar={handleTomar}  onCerrar={setCerrarTarget}
-          tomarLoading={tomarLoading}
-        />
+          onTomar={A.handleTomar} onCerrar={A.setCerrarTarget}
+          tomarLoading={A.tomarLoading} />
       ) : (
         <SeccionUsuario
-          equipos={equipos}             tickets={misTickets}
+          equipos={equipos} tickets={misTickets}
           loadingEquipos={loadingEquipos} loadingTickets={loadingTickets}
-          onCrearTicket={setCrearTarget}
-        />
+          onCrearTicket={A.setCrearTarget}
+          onConfirmarTicket={A.setConfirmarTarget} />
       )}
 
-      {/* Modal crear ticket (usuario) */}
-      {crearTarget && (
+      {A.crearTarget && (
         <ModalCrearTicket
-          equipo={typeof crearTarget === "object" ? crearTarget : null}
-          equipos={typeof crearTarget !== "object" ? equipos : []}
-          onCrear={handleCrear}
-          onCerrar={() => setCrearTarget(null)}
-          loading={crearLoading}
-        />
+          equipo={typeof A.crearTarget === "object" ? A.crearTarget : null}
+          equipos={typeof A.crearTarget !== "object" ? equipos : []}
+          onCrear={A.handleCrear} onCerrar={() => A.setCrearTarget(null)}
+          loading={A.crearLoading} />
       )}
-
-      {/* Modal crear ticket (admin) */}
-      {mostrarCrearAdmin && (
+      {A.mostrarCrearAdmin && (
         <ModalCrearTicketAdmin
-          equipos={todosEquipos}
-          usuarios={todosUsuarios}
-          onCrear={handleCrearAdmin}
-          onCerrar={() => setMostrarCrearAdmin(false)}
-          loading={crearLoading}
-        />
+          equipos={todosEquipos} usuarios={todosUsuarios}
+          onCrear={A.handleCrearAdmin} onCerrar={() => A.setMostrarCrearAdmin(false)}
+          loading={A.crearLoading} />
       )}
-
-      {/* Modal asignar técnico (admin) */}
-      {asignarTarget && (
+      {A.asignarTarget && (
         <ModalAsignarTecnico
-          ticket={asignarTarget}
-          tecnicos={todosUsuarios}
-          onAsignar={handleAsignarTecnico}
-          onCerrar={() => setAsignarTarget(null)}
-          loading={asignarLoading}
-        />
+          ticket={A.asignarTarget} tecnicos={todosUsuarios}
+          onAsignar={A.handleAsignarTecnico} onCerrar={() => A.setAsignarTarget(null)}
+          loading={A.asignarLoading} />
       )}
-
-      {/* Modal cerrar ticket */}
-      {cerrarTarget && (
+      {A.cerrarTarget && (
         <ModalCerrarTicket
-          ticket={cerrarTarget}
-          onConfirmar={handleCerrar}
-          onCerrar={() => setCerrarTarget(null)}
-          loading={cerrarLoading}
-        />
+          ticket={A.cerrarTarget}
+          onConfirmar={A.handleCerrar} onCerrar={() => A.setCerrarTarget(null)}
+          loading={A.cerrarLoading} />
       )}
-
+      {A.confirmarTarget && (
+        <ModalConfirmarTicket
+          ticket={A.confirmarTarget}
+          onCerrar={() => A.setConfirmarTarget(null)}
+          onConfirmar={A.handleConfirmar}
+          onReclamar={A.handleReclamar}
+          loading={A.confirmarLoading} />
+      )}
     </div>
   );
 }
