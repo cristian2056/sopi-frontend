@@ -23,9 +23,10 @@ export default function EquipoWizard({ onCerrar, onEquipoCreado }) {
   const [pasoMaximo,   setPasoMaximo]   = useState(1);
 
   const handleEquipoCreado = (equipo) => {
+    // Se llama tanto al crear (nuevo) como al actualizar (volver al paso 1 y guardar)
     setEquipoCreado(equipo);
     setPasoActual(2);
-    setPasoMaximo(2);
+    setPasoMaximo(p => Math.max(p, 2));
     onEquipoCreado?.(equipo);
   };
 
@@ -90,7 +91,11 @@ export default function EquipoWizard({ onCerrar, onEquipoCreado }) {
         {/* Contenido scrolleable */}
         <div style={{ flex: 1, overflowY: "auto", padding: "16px 22px 22px" }}>
           {pasoActual === 1 && (
-            <PasoEquipo onCreado={handleEquipoCreado} onCancelar={onCerrar} />
+            <PasoEquipo
+              onCreado={handleEquipoCreado}
+              onCancelar={onCerrar}
+              equipoInicial={equipoCreado}  // null la 1ª vez → modo crear; el equipo ya creado → modo editar
+            />
           )}
           {pasoActual >= 2 && equipoCreado && (
             <PasoDetalle

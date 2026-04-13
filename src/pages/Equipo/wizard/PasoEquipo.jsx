@@ -14,14 +14,40 @@ const FORM_VACIO = {
   mantenimientoFrecuenciaDias: "", observaciones: "", activo: true, fotoId: 1,
 };
 
-export default function PasoEquipo({ onCreado, onCancelar }) {
-  const [form, setForm]               = useState(FORM_VACIO);
+// Convierte un EquipoDto del backend al shape del form local
+const equipoAForm = (eq) => ({
+  codigoPatrimonial:          eq.codigoPatrimonial               ?? "",
+  codigoInterno:              eq.codigoInterno                   ?? "",
+  serial:                     eq.serial                          ?? "",
+  nombre:                     eq.nombre                          ?? "",
+  tipoActivoId:               eq.tipoActivoId                    ?? "",
+  marcaId:                    eq.marcaId                         ?? "",
+  proveedorId:                eq.proveedorId                     ?? "",
+  estado:                     eq.estado                          ?? "ACTIVO",
+  // Las fechas vienen como "YYYY-MM-DD" desde la API, el input date las acepta así
+  fechaGarantia:              (eq.fechaGarantia            ?? "").substring(0, 10),
+  numeroFactura:              eq.numeroFactura                   ?? "",
+  mantenimientoProximaFecha:  (eq.mantenimientoProximaFecha ?? "").substring(0, 10),
+  mantenimientoFrecuenciaDias: eq.mantenimientoFrecuenciaDias    ?? "",
+  observaciones:              eq.observaciones                   ?? "",
+  activo:                     eq.activo                          ?? true,
+  fotoId:                     eq.fotoId                          ?? 1,
+});
+
+export default function PasoEquipo({ onCreado, onCancelar, equipoInicial }) {
+  const modoEdicion = !!equipoInicial;
+  const [form, setForm]               = useState(modoEdicion ? equipoAForm(equipoInicial) : FORM_VACIO);
   const [marcas, setMarcas]           = useState([]);
   const [tiposActivo, setTiposActivo] = useState([]);
   const [proveedores, setProveedores] = useState([]);
   const [loadingListas, setLoadingListas] = useState(true);
   const [guardando, setGuardando]     = useState(false);
   const [error, setError]             = useState("");
+
+  // Si el usuario vuelve al paso 1 con el equipo ya creado, recarga los datos
+  useEffect(() => {
+    if (equipoInicial) setForm(equipoAForm(equipoInicial));
+  }, [equipoInicial?.equipoId]);
 
   useEffect(() => {
     Promise.all([
@@ -56,11 +82,19 @@ export default function PasoEquipo({ onCreado, onCancelar }) {
         nombre:                      form.nombre.trim()             || null,
         numeroFactura:               form.numeroFactura.trim()      || null,
       };
-      const resultado = await equiposApi.crear(payload);
-      if (!resultado.exito) throw new Error(resultado.mensaje || "No se pudo crear el equipo.");
+
+      let resultado;
+      if (modoEdicion) {
+        // El equipo ya existe → actualizar con los datos modificados
+        resultado = await equiposApi.actualizar(equipoInicial.equipoId, payload);
+        if (!resultado.exito) throw new Error(resultado.mensaje || "No se pudo actualizar el equipo.");
+      } else {
+        resultado = await equiposApi.crear(payload);
+        if (!resultado.exito) throw new Error(resultado.mensaje || "No se pudo crear el equipo.");
+      }
       onCreado(resultado.datos);
     } catch (e) {
-      setError(e.message || "Error al crear el equipo.");
+      setError(e.message || (modoEdicion ? "Error al actualizar el equipo." : "Error al crear el equipo."));
     } finally {
       setGuardando(false);
     }
@@ -185,7 +219,10 @@ export default function PasoEquipo({ onCreado, onCancelar }) {
           onMouseEnter={e => { if (!guardando) e.currentTarget.style.background = COLOR.primaryHover; }}
           onMouseLeave={e => { if (!guardando) e.currentTarget.style.background = COLOR.primary; }}
         >
-          {guardando ? "Creando equipo..." : "Crear equipo y continuar →"}
+          {guardando
+            ? (modoEdicion ? "Guardando cambios..." : "Creando equipo...")
+            : (modoEdicion ? "Guardar cambios y continuar →" : "Crear equipo y continuar →")
+          }
         </button>
       </div>
     </form>
