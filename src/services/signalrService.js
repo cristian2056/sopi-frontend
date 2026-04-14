@@ -3,7 +3,7 @@
 // Se conecta una sola vez y re-emite eventos a los suscriptores.
 import * as signalR from "@microsoft/signalr";
 
-const BASE_URL = import.meta.env.VITE_API_URL ?? "";
+const BASE_URL = import.meta.env.VITE_API_BASE_URI ?? "";
 
 let connection = null;
 const listeners = {};   // { evento: Set<fn> }
