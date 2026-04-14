@@ -42,12 +42,15 @@ export default function UsuariosPage() {
       ]);
       const toArr = (v) => Array.isArray(v) ? v : v ? [v] : [];
       const usuariosMap = {};
+      // La API devuelve activos e inactivos — se mapean todos para el filtro
       toArr(dataUsuarios.datos).forEach(u => { usuariosMap[u.usuarioId] = u; });
       const personas = toArr(dataPersonas.datos);
       personas.forEach(p => {
         if (!p.usuario?.usuarioId) return;
         const full = usuariosMap[p.usuario.usuarioId];
         if (full) p.usuario = { ...p.usuario, rolId: full.rolId, dependenciaId: full.dependenciaId, activo: full.activo };
+        // Si no está en el mapa (no debería pasar, pero por seguridad) → marcar inactivo
+        else p.usuario = { ...p.usuario, activo: false };
       });
       setItems(personas);
       setRoles(toArr(dataRoles.datos));
