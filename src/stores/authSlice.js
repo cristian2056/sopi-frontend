@@ -1,11 +1,19 @@
 // src/store/authSlice.js
+// Estado de autenticación en Redux (memoria del navegador, se pierde al cerrar pestaña).
+// El accessToken vive SOLO aquí — nunca en localStorage para evitar ataques XSS.
+// El refreshToken vive en la cookie HttpOnly del navegador (invisible para JS).
+//
+// Dependencias del flujo:
+//   LoginPage  → dispatch(setCredentials)  después de login exitoso
+//   http.js    → dispatch(setCredentials)  después de refresh exitoso
+//   http.js    → dispatch(logoutLocal)     cuando el refresh falla (sesión vencida)
+//   Navbar/etc → dispatch(logoutLocal)     cuando el usuario cierra sesión manualmente
 import { createSlice } from "@reduxjs/toolkit";
 
-//guarda datos de quien esta en la web
 const initialState = {
-  usuario: null,        // nombre, tipo, roles, etc.
-  accessToken: null,    // el JWT 
-  isAuthenticated: false, // si hay sesión activa
+  usuario: null,           // datos de sesión: id, nombre, rolId, rolNombre
+  accessToken: null,       // JWT de corta duración — se usa en cada request
+  isAuthenticated: false,  // true mientras haya token válido en memoria
 };
 
 const authSlice = createSlice({

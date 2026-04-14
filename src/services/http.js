@@ -1,5 +1,15 @@
 // src/services/http.js
-// Versión actualizada: inyecta el accessToken y maneja refresh automático en 401
+// Cliente HTTP centralizado. Toda llamada a la API pasa por aquí.
+//
+// DEPENDENCIAS DEL TOKEN:
+//   • Lee  accessToken de Redux (store.getState().auth.accessToken)
+//   • Lo inyecta en "Authorization: Bearer <token>" en cada request
+//   • Si la API responde 401 (token vencido):
+//       1. Llama a /auth/refresh (cookie HttpOnly viaja sola)
+//       2. Refresh exitoso  → actualiza Redux y reintenta el request original
+//       3. Refresh fallido  → logoutLocal() + error "Sesión expirada"
+//   • Los requests que llegan mientras hay un refresh en curso se encolan
+//     en refreshQueue y se reintentan con el nuevo token al terminar
 
 import { store } from "../stores/store";
 import { setCredentials, logoutLocal } from "../stores/authSlice";
