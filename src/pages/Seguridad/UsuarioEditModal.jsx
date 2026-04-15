@@ -41,7 +41,8 @@ export default function UsuarioEditModal({ persona, onGuardado, onCerrar }) {
   // ── Estado ────────────────────────────────────────────────────────────────
   const [tab, setTab] = useState(modoEditar ? "persona" : "cuenta");
 
-  const [datosPersona, setDatosPersona] = useState({
+  // Snapshot original para detectar si los datos de persona cambiaron
+  const personaOriginal = {
     tipoDocumento:    persona.tipoDocumento    ?? "DNI",
     numeroDocumento:  persona.numeroDocumento  ?? "",
     nombres:          persona.nombres          ?? "",
@@ -51,7 +52,9 @@ export default function UsuarioEditModal({ persona, onGuardado, onCerrar }) {
     email:            persona.email            ?? "",
     telefono:         persona.telefono         ?? "",
     direccion:        persona.direccion        ?? "",
-  });
+  };
+
+  const [datosPersona, setDatosPersona] = useState({ ...personaOriginal });
 
   const [datosCuenta, setDatosCuenta] = useState({
     userName:        usuario?.userName      ?? "",
@@ -101,15 +104,20 @@ export default function UsuarioEditModal({ persona, onGuardado, onCerrar }) {
     setGuardando(true);
     try {
       if (modoEditar) {
-        // Normalizar: string vacío → null para que el backend no rechace campos opcionales
-        const payloadPersona = {
-          ...datosPersona,
-          email:    datosPersona.email?.trim()    || null,
-          telefono: datosPersona.telefono?.trim() || null,
-          direccion: datosPersona.direccion?.trim() || null,
-        };
-        const resP = await personalApi.actualizarPersona(persona.personaId, payloadPersona);
-        if (resP?.exito === false) throw new Error(resP.mensaje || "No se pudo actualizar la persona.");
+        // Solo actualizar persona si realmente cambió algún dato (evita llamada innecesaria)
+        const personaCambio = Object.keys(personaOriginal).some(
+          k => (datosPersona[k] ?? "") !== (personaOriginal[k] ?? "")
+        );
+        if (personaCambio) {
+          const payloadPersona = {
+            ...datosPersona,
+            email:     datosPersona.email?.trim()     || null,
+            telefono:  datosPersona.telefono?.trim()  || null,
+            direccion: datosPersona.direccion?.trim() || null,
+          };
+          const resP = await personalApi.actualizarPersona(persona.personaId, payloadPersona);
+          if (resP?.exito === false) throw new Error(resP.mensaje || "No se pudo actualizar la persona.");
+        }
 
         const bodyU = {
           userName:      datosCuenta.userName,
