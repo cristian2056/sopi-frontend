@@ -101,7 +101,14 @@ export default function UsuarioEditModal({ persona, onGuardado, onCerrar }) {
     setGuardando(true);
     try {
       if (modoEditar) {
-        const resP = await personalApi.actualizarPersona(persona.personaId, datosPersona);
+        // Normalizar: string vacío → null para que el backend no rechace campos opcionales
+        const payloadPersona = {
+          ...datosPersona,
+          email:    datosPersona.email?.trim()    || null,
+          telefono: datosPersona.telefono?.trim() || null,
+          direccion: datosPersona.direccion?.trim() || null,
+        };
+        const resP = await personalApi.actualizarPersona(persona.personaId, payloadPersona);
         if (resP?.exito === false) throw new Error(resP.mensaje || "No se pudo actualizar la persona.");
 
         const bodyU = {
