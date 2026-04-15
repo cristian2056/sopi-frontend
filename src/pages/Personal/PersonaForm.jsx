@@ -13,6 +13,14 @@ const EMAIL_RE  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export default function PersonaForm({ initialData = {}, onSubmit, loading, onCancel, modoUsuario = false, error = "" }) {
   const esEdicion = !!initialData.personaId;
 
+  // Cuando el padre reporta un error de backend, mostrarlo en el mismo diálogo
+  useEffect(() => {
+    if (error) {
+      setDialogTitulo("No se pudo guardar");
+      setDialogError(error);
+    }
+  }, [error]);
+
   const [datos, setDatos] = useState({
     tipoDocumento:    initialData.tipoDocumento    ?? "DNI",
     numeroDocumento:  initialData.numeroDocumento  ?? "",
@@ -32,8 +40,9 @@ export default function PersonaForm({ initialData = {}, onSubmit, loading, onCan
 
   const [dependencias,  setDependencias]  = useState([]);
   const [roles,         setRoles]         = useState([]);
-  const [dialogError,   setDialogError]   = useState(""); // error de validación por campo
-  const [depError,      setDepError]      = useState(""); // error al cargar dependencias
+  const [dialogError,   setDialogError]   = useState("");
+  const [dialogTitulo,  setDialogTitulo]  = useState("Dato incorrecto");
+  const [depError,      setDepError]      = useState("");
 
   useEffect(() => {
     dependenciasApi.listar()
@@ -80,7 +89,11 @@ export default function PersonaForm({ initialData = {}, onSubmit, loading, onCan
 
   const handleSubmit = () => {
     const err = validar();
-    if (err) { setDialogError(err); return; }
+    if (err) {
+      setDialogTitulo("Dato incorrecto");
+      setDialogError(err);
+      return;
+    }
     onSubmit(datos);
   };
 
@@ -175,12 +188,6 @@ export default function PersonaForm({ initialData = {}, onSubmit, loading, onCan
           </>
         )}
 
-        {error && (
-          <div style={{ marginTop:14, background:"#fef2f2", border:"1px solid #fca5a5", borderRadius:8, padding:"10px 14px", color:"#dc2626", fontSize:"0.88rem" }}>
-            ⚠️ {error}
-          </div>
-        )}
-
         <div style={{ display:"flex", justifyContent:"flex-end", gap:10, marginTop:8 }}>
           <button onClick={onCancel} disabled={loading}
             style={{ padding:"9px 22px", borderRadius:8, border:"1px solid #d1d5db", background:"#fff", cursor:"pointer", fontWeight:600 }}>
@@ -193,11 +200,11 @@ export default function PersonaForm({ initialData = {}, onSubmit, loading, onCan
         </div>
       </div>
 
-      {/* Diálogo de validación — muestra el campo con error para que el usuario lo corrija */}
+      {/* Diálogo unificado: validación de campo O error del servidor */}
       <ModalDialog
         open={!!dialogError}
         variant="error"
-        title="Dato incorrecto"
+        title={dialogTitulo}
         message={dialogError}
         onClose={() => setDialogError("")}
         confirmText="Entendido"

@@ -86,6 +86,7 @@ export default function UsuariosPage() {
   };
 
   const handleGuardar = async (valores) => {
+    setFormError(""); // limpiar antes para que useEffect en PersonaForm siempre dispare
     setFormLoading(true);
     try {
       const respPersona = await personalApi.crearPersona({
